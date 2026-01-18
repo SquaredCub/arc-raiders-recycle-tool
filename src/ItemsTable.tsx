@@ -19,10 +19,15 @@ import { useData } from "./hooks/useData";
 import ItemCell from "./ItemCell";
 import Table from "./Table";
 import type { Item } from "./types";
+import {
+  createNoResultsItem,
+  DEFAULT_LANGUAGE,
+  filterItemsBySearch,
+  isNoResultsItem,
+  sortMaterialsByName,
+} from "./utils/functions";
 
 const fallbackData: Item[] = [];
-
-const language = "en";
 
 const columnHelper = createColumnHelper<Item>();
 
@@ -35,8 +40,6 @@ const ItemsTable = ({ searchTerm }: { searchTerm: string }) => {
     () => getItemRequirements(hideoutBenches, quests, projects),
     [hideoutBenches, quests, projects]
   );
-
-  const data = useMemo(() => items, [items]);
 
   const [sorting, setSorting] = React.useState<SortingState>([
     {
@@ -54,14 +57,14 @@ const ItemsTable = ({ searchTerm }: { searchTerm: string }) => {
         cell: (info) => {
           const item = info.row.original;
           // Handle "no results" placeholder
-          if (item.id === "no-results") {
-            return <span>{item.name[language]}</span>;
+          if (isNoResultsItem(item.id)) {
+            return <span>{item.name[DEFAULT_LANGUAGE]}</span>;
           }
           const imageSrc = getItemImage(item);
           return (
             <ItemCell
               id={item.id}
-              name={item.name[language]}
+              name={item.name[DEFAULT_LANGUAGE] || item.name.en}
               imageSrc={imageSrc}
             />
           );
@@ -75,7 +78,7 @@ const ItemsTable = ({ searchTerm }: { searchTerm: string }) => {
         cell: (info) => {
           const item = info.row.original;
           // Handle "no results" placeholder
-          if (item.id === "no-results") {
+          if (isNoResultsItem(item.id)) {
             return <span>-</span>;
           }
           const recycleData = info.getValue();
@@ -83,16 +86,13 @@ const ItemsTable = ({ searchTerm }: { searchTerm: string }) => {
             return <span>-</span>;
           }
           // Sort materials alphabetically by name
-          const sortedEntries = Object.entries(recycleData).sort(
-            ([materialA], [materialB]) => {
-              return formatMaterialName(materialA).localeCompare(
-                formatMaterialName(materialB)
-              );
-            }
+          const sortedEntries = sortMaterialsByName(
+            Object.entries(recycleData),
+            formatMaterialName
           );
 
           return (
-            <div style={{ display: "flex", flexDirection: "column" }}>
+            <div className="recycles-container">
               {sortedEntries.map(([material, quantity]) => {
                 const materialImage = getMaterialImage(material);
                 const materialName = `${quantity} x ${formatMaterialName(
@@ -118,7 +118,7 @@ const ItemsTable = ({ searchTerm }: { searchTerm: string }) => {
         cell: (info) => {
           const itemId = info.getValue();
           // Handle "no results" placeholder
-          if (itemId === "no-results") {
+          if (isNoResultsItem(itemId)) {
             return <span>-</span>;
           }
           const requirements = itemRequirements[itemId];
@@ -128,13 +128,11 @@ const ItemsTable = ({ searchTerm }: { searchTerm: string }) => {
           }
 
           return (
-            <div
-              style={{ display: "flex", flexDirection: "column", gap: "4px" }}
-            >
-              <div style={{ fontWeight: "bold" }}>
+            <div className="needed-for-container">
+              <div className="needed-for-total">
                 Total: {requirements.totalQuantity}
               </div>
-              <div style={{ fontSize: "0.9em", color: "#666" }}>
+              <div className="needed-for-list">
                 {requirements.usedIn.map((usage, index) => (
                   <div key={index}>
                     • {usage.source} ({usage.quantity})
@@ -159,24 +157,16 @@ const ItemsTable = ({ searchTerm }: { searchTerm: string }) => {
         cell: (info) => {
           const item = info.row.original;
           // Handle "no results" placeholder
-          if (item.id === "no-results") {
+          if (isNoResultsItem(item.id)) {
             return <span>-</span>;
           }
           return (
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "4px",
-                textAlign: "center",
-                padding: "12px",
-              }}
-            >
+            <div className="value-container">
               <span>{info.getValue()}</span>
               <img
                 src={coinsPng}
                 alt="Coins"
-                style={{ width: "18px", height: "18px", paddingTop: "2px" }}
+                className="value-coin-icon"
               />
             </div>
           );
@@ -190,62 +180,20 @@ const ItemsTable = ({ searchTerm }: { searchTerm: string }) => {
 
   // Filter data based on search term and sort by match type
   const filteredData = useMemo(() => {
-    if (!searchTerm.trim()) {
-      return data;
-    }
-
-    const lowerSearchTerm = searchTerm.toLowerCase();
-
-    // Separate items into two groups: name matches and material matches
-    const nameMatches: Item[] = [];
-    const materialMatches: Item[] = [];
-
-    for (const item of data) {
-      const itemName = item.name[language].toLowerCase();
-
-      // Check if item name matches
-      if (itemName.includes(lowerSearchTerm)) {
-        nameMatches.push(item);
-        continue;
-      }
-
-      // Check if any material in recyclesInto matches
-      if (item.recyclesInto) {
-        const materials = Object.keys(item.recyclesInto);
-        const hasMatch = materials.some((material) => {
-          const materialName = formatMaterialName(material).toLowerCase();
-          return materialName.includes(lowerSearchTerm);
-        });
-
-        if (hasMatch) {
-          materialMatches.push(item);
-        }
-      }
-    }
-
-    const results = [...nameMatches, ...materialMatches];
+    const results = filterItemsBySearch(
+      items,
+      searchTerm,
+      formatMaterialName,
+      DEFAULT_LANGUAGE
+    );
 
     // If no results found, return a placeholder item
     if (results.length === 0) {
-      return [
-        {
-          id: "no-results",
-          name: { en: `No items found matching "${searchTerm}"` },
-          description: { en: "" },
-          type: "",
-          rarity: "",
-          value: 0,
-          weightKg: 0,
-          stackSize: 0,
-          imageFilename: "",
-          updatedAt: "",
-        } as Item,
-      ];
+      return [createNoResultsItem(searchTerm)];
     }
 
-    // Return name matches first, then material matches
     return results;
-  }, [data, searchTerm]);
+  }, [items, searchTerm]);
 
   // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({

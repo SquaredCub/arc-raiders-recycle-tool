@@ -1,13 +1,32 @@
-import type { Item, HideoutBench, Quest, Project } from "../types";
+import type { HideoutBench, Item, Project, Quest } from "../types";
 
 // Configuration
-const GITHUB_OWNER = import.meta.env.VITE_GITHUB_OWNER;
-const GITHUB_REPO = import.meta.env.VITE_GITHUB_REPO;
+const GITHUB_OWNER = import.meta.env.VITE_GITHUB_OWNER || "SquaredCub";
+const GITHUB_REPO = import.meta.env.VITE_GITHUB_REPO || "arcraiders-data";
 const GITHUB_BRANCH = import.meta.env.VITE_GITHUB_BRANCH || "main";
-const USE_LOCAL_DATA = import.meta.env.VITE_USE_LOCAL_DATA === "true";
 
 // Base URL for GitHub raw content
 const GITHUB_RAW_BASE_URL = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${GITHUB_BRANCH}`;
+
+/**
+ * Data source configuration
+ * Set FORCE_REMOTE to true to always fetch from GitHub, even in development
+ */
+const FORCE_REMOTE = false;
+
+/**
+ * Determine if we should use local data based on the current URL
+ * Uses local data when running on localhost, unless FORCE_REMOTE is true
+ */
+const isLocalhost = () => {
+  return (
+    window.location.hostname === "localhost" ||
+    window.location.hostname === "127.0.0.1" ||
+    window.location.hostname === ""
+  );
+};
+
+export const USE_LOCAL_DATA = !FORCE_REMOTE && isLocalhost();
 
 /**
  * Cache management
@@ -80,7 +99,9 @@ async function listGitHubDirectory(directory: string): Promise<string[]> {
   const response = await fetch(apiUrl);
 
   if (!response.ok) {
-    throw new Error(`Failed to list directory ${directory}: ${response.statusText}`);
+    throw new Error(
+      `Failed to list directory ${directory}: ${response.statusText}`
+    );
   }
 
   const entries: GitHubFileEntry[] = await response.json();
@@ -236,7 +257,10 @@ export async function fetchHideoutBenches(): Promise<HideoutBench[]> {
     "workbench.json",
   ];
 
-  const benches = await fetchDirectoryFiles<HideoutBench>("hideout", benchFiles);
+  const benches = await fetchDirectoryFiles<HideoutBench>(
+    "hideout",
+    benchFiles
+  );
   setCachedData(cacheKey, benches);
   return benches;
 }
@@ -265,15 +289,9 @@ export async function fetchProjects(): Promise<Project[]> {
 }
 
 /**
- * Get image URL for an item
+ * Get image URL for an item from GitHub
  */
 export function getImageUrl(path: string): string {
-  if (USE_LOCAL_DATA) {
-    // In local development, we'll need to handle this differently
-    // For now, return the GitHub URL anyway
-    return `${GITHUB_RAW_BASE_URL}/${path}`;
-  }
-
   return `${GITHUB_RAW_BASE_URL}/${path}`;
 }
 

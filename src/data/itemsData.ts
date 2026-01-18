@@ -1,7 +1,5 @@
 import type { Item } from "../types";
-import { getImageUrl } from "../services/dataService";
-
-const USE_LOCAL_DATA = import.meta.env.VITE_USE_LOCAL_DATA === "true";
+import { getImageUrl, USE_LOCAL_DATA } from "../services/dataService";
 
 // Import all images from the items directory (only for local development)
 const imageMap: Record<string, string> = {};
