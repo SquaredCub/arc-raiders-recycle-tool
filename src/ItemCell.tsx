@@ -11,6 +11,9 @@ const ItemCell = ({
 }) => {
   return (
     <div className="cell-item">
+      <figure className="cell-item__image">
+        {imageSrc ? <img src={imageSrc} alt={name} /> : null}
+      </figure>
       <span className="cell-item__name">
         {id ? (
           <a
@@ -24,9 +27,6 @@ const ItemCell = ({
           name
         )}
       </span>
-      <figure className="cell-item__image">
-        {imageSrc ? <img src={imageSrc} alt={name} /> : null}
-      </figure>
     </div>
   );
 };

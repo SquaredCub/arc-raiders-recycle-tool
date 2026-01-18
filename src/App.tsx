@@ -1,31 +1,23 @@
 import { useState } from "react";
 import "./App.scss";
-import ItemsTable from "./ItemsTable";
-import SearchInput from "./SearchInput";
+import Navigation from "./components/Navigation";
+import ProfitableItems from "./components/ProfitableItems";
+import RecyclingTools from "./RecyclingTools";
 
 function App() {
-  const [searchTerm, setSearchTerm] = useState("");
+  const [activePage, setActivePage] = useState<"recycling" | "crafts">(
+    "recycling"
+  );
+
+  const onNavigate = (page: "recycling" | "crafts") => {
+    setActivePage(page);
+  };
 
   return (
     <>
-      <h1>Arc Raiders Recycle Tool</h1>
-      <section id="introduction">
-        <p>Welcome to the Arc Raiders Recycle Tool!</p>
-        <p>
-          This is a list of all the items in the game and what they recycle
-          into.
-        </p>
-        <p>
-          Search an item by name to see its recycle results or what to recycle
-          to obtain it.
-        </p>
-      </section>
-      <section id="controls">
-        <SearchInput searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
-      </section>
-      <section id="table">
-        <ItemsTable searchTerm={searchTerm} />
-      </section>
+      <Navigation activePage={activePage} onNavigate={onNavigate} />
+      {activePage === "recycling" && <RecyclingTools />}
+      {activePage === "crafts" && <ProfitableItems />}
     </>
   );
 }
