@@ -9,13 +9,13 @@ import React, { useMemo } from "react";
 import coinsPng from "./arcraiders-data/images/coins.png";
 import ErrorMessage from "./components/ErrorMessage";
 import LoadingSpinner from "./components/LoadingSpinner";
-import { useData } from "./hooks/useData";
 import {
   formatMaterialName,
   getItemImage,
   getMaterialImage,
 } from "./data/itemsData";
 import { getItemRequirements } from "./data/requirementsData";
+import { useData } from "./hooks/useData";
 import ItemCell from "./ItemCell";
 import Table from "./Table";
 import type { Item } from "./types";
@@ -53,8 +53,18 @@ const ItemsTable = ({ searchTerm }: { searchTerm: string }) => {
         header: () => <span>Item</span>,
         cell: (info) => {
           const item = info.row.original;
+          // Handle "no results" placeholder
+          if (item.id === "no-results") {
+            return <span>{item.name[language]}</span>;
+          }
           const imageSrc = getItemImage(item);
-          return <ItemCell name={item.name[language]} imageSrc={imageSrc} />;
+          return (
+            <ItemCell
+              id={item.id}
+              name={item.name[language]}
+              imageSrc={imageSrc}
+            />
+          );
         },
         footer: (info) => info.column.id,
         enableSorting: true,
@@ -63,6 +73,11 @@ const ItemsTable = ({ searchTerm }: { searchTerm: string }) => {
         id: "recycles",
         header: () => <span>Recycles Into</span>,
         cell: (info) => {
+          const item = info.row.original;
+          // Handle "no results" placeholder
+          if (item.id === "no-results") {
+            return <span>-</span>;
+          }
           const recycleData = info.getValue();
           if (!recycleData || Object.keys(recycleData).length === 0) {
             return <span>-</span>;
@@ -102,6 +117,10 @@ const ItemsTable = ({ searchTerm }: { searchTerm: string }) => {
         header: () => <span>Needed For</span>,
         cell: (info) => {
           const itemId = info.getValue();
+          // Handle "no results" placeholder
+          if (itemId === "no-results") {
+            return <span>-</span>;
+          }
           const requirements = itemRequirements[itemId];
 
           if (!requirements) {
@@ -137,24 +156,31 @@ const ItemsTable = ({ searchTerm }: { searchTerm: string }) => {
       }),
       columnHelper.accessor("value", {
         header: () => <span>Value</span>,
-        cell: (info) => (
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "4px",
-              textAlign: "center",
-              padding: "12px",
-            }}
-          >
-            <span>{info.getValue()}</span>
-            <img
-              src={coinsPng}
-              alt="Coins"
-              style={{ width: "18px", height: "18px", paddingTop: "2px" }}
-            />
-          </div>
-        ),
+        cell: (info) => {
+          const item = info.row.original;
+          // Handle "no results" placeholder
+          if (item.id === "no-results") {
+            return <span>-</span>;
+          }
+          return (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "4px",
+                textAlign: "center",
+                padding: "12px",
+              }}
+            >
+              <span>{info.getValue()}</span>
+              <img
+                src={coinsPng}
+                alt="Coins"
+                style={{ width: "18px", height: "18px", paddingTop: "2px" }}
+              />
+            </div>
+          );
+        },
         footer: (info) => info.column.id,
         enableSorting: true,
       }),
