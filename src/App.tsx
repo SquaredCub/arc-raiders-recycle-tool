@@ -1,6 +1,6 @@
 import { useState } from "react";
 import "./App.scss";
-import Navigation from "./components/Navigation";
+import Navigation, { type NavigationPage } from "./components/Navigation";
 import ProfitableItems from "./components/ProfitableItems";
 import RecyclingTools from "./RecyclingTools";
 
@@ -9,8 +9,15 @@ function App() {
     "recycling"
   );
 
-  const onNavigate = (page: "recycling" | "crafts") => {
-    setActivePage(page);
+  const onNavigate = (page: NavigationPage) => {
+    if (page === "github") {
+      window.open(
+        "https://github.com/SquaredCub/arc-raiders-recycle-tool",
+        "_blank"
+      );
+    } else {
+      setActivePage(page);
+    }
   };
 
   return (
