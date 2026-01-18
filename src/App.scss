@@ -58,7 +58,6 @@ h1 {
       display: grid;
       grid-template-columns: 1fr 4fr;
       grid-template-areas: "image name";
-      gap: 0.5rem;
 
       &__name {
         grid-area: name;
@@ -77,6 +76,43 @@ h1 {
       }
     }
   }
+
+  // Recycles column
+  .recycles-container {
+    display: flex;
+    flex-direction: column;
+  }
+
+  // Needed For column
+  .needed-for-container {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .needed-for-total {
+    font-weight: bold;
+  }
+
+  .needed-for-list {
+    font-size: 0.9em;
+    color: #666;
+  }
+
+  // Value column
+  .value-container {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    text-align: center;
+    padding: 12px;
+  }
+
+  .value-coin-icon {
+    width: 18px;
+    height: 18px;
+    padding-top: 2px;
+  }
 }
 
 .cursor-pointer {
@@ -88,11 +124,10 @@ h1 {
 
 .search-input {
   width: 300px;
-  font-size: 1rem;
-  border: 1px solid #477ebd;
+  border: 1px solid #70a7e6;
   &--focused {
-    box-shadow: 0 0 5px #477ebd;
-    border-color: #82b8f1;
+    box-shadow: 0 0 5px #70a7e6;
+    border-color: #a3cdfa;
   }
 
   border-radius: 4px;
@@ -107,8 +142,12 @@ h1 {
 }
 
 a {
-  color: #adb1ff;
+  color: #70a7e6;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 0.5rem;
   padding: 0.5rem;
+  &:hover {
+    color: #a3cdfa;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
 }
