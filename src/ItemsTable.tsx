@@ -72,6 +72,14 @@ const ItemsTable = ({ searchTerm }: { searchTerm: string }) => {
         enableSorting: true,
         sortDescFirst: true,
         invertSorting: true,
+        sortingFn: (rowA, rowB) => {
+          // Always sort by name in the default language (or fallback to 'en')
+          const nameA =
+            rowA.original.name[DEFAULT_LANGUAGE] || rowA.original.name.en || "";
+          const nameB =
+            rowB.original.name[DEFAULT_LANGUAGE] || rowB.original.name.en || "";
+          return nameA.localeCompare(nameB, undefined, { sensitivity: "base" });
+        },
       }),
       columnHelper.accessor("recyclesInto", {
         id: "recycles",
