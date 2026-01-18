@@ -1,5 +1,6 @@
 #root {
-  margin: auto;
+  width: 100%;
+  margin-top: 2rem;
 }
 
 h1 {
@@ -21,6 +22,15 @@ h1 {
     padding: 0.5rem;
   }
   margin-bottom: 1rem;
+}
+
+.profitable-items,
+.recycling-tools {
+  margin: 0 auto;
+  width: 100%;
+}
+.recycling-tools table {
+  margin: 0 auto;
 }
 
 #table {
@@ -52,7 +62,8 @@ h1 {
     background-color: rgba(242, 242, 242, 0.04);
   }
   .table-cell {
-    border: 1px solid white;
+    // border: 1px solid white;
+    border: 1px solid rgba(255, 255, 255, 0.1);
 
     .cell-item {
       display: grid;

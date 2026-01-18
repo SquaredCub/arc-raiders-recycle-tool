@@ -70,6 +70,7 @@ export interface Item {
   salvagesInto?: MaterialCosts;
   recipe?: MaterialCosts;
   craftBench?: string | string[];
+  craftQuantity?: number;
   effects?: ItemEffects;
   foundIn?: string;
 }
