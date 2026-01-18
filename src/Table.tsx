@@ -61,22 +61,6 @@ const Table = <T,>({ table, className }: TableProps<T>) => {
           </tr>
         ))}
       </tbody>
-      <tfoot className="table-footer">
-        {table.getFooterGroups().map((footerGroup) => (
-          <tr key={footerGroup.id} className="table-row">
-            {footerGroup.headers.map((header) => (
-              <th key={header.id} className="table-cell">
-                {header.isPlaceholder
-                  ? null
-                  : flexRender(
-                      header.column.columnDef.footer,
-                      header.getContext()
-                    )}
-              </th>
-            ))}
-          </tr>
-        ))}
-      </tfoot>
     </table>
   );
 };
