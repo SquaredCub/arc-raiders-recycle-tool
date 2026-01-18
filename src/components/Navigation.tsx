@@ -1,6 +1,6 @@
 import "./Navigation.scss";
 
-export type NavigationPage = "recycling" | "crafts";
+export type NavigationPage = "recycling" | "crafts" | "github";
 
 interface NavigationProps {
   activePage: NavigationPage;
@@ -25,6 +25,14 @@ const Navigation = ({ activePage, onNavigate }: NavigationProps) => {
         onClick={() => onNavigate("crafts")}
       >
         Profitable Crafts
+      </button>
+      <button
+        className={`navigation__item ${
+          activePage === "github" ? "navigation__item--active" : ""
+        }`}
+        onClick={() => onNavigate("github")}
+      >
+        Github Repository
       </button>
     </nav>
   );
