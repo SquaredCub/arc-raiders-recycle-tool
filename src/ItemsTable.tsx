@@ -44,7 +44,7 @@ const ItemsTable = ({ searchTerm }: { searchTerm: string }) => {
   const [sorting, setSorting] = React.useState<SortingState>([
     {
       id: "item",
-      desc: false,
+      desc: true,
     },
   ]);
 
@@ -69,8 +69,9 @@ const ItemsTable = ({ searchTerm }: { searchTerm: string }) => {
             />
           );
         },
-        footer: (info) => info.column.id,
         enableSorting: true,
+        sortDescFirst: true,
+        invertSorting: true,
       }),
       columnHelper.accessor("recyclesInto", {
         id: "recycles",
@@ -109,7 +110,6 @@ const ItemsTable = ({ searchTerm }: { searchTerm: string }) => {
             </div>
           );
         },
-        footer: (info) => info.column.id,
         enableSorting: false,
       }),
       columnHelper.accessor("id", {
@@ -142,8 +142,8 @@ const ItemsTable = ({ searchTerm }: { searchTerm: string }) => {
             </div>
           );
         },
-        footer: (info) => info.column.id,
         enableSorting: true,
+        sortDescFirst: true,
         sortingFn: (rowA, rowB) => {
           const reqA = itemRequirements[rowA.original.id];
           const reqB = itemRequirements[rowB.original.id];
@@ -163,16 +163,12 @@ const ItemsTable = ({ searchTerm }: { searchTerm: string }) => {
           return (
             <div className="value-container">
               <span>{info.getValue()}</span>
-              <img
-                src={coinsPng}
-                alt="Coins"
-                className="value-coin-icon"
-              />
+              <img src={coinsPng} alt="Coins" className="value-coin-icon" />
             </div>
           );
         },
-        footer: (info) => info.column.id,
         enableSorting: true,
+        sortDescFirst: true,
       }),
     ],
     [itemRequirements]
