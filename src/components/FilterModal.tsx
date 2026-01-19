@@ -1,8 +1,8 @@
 import { useRef } from "react";
 import { FILTERABLE_ITEM_CATEGORIES } from "../constants/itemCategories";
 import useModalBehavior from "../hooks/useModalBehavior";
-import MultiSelectDropdown from "./MultiSelectDropdown";
 import "./FilterModal.scss";
+import MultiSelectDropdown from "./MultiSelectDropdown";
 
 export interface FilterSettings {
   includedCategories: Set<string>;
@@ -68,7 +68,6 @@ const FilterModal = ({
 
         <div className="filter-modal__content">
           <div className="filter-category">
-            <h3>Include Item Categories</h3>
             <MultiSelectDropdown
               options={FILTERABLE_ITEM_CATEGORIES}
               selectedOptions={filterSettings.includedCategories}

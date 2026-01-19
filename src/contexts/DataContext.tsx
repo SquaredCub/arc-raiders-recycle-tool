@@ -36,7 +36,9 @@ export const DataProvider = ({ children }: DataProviderProps) => {
         ]);
 
       // Filter blacklisted items
-      const filteredItems = filterBlacklistedItemCategories(itemsData);
+      const filteredItems = filterBlacklistedItemCategories(itemsData).filter(
+        (item) => !!Object.hasOwn(item, "value") && item.value > 0,
+      ) as Item[];
 
       setItems(filteredItems);
       setQuests(questsData);

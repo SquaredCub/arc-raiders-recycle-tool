@@ -157,14 +157,14 @@ export const createNoResultsItem = (searchTerm: string): Item => {
     id: NO_RESULTS_ID,
     name: { en: `No items found matching "${searchTerm}"` },
     description: { en: "" },
-    type: "",
+    type: "Misc" as const,
     rarity: "",
     value: 0,
     weightKg: 0,
     stackSize: 0,
     imageFilename: "",
     updatedAt: "",
-  } as Item;
+  };
 };
 
 /**
