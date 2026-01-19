@@ -5,9 +5,10 @@ import {
   useReactTable,
   type SortingState,
 } from "@tanstack/react-table";
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import coinsPng from "./arcraiders-data/images/coins.png";
 import ErrorMessage from "./components/ErrorMessage";
+import type { FilterSettings } from "./components/FilterModal";
 import LoadingSpinner from "./components/LoadingSpinner";
 import {
   formatMaterialName,
@@ -31,7 +32,15 @@ const fallbackData: Item[] = [];
 
 const columnHelper = createColumnHelper<Item>();
 
-const ItemsTable = ({ searchTerm }: { searchTerm: string }) => {
+const ItemsTable = ({
+  searchTerm,
+  filterSettings,
+  onFilteredCountChange,
+}: {
+  searchTerm: string;
+  filterSettings: FilterSettings;
+  onFilteredCountChange?: (filteredCount: number, totalCount: number) => void;
+}) => {
   const { items, quests, hideoutBenches, projects, isLoading, error } =
     useData();
 
@@ -182,13 +191,19 @@ const ItemsTable = ({ searchTerm }: { searchTerm: string }) => {
     [itemRequirements]
   );
 
-  // Filter data based on search term and sort by match type
+  // Filter data based on search term and category filters
   const filteredData = useMemo(() => {
-    const results = filterItemsBySearch(
+    // First filter by search term
+    let results = filterItemsBySearch(
       items,
       searchTerm,
       formatMaterialName,
       DEFAULT_LANGUAGE
+    );
+
+    // Then filter by included categories
+    results = results.filter((item) =>
+      filterSettings.includedCategories.has(item.type)
     );
 
     // If no results found, return a placeholder item
@@ -197,7 +212,17 @@ const ItemsTable = ({ searchTerm }: { searchTerm: string }) => {
     }
 
     return results;
-  }, [items, searchTerm]);
+  }, [items, searchTerm, filterSettings]);
+
+  // Notify parent of filtered count changes
+  useEffect(() => {
+    if (onFilteredCountChange && items.length > 0) {
+      const actualFilteredCount = filteredData.filter(
+        (item) => !isNoResultsItem(item.id)
+      ).length;
+      onFilteredCountChange(actualFilteredCount, items.length);
+    }
+  }, [filteredData, items, onFilteredCountChange]);
 
   // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
