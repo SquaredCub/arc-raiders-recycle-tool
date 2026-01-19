@@ -13,7 +13,7 @@ interface DataProviderProps {
   children: ReactNode;
 }
 
-export function DataProvider({ children }: DataProviderProps) {
+export const DataProvider = ({ children }: DataProviderProps) => {
   const [items, setItems] = useState<Item[]>([]);
   const [quests, setQuests] = useState<Quest[]>([]);
   const [hideoutBenches, setHideoutBenches] = useState<HideoutBench[]>([]);
@@ -67,4 +67,4 @@ export function DataProvider({ children }: DataProviderProps) {
   };
 
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>;
-}
+};

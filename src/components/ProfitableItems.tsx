@@ -26,10 +26,10 @@ interface CraftingProfit {
 /**
  * Calculate the profit for crafting a specific item
  */
-function calculateCraftingProfit(
+const calculateCraftingProfit = (
   item: Item,
   allItems: Map<string, Item>
-): CraftingProfit | null {
+): CraftingProfit | null => {
   // Check if item is craftable (has recipe or craftBench)
   if (!item.recipe && !item.craftBench) {
     return null;
@@ -81,7 +81,7 @@ function calculateCraftingProfit(
     profit,
     profitMargin,
   };
-}
+};
 
 const ProfitableItems = () => {
   const { items, isLoading, error } = useData();

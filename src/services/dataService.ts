@@ -39,7 +39,7 @@ interface CachedData<T> {
   timestamp: number;
 }
 
-function getCachedData<T>(key: string): T | null {
+const getCachedData = <T>(key: string): T | null => {
   try {
     const cached = sessionStorage.getItem(CACHE_KEY_PREFIX + key);
     if (!cached) return null;
@@ -57,9 +57,9 @@ function getCachedData<T>(key: string): T | null {
     console.error("Error reading cache:", error);
     return null;
   }
-}
+};
 
-function setCachedData<T>(key: string, data: T): void {
+const setCachedData = <T>(key: string, data: T): void => {
   try {
     const cacheData: CachedData<T> = {
       data,
@@ -69,7 +69,7 @@ function setCachedData<T>(key: string, data: T): void {
   } catch (error) {
     console.error("Error writing cache:", error);
   }
-}
+};
 
 /**
  * Fetch a single JSON file from GitHub
@@ -291,18 +291,18 @@ export async function fetchProjects(): Promise<Project[]> {
 /**
  * Get image URL for an item from GitHub
  */
-export function getImageUrl(path: string): string {
+export const getImageUrl = (path: string): string => {
   return `${GITHUB_RAW_BASE_URL}/${path}`;
-}
+};
 
 /**
  * Clear all cached data
  */
-export function clearCache(): void {
+export const clearCache = (): void => {
   const keys = Object.keys(sessionStorage);
   keys.forEach((key) => {
     if (key.startsWith(CACHE_KEY_PREFIX)) {
       sessionStorage.removeItem(key);
     }
   });
-}
+};

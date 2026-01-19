@@ -4,7 +4,7 @@ import Navigation, { type NavigationPage } from "./components/Navigation";
 import ProfitableItems from "./components/ProfitableItems";
 import RecyclingTools from "./RecyclingTools";
 
-function App() {
+const App = () => {
   const [activePage, setActivePage] = useState<"recycling" | "crafts">(
     "recycling"
   );
@@ -27,6 +27,6 @@ function App() {
       {activePage === "crafts" && <ProfitableItems />}
     </>
   );
-}
+};
 
 export default App;
