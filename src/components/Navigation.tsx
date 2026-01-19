@@ -13,7 +13,7 @@ interface NavigationProps {
 const externalLinks = [
   {
     label: "Github Repository",
-    href: "https://github.com/SquaredCub/arcraiders-data",
+    href: "https://github.com/SquaredCub/arc-raiders-recycle-tool",
     icon: `https://github.com/favicon.ico`,
     style: { filter: "invert(1)" },
   },
@@ -67,7 +67,8 @@ const Navigation = ({ activePage, onNavigate }: NavigationProps) => {
           aria-expanded={dropdownOpen}
           aria-label="External Links"
         >
-          External Links
+          <ExternalLinkIcon style={{ marginBottom: "-0.2rem" }} />
+          <span>External Links</span>
           <svg
             width="16"
             height="16"
