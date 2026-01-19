@@ -10,7 +10,9 @@ const language = "en";
 /**
  * Build lookup map from hideout bench requirements
  */
-function buildHideoutLookup(hideoutBenches: HideoutBench[]): ItemRequirementLookup {
+const buildHideoutLookup = (
+  hideoutBenches: HideoutBench[],
+): ItemRequirementLookup => {
   const lookup: ItemRequirementLookup = {};
 
   for (const bench of hideoutBenches) {
@@ -35,12 +37,12 @@ function buildHideoutLookup(hideoutBenches: HideoutBench[]): ItemRequirementLook
   }
 
   return lookup;
-}
+};
 
 /**
  * Build lookup map from quest requirements
  */
-function buildQuestLookup(quests: Quest[]): ItemRequirementLookup {
+const buildQuestLookup = (quests: Quest[]): ItemRequirementLookup => {
   const lookup: ItemRequirementLookup = {};
 
   for (const quest of quests) {
@@ -65,19 +67,22 @@ function buildQuestLookup(quests: Quest[]): ItemRequirementLookup {
   }
 
   return lookup;
-}
+};
 
 /**
  * Build lookup map from project requirements
  */
-function buildProjectLookup(projects: Project[]): ItemRequirementLookup {
+const buildProjectLookup = (projects: Project[]): ItemRequirementLookup => {
   const lookup: ItemRequirementLookup = {};
 
   for (const project of projects) {
     const projectName = project.name[language];
 
-    // Filter out Season 1 projects
-    if (projectName.includes("Season 1")) {
+    // Filter out Season 1 projects & Flickering Flames event
+    if (
+      projectName.includes("Season 1") ||
+      projectName.includes("Flickering Flames")
+    ) {
       continue;
     }
 
@@ -102,14 +107,14 @@ function buildProjectLookup(projects: Project[]): ItemRequirementLookup {
   }
 
   return lookup;
-}
+};
 
 /**
  * Merge multiple lookup maps into a single aggregated map
  */
-function mergeLookups(
+const mergeLookups = (
   ...lookups: ItemRequirementLookup[]
-): ItemRequirementLookup {
+): ItemRequirementLookup => {
   const merged: ItemRequirementLookup = {};
 
   for (const lookup of lookups) {
@@ -127,20 +132,20 @@ function mergeLookups(
   }
 
   return merged;
-}
+};
 
 /**
  * Get the complete item requirements lookup map
  * This combines hideout upgrades, quests, and projects
  */
-export function getItemRequirements(
+export const getItemRequirements = (
   hideoutBenches: HideoutBench[],
   quests: Quest[],
-  projects: Project[]
-): ItemRequirementLookup {
+  projects: Project[],
+): ItemRequirementLookup => {
   const hideoutLookup = buildHideoutLookup(hideoutBenches);
   const questLookup = buildQuestLookup(quests);
   const projectLookup = buildProjectLookup(projects);
 
   return mergeLookups(hideoutLookup, questLookup, projectLookup);
-}
+};
