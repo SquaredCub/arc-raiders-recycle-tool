@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
+import useModalBehavior from "../hooks/useModalBehavior";
 import ExternalLinkIcon from "./ExternalLinkIcon";
 import "./Navigation.scss";
 
@@ -31,6 +32,13 @@ const externalLinks = [
 
 const Navigation = ({ activePage, onNavigate }: NavigationProps) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  useModalBehavior({
+    isOpen: dropdownOpen,
+    onClose: () => setDropdownOpen(false),
+    modalRef,
+  });
 
   return (
     <nav className="navigation">
@@ -51,7 +59,7 @@ const Navigation = ({ activePage, onNavigate }: NavigationProps) => {
         Profitable Crafts
       </button>
       {/* External Links Dropdown */}
-      <div className="navigation__dropdown">
+      <div className="navigation__dropdown" ref={modalRef}>
         <button
           className="navigation__item navigation__dropdown-toggle"
           onClick={() => setDropdownOpen((open) => !open)}
