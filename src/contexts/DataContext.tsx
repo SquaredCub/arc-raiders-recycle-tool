@@ -1,5 +1,5 @@
 import { useEffect, useState, type ReactNode } from "react";
-import { filterBlacklistedItems } from "../data/itemsData";
+import { filterBlacklistedItemCategories } from "../data/itemsData";
 import {
   fetchAllItems,
   fetchAllQuests,
@@ -36,7 +36,7 @@ export const DataProvider = ({ children }: DataProviderProps) => {
         ]);
 
       // Filter blacklisted items
-      const filteredItems = filterBlacklistedItems(itemsData);
+      const filteredItems = filterBlacklistedItemCategories(itemsData);
 
       setItems(filteredItems);
       setQuests(questsData);

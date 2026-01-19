@@ -11,14 +11,14 @@ export interface LocalizedText {
   it?: string;
   ru?: string;
   ja?: string;
-  'zh-TW'?: string;
+  "zh-TW"?: string;
   uk?: string;
-  'zh-CN'?: string;
+  "zh-CN"?: string;
   kr?: string;
   tr?: string;
   hr?: string;
   sr?: string;
-  'pt-BR'?: string;
+  "pt-BR"?: string;
   he?: string;
 }
 
@@ -39,18 +39,35 @@ export interface MaterialCosts {
 
 // Item types
 export type ItemType =
-  | 'Quick Use'
-  | 'Topside Material'
-  | 'Refined Material'
-  | string; // Allow for other types
+  | "Ammunition"
+  | "Assault Rifle"
+  | "Augment"
+  | "Backpack Charm"
+  | "Basic Material"
+  | "Battle Rifle"
+  | "Blueprint"
+  | "Cosmetic"
+  | "Hand Cannon"
+  | "Key"
+  | "LMG"
+  | "Misc"
+  | "Modification"
+  | "Nature"
+  | "Outfit"
+  | "Pistol"
+  | "Quick Use"
+  | "Recyclable"
+  | "Refined Material"
+  | "SMG"
+  | "Shield"
+  | "Shotgun"
+  | "Sniper Rifle"
+  | "Special"
+  | "Topside Material"
+  | "Trinket";
 
 // Item rarity
-export type ItemRarity =
-  | 'Common'
-  | 'Uncommon'
-  | 'Rare'
-  | 'Legendary'
-  | string; // Allow for other rarities
+export type ItemRarity = "Common" | "Uncommon" | "Rare" | "Legendary" | string; // Allow for other rarities
 
 // Main item interface
 export interface Item {
