@@ -6,15 +6,19 @@ import RecyclingTools from "./RecyclingTools";
 
 const App = () => {
   const [activePage, setActivePage] = useState<"recycling" | "crafts">(
-    "recycling"
+    "recycling",
   );
 
   const onNavigate = (page: NavigationPage) => {
     if (page === "github") {
       window.open(
         "https://github.com/SquaredCub/arc-raiders-recycle-tool",
-        "_blank"
+        "_blank",
       );
+    } else if (page === "maps") {
+      window.open("https://arcraidersmaps.app/", "_blank");
+    } else if (page === "damage-calculator") {
+      window.open("https://arcdamagecalculator.tiiny.site/", "_blank");
     } else {
       setActivePage(page);
     }
