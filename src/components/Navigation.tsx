@@ -38,6 +38,7 @@ const Navigation = ({ activePage, onNavigate }: NavigationProps) => {
     isOpen: dropdownOpen,
     onClose: () => setDropdownOpen(false),
     modalRef,
+    preventBodyScroll: false,
   });
 
   return (
