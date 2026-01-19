@@ -11,22 +11,14 @@ const GITHUB_RAW_BASE_URL = `https://raw.githubusercontent.com/${GITHUB_OWNER}/$
 /**
  * Data source configuration
  * Set FORCE_REMOTE to true to always fetch from GitHub, even in development
+ * (No longer used for local data imports, see below)
  */
 const FORCE_REMOTE = false;
 
 /**
- * Determine if we should use local data based on the current URL
- * Uses local data when running on localhost, unless FORCE_REMOTE is true
+ * Use local data only in development mode
  */
-const isLocalhost = () => {
-  return (
-    window.location.hostname === "localhost" ||
-    window.location.hostname === "127.0.0.1" ||
-    window.location.hostname === ""
-  );
-};
-
-export const USE_LOCAL_DATA = !FORCE_REMOTE && isLocalhost();
+const USE_LOCAL_DATA = import.meta.env.MODE === "development" && !FORCE_REMOTE;
 
 /**
  * Cache management
@@ -100,7 +92,7 @@ async function listGitHubDirectory(directory: string): Promise<string[]> {
 
   if (!response.ok) {
     throw new Error(
-      `Failed to list directory ${directory}: ${response.statusText}`
+      `Failed to list directory ${directory}: ${response.statusText}`,
     );
   }
 
@@ -119,10 +111,10 @@ async function listGitHubDirectory(directory: string): Promise<string[]> {
  */
 async function fetchDirectoryFiles<T>(
   directory: string,
-  fileNames: string[]
+  fileNames: string[],
 ): Promise<T[]> {
   const promises = fileNames.map((fileName) =>
-    fetchFromGitHub<T>(`${directory}/${fileName}`)
+    fetchFromGitHub<T>(`${directory}/${fileName}`),
   );
 
   return Promise.all(promises);
@@ -133,10 +125,10 @@ async function fetchDirectoryFiles<T>(
  */
 async function getItemFileNames(): Promise<string[]> {
   if (USE_LOCAL_DATA) {
-    // Use local data in development
+    // Only import local data in development
     const itemModules = import.meta.glob<{ default: Item }>(
       "../arcraiders-data/items/*.json",
-      { eager: true }
+      { eager: true },
     );
     return Object.keys(itemModules).map((path) => {
       const fileName = path.split("/").pop() || "";
@@ -153,9 +145,10 @@ async function getItemFileNames(): Promise<string[]> {
  */
 async function getQuestFileNames(): Promise<string[]> {
   if (USE_LOCAL_DATA) {
+    // Only import local data in development
     const questModules = import.meta.glob<{ default: Quest }>(
       "../arcraiders-data/quests/*.json",
-      { eager: true }
+      { eager: true },
     );
     return Object.keys(questModules).map((path) => {
       const fileName = path.split("/").pop() || "";
@@ -179,10 +172,10 @@ export async function fetchAllItems(): Promise<Item[]> {
   }
 
   if (USE_LOCAL_DATA) {
-    // Use local data
+    // Only import local data in development
     const itemModules = import.meta.glob<{ default: Item }>(
       "../arcraiders-data/items/*.json",
-      { eager: true }
+      { eager: true },
     );
     const items = Object.values(itemModules).map((module) => module.default);
     setCachedData(cacheKey, items);
@@ -208,9 +201,10 @@ export async function fetchAllQuests(): Promise<Quest[]> {
   }
 
   if (USE_LOCAL_DATA) {
+    // Only import local data in development
     const questModules = import.meta.glob<{ default: Quest }>(
       "../arcraiders-data/quests/*.json",
-      { eager: true }
+      { eager: true },
     );
     const quests = Object.values(questModules).map((module) => module.default);
     setCachedData(cacheKey, quests);
@@ -235,10 +229,10 @@ export async function fetchHideoutBenches(): Promise<HideoutBench[]> {
   }
 
   if (USE_LOCAL_DATA) {
-    // Use import.meta.glob for local development
+    // Only import local data in development
     const benchModules = import.meta.glob<{ default: HideoutBench }>(
       "../arcraiders-data/hideout/*.json",
-      { eager: true }
+      { eager: true },
     );
     const benches = Object.values(benchModules).map((module) => module.default);
     setCachedData(cacheKey, benches);
@@ -259,7 +253,7 @@ export async function fetchHideoutBenches(): Promise<HideoutBench[]> {
 
   const benches = await fetchDirectoryFiles<HideoutBench>(
     "hideout",
-    benchFiles
+    benchFiles,
   );
   setCachedData(cacheKey, benches);
   return benches;
@@ -277,6 +271,7 @@ export async function fetchProjects(): Promise<Project[]> {
   }
 
   if (USE_LOCAL_DATA) {
+    // Only import local data in development
     const projectsModule = await import("../arcraiders-data/projects.json");
     const projects = projectsModule.default as Project[];
     setCachedData(cacheKey, projects);
