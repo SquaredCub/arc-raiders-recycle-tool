@@ -81,6 +81,8 @@ h1 {
 .table-scroll-container {
   height: 600px;
   overflow: auto;
+  max-width: 1509px;
+  margin: 0 auto;
 }
 
 #table {

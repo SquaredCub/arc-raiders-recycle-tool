@@ -11,21 +11,24 @@ This document outlines performance bottlenecks identified in the Arc Raiders Rec
 ### 1. Implement Debounced Search Input
 
 **Problem:**
+
 - Every keystroke triggers immediate re-filtering of the entire dataset
 - Search in `filterItemsBySearch()` runs on every character typed
 - Causes cascading re-renders of the entire table (potentially 500+ rows)
 - User typing "scrap metal" triggers 11 separate filter operations
 
 **Solution:**
-Implement a debounced search with ~300ms delay using `useDeferredValue` or custom debounce hook.
+Implement a debounced search with ~200ms delay using `useDeferredValue` or custom debounce hook.
 
 **Implementation Steps:**
+
 1. Create a custom `useDebounce` hook in `src/hooks/useDebounce.ts`
 2. Update `RecyclingTools.tsx` to use debounced search term
 3. Keep input value immediate for responsive typing UX
-4. Only trigger filtering after user stops typing for 300ms
+4. Only trigger filtering after user stops typing for 200ms
 
 **Files to modify:**
+
 - Create: `src/hooks/useDebounce.ts`
 - Modify: `src/RecyclingTools.tsx`
 
@@ -38,6 +41,7 @@ Implement a debounced search with ~300ms delay using `useDeferredValue` or custo
 ### 2. Memoize ItemCell Component
 
 **Problem:**
+
 - `ItemCell` component re-renders on every table update
 - With 500 items × 6 columns = 3000 potential cell renders per update
 - Each cell includes image elements and link calculations
@@ -47,11 +51,13 @@ Implement a debounced search with ~300ms delay using `useDeferredValue` or custo
 Wrap `ItemCell` with `React.memo()` to prevent re-renders when props haven't changed.
 
 **Implementation Steps:**
+
 1. Import `memo` from React in `src/ItemCell.tsx`
 2. Wrap component export with `memo(ItemCell)`
 3. Optionally add custom comparison function for deep prop equality
 
 **Files to modify:**
+
 - `src/ItemCell.tsx`
 
 **Expected impact:** 60-80% reduction in cell re-renders during sorting/filtering
@@ -65,6 +71,7 @@ Wrap `ItemCell` with `React.memo()` to prevent re-renders when props haven't cha
 ### 3. Implement Virtual Scrolling
 
 **Problem:**
+
 - Table renders ALL rows in the DOM at once (500+ rows)
 - Each row has 6 cells with images, links, and formatted content
 - Browser must paint and maintain 3000+ DOM nodes
@@ -74,6 +81,7 @@ Wrap `ItemCell` with `React.memo()` to prevent re-renders when props haven't cha
 Use `@tanstack/react-virtual` to only render visible rows + buffer.
 
 **Implementation Steps:**
+
 1. Install dependency: `npm install @tanstack/react-virtual`
 2. Create virtualized table wrapper component `src/components/VirtualizedTable.tsx`
 3. Update `Table.tsx` to use virtual row rendering
@@ -81,11 +89,13 @@ Use `@tanstack/react-virtual` to only render visible rows + buffer.
 5. Calculate row heights (estimated or measured)
 
 **Files to modify:**
+
 - Create: `src/components/VirtualizedTable.tsx` (or modify existing `Table.tsx`)
 - Update: `src/Table.tsx`
 - Update: `package.json`
 
 **Challenges:**
+
 - Need to set fixed or estimated row heights
 - May need to adjust CSS for virtual scrolling container
 - Sorting must reset scroll position
@@ -101,6 +111,7 @@ Use `@tanstack/react-virtual` to only render visible rows + buffer.
 ### 4. Optimize Sorting Functions
 
 **Problem:**
+
 - `localeCompare()` is called repeatedly during sort operations
 - Custom sorting functions in column definitions run on every comparison
 - No caching of computed sort values
@@ -109,12 +120,14 @@ Use `@tanstack/react-virtual` to only render visible rows + buffer.
 Pre-compute sort keys for expensive operations.
 
 **Implementation Steps:**
+
 1. Create sort key cache in `useMemo` for name sorting
 2. Store pre-computed lowercase names for faster comparison
 3. Consider simple string comparison instead of `localeCompare` for ASCII-only names
 4. Cache requirement totals for "Needed For" column
 
 **Files to modify:**
+
 - `src/utils/itemsTableColumns.tsx`
 - `src/ItemsTable.tsx`
 
@@ -127,6 +140,7 @@ Pre-compute sort keys for expensive operations.
 ### 5. Optimize FilteredData Calculation
 
 **Problem:**
+
 - `filteredData` useMemo runs entire filter pipeline on every search/filter change
 - `filterItemsBySearch()` iterates through ALL items twice (name matches + material matches)
 - Category filtering happens after search filtering (second iteration)
@@ -135,12 +149,14 @@ Pre-compute sort keys for expensive operations.
 Combine filtering operations into single pass.
 
 **Implementation Steps:**
+
 1. Refactor `filterItemsBySearch()` to accept category filter
 2. Combine name/material/category checks in single iteration
 3. Use early returns to skip unnecessary checks
 4. Consider indexed search for very large datasets
 
 **Files to modify:**
+
 - `src/utils/functions.ts`
 - `src/ItemsTable.tsx`
 
@@ -153,6 +169,7 @@ Combine filtering operations into single pass.
 ### 6. Memoize Column Cell Renderers
 
 **Problem:**
+
 - Cell renderer functions are recreated on every render
 - Complex cells (Recycles Into, Crafting Materials, Needed For) do expensive calculations
 
@@ -160,6 +177,7 @@ Combine filtering operations into single pass.
 Extract cell renderers to memoized components.
 
 **Implementation Steps:**
+
 1. Create separate memoized components:
    - `RecyclesIntoCell.tsx`
    - `CraftingMaterialsCell.tsx`
@@ -169,6 +187,7 @@ Extract cell renderers to memoized components.
 3. Use `memo()` with custom comparison functions
 
 **Files to modify:**
+
 - Create: `src/components/cells/RecyclesIntoCell.tsx`
 - Create: `src/components/cells/CraftingMaterialsCell.tsx`
 - Create: `src/components/cells/NeededForCell.tsx`
@@ -186,6 +205,7 @@ Extract cell renderers to memoized components.
 ### 7. Consider Web Workers for Large Operations
 
 **Problem:**
+
 - Heavy filtering/sorting blocks main thread
 - UI becomes unresponsive during large operations
 
@@ -199,6 +219,7 @@ Move expensive computations to Web Workers.
 ### 8. Add Loading States for Expensive Operations
 
 **Problem:**
+
 - No visual feedback during slow operations
 - Users don't know if app is working or frozen
 
@@ -212,6 +233,7 @@ Add skeleton loaders or spinner during filtering/sorting.
 ## Measurement & Testing
 
 ### Before implementing optimizations:
+
 1. Measure current performance with React DevTools Profiler
 2. Record time for:
    - Typing 10-character search term
@@ -220,11 +242,13 @@ Add skeleton loaders or spinner during filtering/sorting.
 3. Test with full dataset (500+ items)
 
 ### After each optimization:
+
 1. Re-measure same operations
 2. Document improvements
 3. Check for regressions
 
 ### Performance targets:
+
 - Search input should feel instant (< 100ms perceived delay)
 - Sorting should complete in < 200ms
 - Table should handle 1000+ items smoothly
@@ -234,8 +258,9 @@ Add skeleton loaders or spinner during filtering/sorting.
 ## Implementation Order
 
 **Recommended sequence:**
+
 1. ✅ **COMPLETED** - Debounced search (15 min) - Immediate UX improvement
-   - Created `useDebounce` hook with 300ms delay
+   - Created `useDebounce` hook with 200ms delay
    - Memoized `ItemsTable` with custom comparison for Set equality
    - Memoized `SearchInput` to prevent cascade re-renders
    - Input remains responsive while filtering is debounced
