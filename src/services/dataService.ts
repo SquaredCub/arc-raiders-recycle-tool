@@ -9,18 +9,6 @@ const GITHUB_BRANCH = import.meta.env.VITE_GITHUB_BRANCH || "main";
 const GITHUB_RAW_BASE_URL = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${GITHUB_BRANCH}`;
 
 /**
- * Data source configuration
- * Set FORCE_REMOTE to true to always fetch from GitHub, even in development
- * (No longer used for local data imports, see below)
- */
-const FORCE_REMOTE = false;
-
-/**
- * Use local data only in development mode
- */
-const USE_LOCAL_DATA = import.meta.env.MODE === "development" && !FORCE_REMOTE;
-
-/**
  * Cache management
  */
 const CACHE_KEY_PREFIX = "arcraiders_data_";
@@ -124,40 +112,16 @@ async function fetchDirectoryFiles<T>(
  * Get the list of item file names
  */
 async function getItemFileNames(): Promise<string[]> {
-  if (USE_LOCAL_DATA) {
-    // Only import local data in development
-    const itemModules = import.meta.glob<{ default: Item }>(
-      "../arcraiders-data/items/*.json",
-      { eager: true },
-    );
-    return Object.keys(itemModules).map((path) => {
-      const fileName = path.split("/").pop() || "";
-      return fileName;
-    });
-  } else {
-    // Use GitHub API to list directory contents
-    return listGitHubDirectory("items");
-  }
+  // Use GitHub API to list directory contents
+  return listGitHubDirectory("items");
 }
 
 /**
  * Get the list of quest file names
  */
 async function getQuestFileNames(): Promise<string[]> {
-  if (USE_LOCAL_DATA) {
-    // Only import local data in development
-    const questModules = import.meta.glob<{ default: Quest }>(
-      "../arcraiders-data/quests/*.json",
-      { eager: true },
-    );
-    return Object.keys(questModules).map((path) => {
-      const fileName = path.split("/").pop() || "";
-      return fileName;
-    });
-  } else {
-    // Use GitHub API to list directory contents
-    return listGitHubDirectory("quests");
-  }
+  // Use GitHub API to list directory contents
+  return listGitHubDirectory("quests");
 }
 
 /**
@@ -169,17 +133,6 @@ export async function fetchAllItems(): Promise<Item[]> {
 
   if (cached) {
     return cached;
-  }
-
-  if (USE_LOCAL_DATA) {
-    // Only import local data in development
-    const itemModules = import.meta.glob<{ default: Item }>(
-      "../arcraiders-data/items/*.json",
-      { eager: true },
-    );
-    const items = Object.values(itemModules).map((module) => module.default);
-    setCachedData(cacheKey, items);
-    return items;
   }
 
   // Fetch from GitHub
@@ -200,17 +153,6 @@ export async function fetchAllQuests(): Promise<Quest[]> {
     return cached;
   }
 
-  if (USE_LOCAL_DATA) {
-    // Only import local data in development
-    const questModules = import.meta.glob<{ default: Quest }>(
-      "../arcraiders-data/quests/*.json",
-      { eager: true },
-    );
-    const quests = Object.values(questModules).map((module) => module.default);
-    setCachedData(cacheKey, quests);
-    return quests;
-  }
-
   const fileNames = await getQuestFileNames();
   const quests = await fetchDirectoryFiles<Quest>("quests", fileNames);
   setCachedData(cacheKey, quests);
@@ -226,17 +168,6 @@ export async function fetchHideoutBenches(): Promise<HideoutBench[]> {
 
   if (cached) {
     return cached;
-  }
-
-  if (USE_LOCAL_DATA) {
-    // Only import local data in development
-    const benchModules = import.meta.glob<{ default: HideoutBench }>(
-      "../arcraiders-data/hideout/*.json",
-      { eager: true },
-    );
-    const benches = Object.values(benchModules).map((module) => module.default);
-    setCachedData(cacheKey, benches);
-    return benches;
   }
 
   const benchFiles = [
@@ -268,14 +199,6 @@ export async function fetchProjects(): Promise<Project[]> {
 
   if (cached) {
     return cached;
-  }
-
-  if (USE_LOCAL_DATA) {
-    // Only import local data in development
-    const projectsModule = await import("../arcraiders-data/projects.json");
-    const projects = projectsModule.default as Project[];
-    setCachedData(cacheKey, projects);
-    return projects;
   }
 
   const projects = await fetchFromGitHub<Project[]>("projects.json");
