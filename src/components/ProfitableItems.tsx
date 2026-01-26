@@ -1,13 +1,15 @@
 import { useMemo } from "react";
-import coinsPng from "../arcraiders-data/images/coins.png";
 import { getItemImage } from "../data/itemsData";
 import { useData } from "../hooks/useData";
 import ItemCell from "../ItemCell";
+import { getImageUrl } from "../services/dataService";
 import type { Item } from "../types";
 import { DEFAULT_LANGUAGE } from "../utils/functions";
 import ErrorMessage from "./ErrorMessage";
 import LoadingSpinner from "./LoadingSpinner";
 import "./ProfitableItems.scss";
+
+const COINS_IMAGE_URL = getImageUrl("images/coins.png");
 
 interface CraftingProfit {
   item: Item;
@@ -28,7 +30,7 @@ interface CraftingProfit {
  */
 const calculateCraftingProfit = (
   item: Item,
-  allItems: Map<string, Item>
+  allItems: Map<string, Item>,
 ): CraftingProfit | null => {
   // Check if item is craftable (has recipe or craftBench)
   if (!item.recipe && !item.craftBench) {
@@ -150,7 +152,7 @@ const ProfitableItems = () => {
                       +{profitData.profit.toLocaleString()}
                     </span>
                     <img
-                      src={coinsPng}
+                      src={COINS_IMAGE_URL}
                       alt="Coins"
                       className="value-coin-icon"
                     />
@@ -173,7 +175,7 @@ const ProfitableItems = () => {
                         {profitData.totalOutputValue.toLocaleString()}
                       </span>
                       <img
-                        src={coinsPng}
+                        src={COINS_IMAGE_URL}
                         alt="Coins"
                         className="value-coin-icon"
                       />
@@ -201,7 +203,7 @@ const ProfitableItems = () => {
                               {ingredient.totalValue.toLocaleString()}
                             </span>
                             <img
-                              src={coinsPng}
+                              src={COINS_IMAGE_URL}
                               alt="Coins"
                               className="value-coin-icon"
                             />
@@ -215,7 +217,7 @@ const ProfitableItems = () => {
                     <div className="value-display">
                       <span>{profitData.totalInputCost.toLocaleString()}</span>
                       <img
-                        src={coinsPng}
+                        src={COINS_IMAGE_URL}
                         alt="Coins"
                         className="value-coin-icon"
                       />

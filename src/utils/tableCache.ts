@@ -49,7 +49,7 @@ export const createSortedMaterialsCache = (
         material,
         quantity,
         name: formatMaterialName(material),
-        image: getMaterialImage(material),
+        image: getMaterialImage(material, items),
       }));
     }
 
@@ -63,7 +63,7 @@ export const createSortedMaterialsCache = (
         material,
         quantity,
         name: formatMaterialName(material),
-        image: getMaterialImage(material),
+        image: getMaterialImage(material, items),
       }));
     }
   }

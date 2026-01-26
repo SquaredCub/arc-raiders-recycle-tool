@@ -1,12 +1,13 @@
 import { createColumnHelper } from "@tanstack/react-table";
-import coinsPng from "../arcraiders-data/images/coins.png";
 import { getItemImage } from "../data/itemsData";
+import { getImageUrl } from "../services/dataService";
 import ItemCell from "../ItemCell";
 import type { Item, ItemRequirementLookup } from "../types";
 import { compareStrings, DEFAULT_LANGUAGE, isNoResultsItem } from "./functions";
 import type { CachedMaterial, SortKeyCache } from "./tableCache";
 
 const columnHelper = createColumnHelper<Item>();
+const COINS_IMAGE_URL = getImageUrl("images/coins.png");
 
 /**
  * Create table column definitions
@@ -215,7 +216,7 @@ export const createItemsTableColumns = (
         return (
           <div className="value-container">
             <span>{info.getValue()}</span>
-            <img src={coinsPng} alt="Coins" className="value-coin-icon" />
+            <img src={COINS_IMAGE_URL} alt="Coins" className="value-coin-icon" />
           </div>
         );
       },
