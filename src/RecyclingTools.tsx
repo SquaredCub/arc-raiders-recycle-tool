@@ -2,11 +2,13 @@ import { useCallback, useState } from "react";
 import type { FilterSettings } from "./components/FilterModal";
 import FilterModal from "./components/FilterModal";
 import { FILTERABLE_ITEM_CATEGORIES } from "./constants/itemCategories";
+import { useDebounce } from "./hooks/useDebounce";
 import ItemsTable from "./ItemsTable";
 import SearchInput from "./SearchInput";
 
 const RecyclingTools = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [filterSettings, setFilterSettings] = useState<FilterSettings>({
     includedCategories: new Set(FILTERABLE_ITEM_CATEGORIES),
@@ -78,7 +80,7 @@ const RecyclingTools = () => {
       </section>
       <section id="table">
         <ItemsTable
-          searchTerm={searchTerm}
+          searchTerm={debouncedSearchTerm}
           filterSettings={filterSettings}
           onFilteredCountChange={handleFilteredCountChange}
         />

@@ -27,7 +27,7 @@ import {
 
 const fallbackData: Item[] = [];
 
-const ItemsTable = ({
+const ItemsTable = React.memo(({
   searchTerm,
   filterSettings,
   onFilteredCountChange,
@@ -125,6 +125,26 @@ const ItemsTable = ({
     return <ErrorMessage message={"Something went wrong fetching the data"} />;
 
   return <Table<Item> table={table} className="items-table" />;
+}, (prevProps, nextProps) => {
+  // Custom comparison function for React.memo
+  // Only re-render if searchTerm, filterSettings categories, or callback changes
+  return (
+    prevProps.searchTerm === nextProps.searchTerm &&
+    prevProps.onFilteredCountChange === nextProps.onFilteredCountChange &&
+    areSetsEqual(
+      prevProps.filterSettings.includedCategories,
+      nextProps.filterSettings.includedCategories
+    )
+  );
+});
+
+// Helper function to compare Sets
+const areSetsEqual = <T,>(setA: Set<T>, setB: Set<T>): boolean => {
+  if (setA.size !== setB.size) return false;
+  for (const item of setA) {
+    if (!setB.has(item)) return false;
+  }
+  return true;
 };
 
 export default ItemsTable;
