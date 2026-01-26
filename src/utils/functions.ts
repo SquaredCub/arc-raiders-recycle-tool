@@ -104,13 +104,14 @@ export const capitalizeItemId = (id?: string): string | null => {
 
 /**
  * Filter items based on search term
- * Returns name matches first, then material matches
+ * Returns exact matches first, then name matches starting with search term,
+ * then other name matches, then material matches
  */
 export const filterItemsBySearch = (
   items: Item[],
   searchTerm: string,
   formatMaterialName: (id: string) => string,
-  language: keyof LocalizedText = DEFAULT_LANGUAGE
+  language: keyof LocalizedText = DEFAULT_LANGUAGE,
 ): Item[] => {
   if (!searchTerm.trim()) {
     return items;
@@ -118,8 +119,10 @@ export const filterItemsBySearch = (
 
   const lowerSearchTerm = searchTerm.toLowerCase();
 
-  // Separate items into two groups: name matches and material matches
-  const nameMatches: Item[] = [];
+  // Separate items into groups based on match quality
+  const exactMatches: Item[] = [];
+  const startsWithMatches: Item[] = [];
+  const otherNameMatches: Item[] = [];
   const materialMatches: Item[] = [];
 
   for (const item of items) {
@@ -127,11 +130,22 @@ export const filterItemsBySearch = (
 
     // Check if item name matches
     if (itemName && itemName.includes(lowerSearchTerm)) {
-      nameMatches.push(item);
+      // Exact match (highest priority)
+      if (itemName === lowerSearchTerm) {
+        exactMatches.push(item);
+      }
+      // Starts with search term (second priority)
+      else if (itemName.startsWith(lowerSearchTerm)) {
+        startsWithMatches.push(item);
+      }
+      // Contains search term somewhere (third priority)
+      else {
+        otherNameMatches.push(item);
+      }
       continue;
     }
 
-    // Check if any material in recyclesInto matches
+    // Check if any material in recyclesInto matches (lowest priority)
     if (item.recyclesInto) {
       const materials = Object.keys(item.recyclesInto);
       const hasMatch = materials.some((material) => {
@@ -145,8 +159,13 @@ export const filterItemsBySearch = (
     }
   }
 
-  // Return name matches first, then material matches
-  return [...nameMatches, ...materialMatches];
+  // Return matches in order of relevance
+  return [
+    ...exactMatches,
+    ...startsWithMatches,
+    ...otherNameMatches,
+    ...materialMatches,
+  ];
 };
 
 /**
@@ -183,11 +202,11 @@ export const isNoResultsItem = (itemId: string): boolean => {
  */
 export const sortMaterialsByName = (
   entries: [string, number][],
-  formatMaterialName: (id: string) => string
+  formatMaterialName: (id: string) => string,
 ): [string, number][] => {
   return entries.sort(([materialA], [materialB]) => {
     return formatMaterialName(materialA).localeCompare(
-      formatMaterialName(materialB)
+      formatMaterialName(materialB),
     );
   });
 };
@@ -202,7 +221,7 @@ export const sortMaterialsByName = (
  */
 export const getItemSortName = (
   item: Item,
-  language: keyof LocalizedText = DEFAULT_LANGUAGE
+  language: keyof LocalizedText = DEFAULT_LANGUAGE,
 ): string => {
   return item.name[language] || item.name.en || "";
 };
@@ -213,7 +232,7 @@ export const getItemSortName = (
  */
 export const getBenchSortKey = (
   craftBench: string | string[] | undefined,
-  getBenchName: (benchId: string) => string
+  getBenchName: (benchId: string) => string,
 ): string => {
   if (!craftBench) return "";
   return Array.isArray(craftBench)
@@ -227,8 +246,13 @@ export const getBenchSortKey = (
  */
 export const compareStrings = (a: string, b: string): number => {
   // Fast path for ASCII-only strings (most common case)
+  // eslint-disable-next-line no-control-regex
   if (/^[\x00-\x7F]*$/.test(a) && /^[\x00-\x7F]*$/.test(b)) {
-    return a.toLowerCase() < b.toLowerCase() ? -1 : a.toLowerCase() > b.toLowerCase() ? 1 : 0;
+    return a.toLowerCase() < b.toLowerCase()
+      ? -1
+      : a.toLowerCase() > b.toLowerCase()
+        ? 1
+        : 0;
   }
   // Fallback to localeCompare for internationalized strings
   return a.localeCompare(b, undefined, { sensitivity: "base" });
