@@ -78,8 +78,21 @@ h1 {
   margin: 0 auto;
 }
 
+.table-scroll-container {
+  height: 600px;
+  overflow: auto;
+}
+
 #table {
+  table-layout: fixed;
+  width: 100%;
+
   .table-header {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background-color: #1a1a1a; // Match the page background to prevent transparency issues
+
     .table-cell {
       padding: 0.5rem;
       font-weight: bold;

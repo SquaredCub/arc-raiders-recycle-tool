@@ -1,7 +1,7 @@
 import { createColumnHelper } from "@tanstack/react-table";
 import coinsPng from "../arcraiders-data/images/coins.png";
-import ItemCell from "../ItemCell";
 import { getItemImage } from "../data/itemsData";
+import ItemCell from "../ItemCell";
 import type { Item, ItemRequirementLookup } from "../types";
 import { DEFAULT_LANGUAGE, isNoResultsItem } from "./functions";
 import type { CachedMaterial } from "./tableCache";
@@ -15,7 +15,7 @@ const columnHelper = createColumnHelper<Item>();
 export const createItemsTableColumns = (
   itemRequirements: ItemRequirementLookup,
   benchNameLookup: Record<string, string>,
-  sortedMaterialsCache: Record<string, CachedMaterial[]>
+  sortedMaterialsCache: Record<string, CachedMaterial[]>,
 ) => {
   // Helper function to get bench name (uses lookup map for performance)
   const getBenchName = (benchId: string): string => {
@@ -26,6 +26,7 @@ export const createItemsTableColumns = (
     columnHelper.accessor("name", {
       id: "item",
       header: () => <span>Item</span>,
+      size: 200,
       cell: (info) => {
         const item = info.row.original;
         // Handle "no results" placeholder
@@ -56,6 +57,7 @@ export const createItemsTableColumns = (
     columnHelper.accessor("recyclesInto", {
       id: "recycles",
       header: () => <span>Recycles Into</span>,
+      size: 250,
       cell: (info) => {
         const item = info.row.original;
         // Handle "no results" placeholder
@@ -85,6 +87,7 @@ export const createItemsTableColumns = (
     columnHelper.accessor("recipe", {
       id: "craftingMaterials",
       header: () => <span>Crafting Materials</span>,
+      size: 250,
       cell: (info) => {
         const item = info.row.original;
         // Handle "no results" placeholder
@@ -114,6 +117,7 @@ export const createItemsTableColumns = (
     columnHelper.accessor("craftBench", {
       id: "craftingStation",
       header: () => <span>Crafting Station</span>,
+      size: 100,
       cell: (info) => {
         const item = info.row.original;
         // Handle "no results" placeholder
@@ -158,6 +162,7 @@ export const createItemsTableColumns = (
     columnHelper.accessor("id", {
       id: "neededFor",
       header: () => <span>Needed For</span>,
+      size: 220,
       cell: (info) => {
         const itemId = info.getValue();
         // Handle "no results" placeholder
@@ -197,6 +202,7 @@ export const createItemsTableColumns = (
     }),
     columnHelper.accessor("value", {
       header: () => <span>Value</span>,
+      size: 80,
       cell: (info) => {
         const item = info.row.original;
         // Handle "no results" placeholder
