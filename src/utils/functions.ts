@@ -191,3 +191,45 @@ export const sortMaterialsByName = (
     );
   });
 };
+
+// ============================================================================
+// Sort Key Computation Functions (Performance Optimization)
+// ============================================================================
+
+/**
+ * Extract the item name in the specified language with fallback to 'en'
+ * Used for pre-computing sort keys to avoid repeated localeCompare calls
+ */
+export const getItemSortName = (
+  item: Item,
+  language: keyof LocalizedText = DEFAULT_LANGUAGE
+): string => {
+  return item.name[language] || item.name.en || "";
+};
+
+/**
+ * Get the bench name(s) as a sortable string
+ * Handles both string and string[] types, returns empty string for null/undefined
+ */
+export const getBenchSortKey = (
+  craftBench: string | string[] | undefined,
+  getBenchName: (benchId: string) => string
+): string => {
+  if (!craftBench) return "";
+  return Array.isArray(craftBench)
+    ? craftBench.map(getBenchName).join(", ")
+    : getBenchName(craftBench);
+};
+
+/**
+ * Simple string comparison function (faster than localeCompare for ASCII-only strings)
+ * Falls back to localeCompare for non-ASCII characters
+ */
+export const compareStrings = (a: string, b: string): number => {
+  // Fast path for ASCII-only strings (most common case)
+  if (/^[\x00-\x7F]*$/.test(a) && /^[\x00-\x7F]*$/.test(b)) {
+    return a.toLowerCase() < b.toLowerCase() ? -1 : a.toLowerCase() > b.toLowerCase() ? 1 : 0;
+  }
+  // Fallback to localeCompare for internationalized strings
+  return a.localeCompare(b, undefined, { sensitivity: "base" });
+};

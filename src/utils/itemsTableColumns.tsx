@@ -3,8 +3,8 @@ import coinsPng from "../arcraiders-data/images/coins.png";
 import { getItemImage } from "../data/itemsData";
 import ItemCell from "../ItemCell";
 import type { Item, ItemRequirementLookup } from "../types";
-import { DEFAULT_LANGUAGE, isNoResultsItem } from "./functions";
-import type { CachedMaterial } from "./tableCache";
+import { DEFAULT_LANGUAGE, isNoResultsItem, compareStrings } from "./functions";
+import type { CachedMaterial, SortKeyCache } from "./tableCache";
 
 const columnHelper = createColumnHelper<Item>();
 
@@ -16,6 +16,7 @@ export const createItemsTableColumns = (
   itemRequirements: ItemRequirementLookup,
   benchNameLookup: Record<string, string>,
   sortedMaterialsCache: Record<string, CachedMaterial[]>,
+  sortKeyCache: SortKeyCache,
 ) => {
   // Helper function to get bench name (uses lookup map for performance)
   const getBenchName = (benchId: string): string => {
@@ -46,12 +47,11 @@ export const createItemsTableColumns = (
       sortDescFirst: true,
       invertSorting: true,
       sortingFn: (rowA, rowB) => {
-        // Always sort by name in the default language (or fallback to 'en')
-        const nameA =
-          rowA.original.name[DEFAULT_LANGUAGE] || rowA.original.name.en || "";
-        const nameB =
-          rowB.original.name[DEFAULT_LANGUAGE] || rowB.original.name.en || "";
-        return nameA.localeCompare(nameB, undefined, { sensitivity: "base" });
+        // Use pre-computed lowercase sort keys for faster comparison
+        const nameA = sortKeyCache.nameSortKeys[rowA.original.id] || "";
+        const nameB = sortKeyCache.nameSortKeys[rowB.original.id] || "";
+        // Simple string comparison (sort keys are already lowercase)
+        return compareStrings(nameA, nameB);
       },
     }),
     columnHelper.accessor("recyclesInto", {
@@ -142,21 +142,16 @@ export const createItemsTableColumns = (
       sortDescFirst: true,
       invertSorting: true,
       sortingFn: (rowA, rowB) => {
-        const benchA = rowA.original.craftBench;
-        const benchB = rowB.original.craftBench;
-        // Handle null/undefined
+        // Use pre-computed bench sort keys
+        const benchA = sortKeyCache.benchSortKeys[rowA.original.id] || "";
+        const benchB = sortKeyCache.benchSortKeys[rowB.original.id] || "";
+
+        // Handle null/undefined (empty strings sort last)
         if (!benchA && !benchB) return 0;
         if (!benchA) return 1;
         if (!benchB) return -1;
 
-        // Convert to localized names for comparison
-        const strA = Array.isArray(benchA)
-          ? benchA.map(getBenchName).join(", ")
-          : getBenchName(benchA);
-        const strB = Array.isArray(benchB)
-          ? benchB.map(getBenchName).join(", ")
-          : getBenchName(benchB);
-        return strA.localeCompare(strB, undefined, { sensitivity: "base" });
+        return compareStrings(benchA, benchB);
       },
     }),
     columnHelper.accessor("id", {
@@ -193,10 +188,9 @@ export const createItemsTableColumns = (
       enableSorting: true,
       sortDescFirst: true,
       sortingFn: (rowA, rowB) => {
-        const reqA = itemRequirements[rowA.original.id];
-        const reqB = itemRequirements[rowB.original.id];
-        const totalA = reqA?.totalQuantity ?? 0;
-        const totalB = reqB?.totalQuantity ?? 0;
+        // Use pre-computed requirement totals for faster sorting
+        const totalA = sortKeyCache.requirementTotals[rowA.original.id] ?? 0;
+        const totalB = sortKeyCache.requirementTotals[rowB.original.id] ?? 0;
         return totalA - totalB;
       },
     }),

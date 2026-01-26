@@ -1,9 +1,9 @@
-import type { HideoutBench, Item } from "../types";
+import type { HideoutBench, Item, ItemRequirementLookup } from "../types";
 import {
   formatMaterialName,
   getMaterialImage,
 } from "../data/itemsData";
-import { sortMaterialsByName, DEFAULT_LANGUAGE } from "./functions";
+import { sortMaterialsByName, DEFAULT_LANGUAGE, getItemSortName, getBenchSortKey } from "./functions";
 
 // Cached material data structure
 export interface CachedMaterial {
@@ -69,4 +69,53 @@ export const createSortedMaterialsCache = (
   }
 
   return cache;
+};
+
+// ============================================================================
+// Sort Key Cache (Performance Optimization)
+// ============================================================================
+
+/**
+ * Pre-computed sort keys for efficient table sorting
+ */
+export interface SortKeyCache {
+  nameSortKeys: Record<string, string>;
+  benchSortKeys: Record<string, string>;
+  requirementTotals: Record<string, number>;
+}
+
+/**
+ * Create pre-computed sort keys for all items
+ * Avoids repeated expensive operations during sorting
+ */
+export const createSortKeyCache = (
+  items: Item[],
+  benchNameLookup: Record<string, string>,
+  itemRequirements: ItemRequirementLookup
+): SortKeyCache => {
+  const nameSortKeys: Record<string, string> = {};
+  const benchSortKeys: Record<string, string> = {};
+  const requirementTotals: Record<string, number> = {};
+
+  // Helper function to get bench name from lookup
+  const getBenchName = (benchId: string): string => {
+    return benchNameLookup[benchId] || benchId;
+  };
+
+  for (const item of items) {
+    // Pre-compute name sort key (lowercase for faster comparison)
+    nameSortKeys[item.id] = getItemSortName(item, DEFAULT_LANGUAGE).toLowerCase();
+
+    // Pre-compute bench sort key
+    benchSortKeys[item.id] = getBenchSortKey(item.craftBench, getBenchName);
+
+    // Pre-compute requirement total
+    requirementTotals[item.id] = itemRequirements[item.id]?.totalQuantity ?? 0;
+  }
+
+  return {
+    nameSortKeys,
+    benchSortKeys,
+    requirementTotals,
+  };
 };

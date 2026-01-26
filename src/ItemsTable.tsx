@@ -23,6 +23,7 @@ import { createItemsTableColumns } from "./utils/itemsTableColumns";
 import {
   createBenchNameLookup,
   createSortedMaterialsCache,
+  createSortKeyCache,
 } from "./utils/tableCache";
 
 const fallbackData: Item[] = [];
@@ -56,6 +57,12 @@ const ItemsTable = React.memo(({
     [items]
   );
 
+  // Pre-compute sort keys for performance optimization
+  const sortKeyCache = useMemo(
+    () => createSortKeyCache(items, benchNameLookup, itemRequirements),
+    [items, benchNameLookup, itemRequirements]
+  );
+
   const [sorting, setSorting] = React.useState<SortingState>([
     {
       id: "item",
@@ -69,9 +76,10 @@ const ItemsTable = React.memo(({
       createItemsTableColumns(
         itemRequirements,
         benchNameLookup,
-        sortedMaterialsCache
+        sortedMaterialsCache,
+        sortKeyCache
       ),
-    [itemRequirements, benchNameLookup, sortedMaterialsCache]
+    [itemRequirements, benchNameLookup, sortedMaterialsCache, sortKeyCache]
   );
 
   // Filter data based on search term and category filters
