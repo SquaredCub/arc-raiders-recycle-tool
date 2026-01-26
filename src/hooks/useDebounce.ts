@@ -1,14 +1,14 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
 /**
  * Custom hook that debounces a value by the specified delay.
  * Useful for delaying expensive operations like search filtering.
  *
  * @param value - The value to debounce
- * @param delay - Delay in milliseconds (default: 300ms)
+ * @param delay - Delay in milliseconds (default: 200ms)
  * @returns The debounced value
  */
-export const useDebounce = <T>(value: T, delay: number = 300): T => {
+export const useDebounce = <T>(value: T, delay: number = 200): T => {
   const [debouncedValue, setDebouncedValue] = useState<T>(value);
 
   useEffect(() => {

@@ -14,8 +14,12 @@ const Table = <T,>({ table, className }: TableProps<T>) => {
   const rowVirtualizer = useVirtualizer({
     count: rows.length,
     getScrollElement: () => tableContainerRef.current,
-    estimateSize: () => 120, // Match min-height from CSS
-    overscan: 10, // Render 10 extra rows above/below viewport for smooth scrolling
+    estimateSize: () => 120, // Initial estimate, will be measured dynamically
+    overscan: 5, // Reduced overscan for better performance
+    measureElement:
+      typeof window !== "undefined" && navigator.userAgent.indexOf("Firefox") === -1
+        ? (element) => element.getBoundingClientRect().height
+        : undefined, // Dynamic measurement (disabled on Firefox due to bugs)
   });
 
   // Reset scroll position when sorting changes
@@ -94,7 +98,12 @@ const Table = <T,>({ table, className }: TableProps<T>) => {
             // Use actual data index for alternating row colors (not DOM index)
             const isEvenRow = virtualRow.index % 2 === 0;
             return (
-              <tr key={row.id} className={`table-row ${isEvenRow ? 'table-row--even' : 'table-row--odd'}`}>
+              <tr
+                key={row.id}
+                data-index={virtualRow.index}
+                ref={rowVirtualizer.measureElement}
+                className={`table-row ${isEvenRow ? 'table-row--even' : 'table-row--odd'}`}
+              >
                 {row.getVisibleCells().map((cell) => (
                   <td key={cell.id} className="table-cell">
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}

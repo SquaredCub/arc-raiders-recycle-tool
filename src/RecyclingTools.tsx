@@ -8,7 +8,7 @@ import SearchInput from "./SearchInput";
 
 const RecyclingTools = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const debouncedSearchTerm = useDebounce(searchTerm, 300);
+  const debouncedSearchTerm = useDebounce(searchTerm);
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [filterSettings, setFilterSettings] = useState<FilterSettings>({
     includedCategories: new Set(FILTERABLE_ITEM_CATEGORIES),
@@ -22,7 +22,7 @@ const RecyclingTools = () => {
     (filtered: number, total: number) => {
       setItemCount({ filtered, total });
     },
-    []
+    [],
   );
 
   const openModal = useCallback(() => setIsFilterModalOpen(true), []);
