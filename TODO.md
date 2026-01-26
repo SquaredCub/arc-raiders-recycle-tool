@@ -243,7 +243,16 @@ Add skeleton loaders or spinner during filtering/sorting.
    - Wrapped `ItemCell` component with `React.memo()`
    - Uses default shallow comparison (all props are primitives)
    - Prevents unnecessary re-renders of 3000+ cells during sorting/filtering
-3. ✅ Virtual scrolling (1-2 hours) - Biggest impact for large datasets
+3. ✅ **COMPLETED** - Virtual scrolling (1-2 hours) - Biggest impact for large datasets
+   - Installed and integrated `@tanstack/react-virtual`
+   - Only renders visible rows (~5 rows) + 10 overscan buffer = ~15 total rendered rows
+   - Reduced DOM nodes from 500+ rows to ~15 rows (97% reduction)
+   - Fixed table height at 600px with scrollable container (`.table-scroll-container` class)
+   - Automatic scroll reset when sorting changes
+   - Estimated row height: 120px (matches CSS min-height)
+   - **Sticky header**: Table header remains visible while scrolling using CSS `position: sticky`
+   - **Fixed column widths**: Set explicit column sizes (200px, 250px, 250px, 180px, 220px, 120px) to prevent width jumping during scroll
+   - Used `table-layout: fixed` with `<colgroup>` for consistent column widths
 4. Optimize sorting functions (1 hour)
 5. Optimize filtered data calculation (45 min)
 6. Memoize cell renderers (2 hours)
