@@ -1,6 +1,7 @@
+import { memo } from "react";
 import { capitalizeItemId, WIKI_BASE_URL } from "./utils/functions";
 
-const ItemCell = ({
+const ItemCell = memo(({
   id,
   name,
   imageSrc,
@@ -29,6 +30,6 @@ const ItemCell = ({
       </span>
     </div>
   );
-};
+});
 
 export default ItemCell;
