@@ -91,8 +91,10 @@ const Table = <T,>({ table, className }: TableProps<T>) => {
           )}
           {virtualRows.map((virtualRow) => {
             const row = rows[virtualRow.index];
+            // Use actual data index for alternating row colors (not DOM index)
+            const isEvenRow = virtualRow.index % 2 === 0;
             return (
-              <tr key={row.id} className="table-row">
+              <tr key={row.id} className={`table-row ${isEvenRow ? 'table-row--even' : 'table-row--odd'}`}>
                 {row.getVisibleCells().map((cell) => (
                   <td key={cell.id} className="table-cell">
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
