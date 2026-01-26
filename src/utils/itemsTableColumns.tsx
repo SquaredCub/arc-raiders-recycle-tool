@@ -1,0 +1,217 @@
+import { createColumnHelper } from "@tanstack/react-table";
+import coinsPng from "../arcraiders-data/images/coins.png";
+import ItemCell from "../ItemCell";
+import { getItemImage } from "../data/itemsData";
+import type { Item, ItemRequirementLookup } from "../types";
+import { DEFAULT_LANGUAGE, isNoResultsItem } from "./functions";
+import type { CachedMaterial } from "./tableCache";
+
+const columnHelper = createColumnHelper<Item>();
+
+/**
+ * Create table column definitions
+ * Extracted to separate file for better organization and maintainability
+ */
+export const createItemsTableColumns = (
+  itemRequirements: ItemRequirementLookup,
+  benchNameLookup: Record<string, string>,
+  sortedMaterialsCache: Record<string, CachedMaterial[]>
+) => {
+  // Helper function to get bench name (uses lookup map for performance)
+  const getBenchName = (benchId: string): string => {
+    return benchNameLookup[benchId] || benchId;
+  };
+
+  return [
+    columnHelper.accessor("name", {
+      id: "item",
+      header: () => <span>Item</span>,
+      cell: (info) => {
+        const item = info.row.original;
+        // Handle "no results" placeholder
+        if (isNoResultsItem(item.id)) {
+          return <span>{item.name[DEFAULT_LANGUAGE]}</span>;
+        }
+        const imageSrc = getItemImage(item);
+        return (
+          <ItemCell
+            id={item.id}
+            name={item.name[DEFAULT_LANGUAGE] || item.name.en}
+            imageSrc={imageSrc}
+          />
+        );
+      },
+      enableSorting: true,
+      sortDescFirst: true,
+      invertSorting: true,
+      sortingFn: (rowA, rowB) => {
+        // Always sort by name in the default language (or fallback to 'en')
+        const nameA =
+          rowA.original.name[DEFAULT_LANGUAGE] || rowA.original.name.en || "";
+        const nameB =
+          rowB.original.name[DEFAULT_LANGUAGE] || rowB.original.name.en || "";
+        return nameA.localeCompare(nameB, undefined, { sensitivity: "base" });
+      },
+    }),
+    columnHelper.accessor("recyclesInto", {
+      id: "recycles",
+      header: () => <span>Recycles Into</span>,
+      cell: (info) => {
+        const item = info.row.original;
+        // Handle "no results" placeholder
+        if (isNoResultsItem(item.id)) {
+          return <span>-</span>;
+        }
+        // Use pre-computed cache for performance
+        const cachedMaterials = sortedMaterialsCache[`recycle_${item.id}`];
+        if (!cachedMaterials) {
+          return <span>-</span>;
+        }
+
+        return (
+          <div className="recycles-container">
+            {cachedMaterials.map(({ material, quantity, name, image }) => (
+              <ItemCell
+                key={material}
+                name={`${quantity} x ${name}`}
+                imageSrc={image}
+              />
+            ))}
+          </div>
+        );
+      },
+      enableSorting: false,
+    }),
+    columnHelper.accessor("recipe", {
+      id: "craftingMaterials",
+      header: () => <span>Crafting Materials</span>,
+      cell: (info) => {
+        const item = info.row.original;
+        // Handle "no results" placeholder
+        if (isNoResultsItem(item.id)) {
+          return <span>-</span>;
+        }
+        // Use pre-computed cache for performance
+        const cachedMaterials = sortedMaterialsCache[`recipe_${item.id}`];
+        if (!cachedMaterials) {
+          return <span>-</span>;
+        }
+
+        return (
+          <div className="recycles-container">
+            {cachedMaterials.map(({ material, quantity, name, image }) => (
+              <ItemCell
+                key={material}
+                name={`${quantity} x ${name}`}
+                imageSrc={image}
+              />
+            ))}
+          </div>
+        );
+      },
+      enableSorting: false,
+    }),
+    columnHelper.accessor("craftBench", {
+      id: "craftingStation",
+      header: () => <span>Crafting Station</span>,
+      cell: (info) => {
+        const item = info.row.original;
+        // Handle "no results" placeholder
+        if (isNoResultsItem(item.id)) {
+          return <span>-</span>;
+        }
+        const craftBench = info.getValue();
+        if (!craftBench) {
+          return <span>-</span>;
+        }
+        // Handle both string and string[] types
+        const benches = Array.isArray(craftBench) ? craftBench : [craftBench];
+        return (
+          <div className="craft-bench-container">
+            {benches.map((benchId, index) => (
+              <div key={index}>{getBenchName(benchId)}</div>
+            ))}
+          </div>
+        );
+      },
+      enableSorting: true,
+      sortDescFirst: true,
+      invertSorting: true,
+      sortingFn: (rowA, rowB) => {
+        const benchA = rowA.original.craftBench;
+        const benchB = rowB.original.craftBench;
+        // Handle null/undefined
+        if (!benchA && !benchB) return 0;
+        if (!benchA) return 1;
+        if (!benchB) return -1;
+
+        // Convert to localized names for comparison
+        const strA = Array.isArray(benchA)
+          ? benchA.map(getBenchName).join(", ")
+          : getBenchName(benchA);
+        const strB = Array.isArray(benchB)
+          ? benchB.map(getBenchName).join(", ")
+          : getBenchName(benchB);
+        return strA.localeCompare(strB, undefined, { sensitivity: "base" });
+      },
+    }),
+    columnHelper.accessor("id", {
+      id: "neededFor",
+      header: () => <span>Needed For</span>,
+      cell: (info) => {
+        const itemId = info.getValue();
+        // Handle "no results" placeholder
+        if (isNoResultsItem(itemId)) {
+          return <span>-</span>;
+        }
+        const requirements = itemRequirements[itemId];
+
+        if (!requirements) {
+          return <span>-</span>;
+        }
+
+        return (
+          <div className="needed-for-container">
+            <div className="needed-for-total">
+              Total: {requirements.totalQuantity}
+            </div>
+            <div className="needed-for-list">
+              {requirements.usedIn.map((usage, index) => (
+                <div key={index}>
+                  • {usage.source} ({usage.quantity})
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      },
+      enableSorting: true,
+      sortDescFirst: true,
+      sortingFn: (rowA, rowB) => {
+        const reqA = itemRequirements[rowA.original.id];
+        const reqB = itemRequirements[rowB.original.id];
+        const totalA = reqA?.totalQuantity ?? 0;
+        const totalB = reqB?.totalQuantity ?? 0;
+        return totalA - totalB;
+      },
+    }),
+    columnHelper.accessor("value", {
+      header: () => <span>Value</span>,
+      cell: (info) => {
+        const item = info.row.original;
+        // Handle "no results" placeholder
+        if (isNoResultsItem(item.id)) {
+          return <span>-</span>;
+        }
+        return (
+          <div className="value-container">
+            <span>{info.getValue()}</span>
+            <img src={coinsPng} alt="Coins" className="value-coin-icon" />
+          </div>
+        );
+      },
+      enableSorting: true,
+      sortDescFirst: true,
+    }),
+  ];
+};
