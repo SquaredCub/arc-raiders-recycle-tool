@@ -239,7 +239,10 @@ Add skeleton loaders or spinner during filtering/sorting.
    - Memoized `ItemsTable` with custom comparison for Set equality
    - Memoized `SearchInput` to prevent cascade re-renders
    - Input remains responsive while filtering is debounced
-2. ✅ Memoize ItemCell (5 min) - Easy win
+2. ✅ **COMPLETED** - Memoize ItemCell (5 min) - Easy win
+   - Wrapped `ItemCell` component with `React.memo()`
+   - Uses default shallow comparison (all props are primitives)
+   - Prevents unnecessary re-renders of 3000+ cells during sorting/filtering
 3. ✅ Virtual scrolling (1-2 hours) - Biggest impact for large datasets
 4. Optimize sorting functions (1 hour)
 5. Optimize filtered data calculation (45 min)
