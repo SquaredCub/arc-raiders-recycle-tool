@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { memo, useState } from "react";
 
-const SearchInput = ({
+const SearchInput = memo(({
   searchTerm,
   setSearchTerm,
 }: {
@@ -29,6 +29,6 @@ const SearchInput = ({
       </button>
     </div>
   );
-};
+});
 
 export default SearchInput;
