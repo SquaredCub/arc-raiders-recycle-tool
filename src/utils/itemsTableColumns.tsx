@@ -3,7 +3,7 @@ import coinsPng from "../arcraiders-data/images/coins.png";
 import { getItemImage } from "../data/itemsData";
 import ItemCell from "../ItemCell";
 import type { Item, ItemRequirementLookup } from "../types";
-import { DEFAULT_LANGUAGE, isNoResultsItem, compareStrings } from "./functions";
+import { compareStrings, DEFAULT_LANGUAGE, isNoResultsItem } from "./functions";
 import type { CachedMaterial, SortKeyCache } from "./tableCache";
 
 const columnHelper = createColumnHelper<Item>();
@@ -17,11 +17,14 @@ export const createItemsTableColumns = (
   benchNameLookup: Record<string, string>,
   sortedMaterialsCache: Record<string, CachedMaterial[]>,
   sortKeyCache: SortKeyCache,
+  searchRelevanceIndex: Record<string, number>,
 ) => {
   // Helper function to get bench name (uses lookup map for performance)
   const getBenchName = (benchId: string): string => {
     return benchNameLookup[benchId] || benchId;
   };
+
+  const hasActiveSearch = Object.keys(searchRelevanceIndex).length > 0;
 
   return [
     columnHelper.accessor("name", {
@@ -47,6 +50,12 @@ export const createItemsTableColumns = (
       sortDescFirst: true,
       invertSorting: true,
       sortingFn: (rowA, rowB) => {
+        // When searching, use relevance order instead of alphabetical
+        if (hasActiveSearch) {
+          const relevanceA = searchRelevanceIndex[rowA.original.id] ?? Infinity;
+          const relevanceB = searchRelevanceIndex[rowB.original.id] ?? Infinity;
+          return relevanceA - relevanceB;
+        }
         // Use pre-computed lowercase sort keys for faster comparison
         const nameA = sortKeyCache.nameSortKeys[rowA.original.id] || "";
         const nameB = sortKeyCache.nameSortKeys[rowB.original.id] || "";
@@ -117,7 +126,7 @@ export const createItemsTableColumns = (
     columnHelper.accessor("craftBench", {
       id: "craftingStation",
       header: () => <span>Crafting Station</span>,
-      size: 100,
+      size: 140,
       cell: (info) => {
         const item = info.row.original;
         // Handle "no results" placeholder

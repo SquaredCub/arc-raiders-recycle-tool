@@ -28,123 +28,147 @@ import {
 
 const fallbackData: Item[] = [];
 
-const ItemsTable = React.memo(({
-  searchTerm,
-  filterSettings,
-  onFilteredCountChange,
-}: {
-  searchTerm: string;
-  filterSettings: FilterSettings;
-  onFilteredCountChange?: (filteredCount: number, totalCount: number) => void;
-}) => {
-  const { items, quests, hideoutBenches, projects, isLoading, error } =
-    useData();
+const ItemsTable = React.memo(
+  ({
+    searchTerm,
+    filterSettings,
+    onFilteredCountChange,
+  }: {
+    searchTerm: string;
+    filterSettings: FilterSettings;
+    onFilteredCountChange?: (filteredCount: number, totalCount: number) => void;
+  }) => {
+    const { items, quests, hideoutBenches, projects, isLoading, error } =
+      useData();
 
-  // Compute item requirements from the data
-  const itemRequirements = useMemo(
-    () => getItemRequirements(hideoutBenches, quests, projects),
-    [hideoutBenches, quests, projects]
-  );
-
-  // Create lookup maps for performance optimization
-  const benchNameLookup = useMemo(
-    () => createBenchNameLookup(hideoutBenches),
-    [hideoutBenches]
-  );
-
-  const sortedMaterialsCache = useMemo(
-    () => createSortedMaterialsCache(items),
-    [items]
-  );
-
-  // Pre-compute sort keys for performance optimization
-  const sortKeyCache = useMemo(
-    () => createSortKeyCache(items, benchNameLookup, itemRequirements),
-    [items, benchNameLookup, itemRequirements]
-  );
-
-  const [sorting, setSorting] = React.useState<SortingState>([
-    {
-      id: "item",
-      desc: true,
-    },
-  ]);
-
-  // Create column definitions using extracted function
-  const columns = useMemo(
-    () =>
-      createItemsTableColumns(
-        itemRequirements,
-        benchNameLookup,
-        sortedMaterialsCache,
-        sortKeyCache
-      ),
-    [itemRequirements, benchNameLookup, sortedMaterialsCache, sortKeyCache]
-  );
-
-  // Filter data based on search term and category filters
-  const filteredData = useMemo(() => {
-    // First filter by search term
-    let results = filterItemsBySearch(
-      items,
-      searchTerm,
-      formatMaterialName,
-      DEFAULT_LANGUAGE
+    // Compute item requirements from the data
+    const itemRequirements = useMemo(
+      () => getItemRequirements(hideoutBenches, quests, projects),
+      [hideoutBenches, quests, projects],
     );
 
-    // Then filter by included categories
-    results = results.filter((item) =>
-      filterSettings.includedCategories.has(item.type)
+    // Create lookup maps for performance optimization
+    const benchNameLookup = useMemo(
+      () => createBenchNameLookup(hideoutBenches),
+      [hideoutBenches],
     );
 
-    // If no results found, return a placeholder item
-    if (results.length === 0) {
-      return [createNoResultsItem(searchTerm)];
-    }
+    const sortedMaterialsCache = useMemo(
+      () => createSortedMaterialsCache(items),
+      [items],
+    );
 
-    return results;
-  }, [items, searchTerm, filterSettings]);
+    // Pre-compute sort keys for performance optimization
+    const sortKeyCache = useMemo(
+      () => createSortKeyCache(items, benchNameLookup, itemRequirements),
+      [items, benchNameLookup, itemRequirements],
+    );
 
-  // Notify parent of filtered count changes
-  useEffect(() => {
-    if (onFilteredCountChange && items.length > 0) {
-      const actualFilteredCount = filteredData.filter(
-        (item) => !isNoResultsItem(item.id)
-      ).length;
-      onFilteredCountChange(actualFilteredCount, items.length);
-    }
-  }, [filteredData, items, onFilteredCountChange]);
+    const [sorting, setSorting] = React.useState<SortingState>([
+      {
+        id: "item",
+        desc: true,
+      },
+    ]);
 
-  // eslint-disable-next-line react-hooks/incompatible-library
-  const table = useReactTable({
-    columns,
-    data: filteredData ?? fallbackData,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    onSortingChange: setSorting,
-    enableSortingRemoval: false,
-    state: {
-      sorting,
-    },
-  });
+    // Create search relevance index to preserve filter order during sorting
+    const searchRelevanceIndex = useMemo(() => {
+      const index: Record<string, number> = {};
+      if (searchTerm.trim()) {
+        const results = filterItemsBySearch(
+          items,
+          searchTerm,
+          formatMaterialName,
+          DEFAULT_LANGUAGE,
+        );
+        // Assign relevance scores (lower = more relevant)
+        results.forEach((item, idx) => {
+          index[item.id] = idx;
+        });
+      }
+      return index;
+    }, [items, searchTerm]);
 
-  if (isLoading) return <LoadingSpinner />;
-  if (error)
-    return <ErrorMessage message={"Something went wrong fetching the data"} />;
+    // Create column definitions using extracted function
+    const columns = useMemo(
+      () =>
+        createItemsTableColumns(
+          itemRequirements,
+          benchNameLookup,
+          sortedMaterialsCache,
+          sortKeyCache,
+          searchRelevanceIndex,
+        ),
+      [itemRequirements, benchNameLookup, sortedMaterialsCache, sortKeyCache, searchRelevanceIndex],
+    );
 
-  return <Table<Item> table={table} className="items-table" />;
-}, (prevProps, nextProps) => {
-  // Custom comparison function for React.memo
-  // Only re-render if searchTerm, filterSettings categories, or callback changes
-  return (
-    prevProps.searchTerm === nextProps.searchTerm &&
-    prevProps.onFilteredCountChange === nextProps.onFilteredCountChange &&
-    areSetsEqual(
-      prevProps.filterSettings.includedCategories,
-      nextProps.filterSettings.includedCategories
-    )
-  );
-});
+    // Filter data based on search term and category filters
+    const filteredData = useMemo(() => {
+      // First filter by search term
+      let results = filterItemsBySearch(
+        items,
+        searchTerm,
+        formatMaterialName,
+        DEFAULT_LANGUAGE,
+      );
+
+      // Then filter by included categories
+      results = results.filter((item) =>
+        filterSettings.includedCategories.has(item.type),
+      );
+
+      // If no results found, return a placeholder item
+      if (results.length === 0) {
+        return [createNoResultsItem(searchTerm)];
+      }
+
+      return results;
+    }, [items, searchTerm, filterSettings]);
+
+    // Notify parent of filtered count changes
+    useEffect(() => {
+      if (onFilteredCountChange && items.length > 0) {
+        const actualFilteredCount = filteredData.filter(
+          (item) => !isNoResultsItem(item.id),
+        ).length;
+        onFilteredCountChange(actualFilteredCount, items.length);
+      }
+    }, [filteredData, items, onFilteredCountChange]);
+
+    // eslint-disable-next-line react-hooks/incompatible-library
+    const table = useReactTable({
+      columns,
+      data: filteredData ?? fallbackData,
+      getCoreRowModel: getCoreRowModel(),
+      getSortedRowModel: getSortedRowModel(),
+      onSortingChange: setSorting,
+      enableSortingRemoval: false,
+      state: {
+        sorting,
+      },
+    });
+
+    if (isLoading) return <LoadingSpinner />;
+    if (error)
+      return (
+        <ErrorMessage message={"Something went wrong fetching the data"} />
+      );
+
+    return <Table<Item> table={table} className="items-table" />;
+  },
+  (prevProps, nextProps) => {
+    // Custom comparison function for React.memo
+    // Only re-render if searchTerm, filterSettings categories, or callback changes
+    return (
+      prevProps.searchTerm === nextProps.searchTerm &&
+      prevProps.onFilteredCountChange === nextProps.onFilteredCountChange &&
+      areSetsEqual(
+        prevProps.filterSettings.includedCategories,
+        nextProps.filterSettings.includedCategories,
+      )
+    );
+  },
+);
 
 // Helper function to compare Sets
 const areSetsEqual = <T,>(setA: Set<T>, setB: Set<T>): boolean => {
