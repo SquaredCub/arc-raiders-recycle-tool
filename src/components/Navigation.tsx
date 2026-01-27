@@ -23,6 +23,11 @@ const externalLinks = [
     icon: "https://arcraidersmaps.app/favicon/favicon-96x96.png",
   },
   {
+    label: "Map Selector",
+    href: "https://wheelofnames.com/stu-fhg",
+    icon: "https://wheelofnames.com/images/logo-dark-background-38.png",
+  },
+  {
     label: "Damage Calculator",
     href: "https://arcdamagecalculator.tiiny.site/",
     icon: "https://arcdamagecalculator.tiiny.site/favicon.ico",
