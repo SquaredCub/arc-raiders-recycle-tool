@@ -42,7 +42,7 @@ const RecyclingTools = () => {
           to obtain it.
         </p>
       </section>
-      <section id="controls">
+      <section id="controlsSection">
         <div className="controls-container">
           <SearchInput searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
           <button
@@ -78,7 +78,7 @@ const RecyclingTools = () => {
           )}
         </div>
       </section>
-      <section id="table">
+      <section id="tableSection">
         <ItemsTable
           searchTerm={debouncedSearchTerm}
           filterSettings={filterSettings}

@@ -154,7 +154,14 @@ const ItemsTable = React.memo(
         <ErrorMessage message={"Something went wrong fetching the data"} />
       );
 
-    return <Table<Item> table={table} className="items-table" />;
+    return (
+      <Table<Item>
+        table={table}
+        className="items-table"
+        itemRequirements={itemRequirements}
+        benchNameLookup={benchNameLookup}
+      />
+    );
   },
   (prevProps, nextProps) => {
     // Custom comparison function for React.memo

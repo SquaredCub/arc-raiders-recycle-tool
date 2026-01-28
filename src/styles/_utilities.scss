@@ -1,0 +1,27 @@
+@use "./breakpoints" as *;
+
+// Utility classes
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.select-none {
+  user-select: none;
+}
+
+// Global mobile improvements
+@include mobile {
+  * {
+    -webkit-tap-highlight-color: rgba(112, 167, 230, 0.2);
+  }
+
+  button {
+    min-height: 44px;
+  }
+
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
