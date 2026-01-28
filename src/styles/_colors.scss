@@ -1,0 +1,109 @@
+// Color Constants - Centralized color definitions for dual theme support
+// Using CSS variables with prefers-color-scheme for automatic theme switching
+
+:root {
+  // Light mode colors (default)
+  --bg-primary: #ffffff;
+  --bg-secondary: #f5f5f5;
+  --bg-tertiary: #e8e8e8;
+  --bg-modal-overlay: rgba(0, 0, 0, 0.5);
+
+  // Text colors
+  --text-primary: #1a1a1a;
+  --text-secondary: #4a4a4a;
+  --text-tertiary: #888888;
+  --text-muted: #4d4d4d;
+  --text-faint: #666666;
+
+  // Border colors
+  --border-primary: #d0d0d0;
+  --border-secondary: #e0e0e0;
+  --border-tertiary: #ebebeb;
+
+  // Brand colors (blue theme) - consistent across both themes
+  --color-primary: #125797;
+  --color-primary-hover: #1e5fa0;
+  --color-primary-active: #4a9eff;
+  --color-primary-bg: #e3f0fb;
+  --color-primary-bg-hover: #cfe5f7;
+  --color-primary-border: #a1cef0;
+  --color-primary-shadow: rgba(43, 122, 196, 0.3);
+
+  // Status colors
+  --color-success: #22c55e;
+  --color-success-bg: #e5f9ed;
+  --color-success-border: #8ee4ae;
+
+  --color-error: #ef4444;
+  --color-error-bg: #fef0f0;
+  --color-error-border: #f6b5b5;
+
+  // Box shadows
+  --shadow-sm: 0 0 5px var(--color-primary-shadow);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.5);
+  --shadow-primary: 0 4px 12px var(--color-primary-shadow);
+  --shadow-glow: 0 4px 20px var(--color-primary-shadow);
+}
+
+// Dark mode overrides (automatically applies when user has dark mode preference)
+@media (prefers-color-scheme: dark) {
+  :root {
+    // Background colors
+    --bg-primary: #1a1a1a;
+    --bg-secondary: #333333;
+    --bg-tertiary: #262626;
+    --bg-modal-overlay: rgba(0, 0, 0, 0.7);
+
+    // Text colors
+    --text-primary: #ffffff;
+    --text-secondary: #cccccc;
+    --text-tertiary: #888888;
+    --text-muted: #b3b3b3;
+    --text-faint: #999999;
+
+    // Border colors
+    --border-primary: #666666;
+    --border-secondary: #3d3d3d;
+    --border-tertiary: #2e2e2e;
+
+    // Brand colors (adjusted for dark mode)
+    --color-primary: #70a7e6;
+    --color-primary-hover: #a3cdfa;
+    --color-primary-active: #4a9eff;
+    --color-primary-bg: #1f3a52;
+    --color-primary-bg-hover: #2a4a66;
+    --color-primary-border: #4d7ba6;
+    --color-primary-shadow: rgba(112, 167, 230, 0.3);
+
+    // Status colors
+    --color-success: #4ade80;
+    --color-success-bg: #1a3d28;
+    --color-success-border: #2d7a4a;
+
+    --color-error: #ff6464;
+    --color-error-bg: #4a1f1f;
+    --color-error-border: #a63d3d;
+
+    // Box shadows
+    --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.5);
+    --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.5);
+  }
+}
+
+// Utility: Invert white icons/images to black in light mode
+.invert-in-light {
+  filter: invert(1);
+
+  @media (prefers-color-scheme: dark) {
+    filter: none;
+  }
+}
+// Utility: Invert black icons/images to white in dark mode
+.invert-in-dark {
+  filter: none;
+
+  @media (prefers-color-scheme: dark) {
+    filter: invert(1);
+  }
+}
