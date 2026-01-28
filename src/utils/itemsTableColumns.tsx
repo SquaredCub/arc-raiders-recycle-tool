@@ -1,7 +1,7 @@
 import { createColumnHelper } from "@tanstack/react-table";
 import { getItemImage } from "../data/itemsData";
-import { getImageUrl } from "../services/dataService";
 import ItemCell from "../ItemCell";
+import { getImageUrl } from "../services/dataService";
 import type { Item, ItemRequirementLookup } from "../types";
 import { compareStrings, DEFAULT_LANGUAGE, isNoResultsItem } from "./functions";
 import type { CachedMaterial, SortKeyCache } from "./tableCache";
@@ -40,11 +40,14 @@ export const createItemsTableColumns = (
         }
         const imageSrc = getItemImage(item);
         return (
-          <ItemCell
-            id={item.id}
-            name={item.name[DEFAULT_LANGUAGE] || item.name.en}
-            imageSrc={imageSrc}
-          />
+          <>
+            <span className="match-indicator-spacer left" />
+            <ItemCell
+              id={item.id}
+              name={item.name[DEFAULT_LANGUAGE] || item.name.en}
+              imageSrc={imageSrc}
+            />
+          </>
         );
       },
       enableSorting: true,
@@ -214,10 +217,17 @@ export const createItemsTableColumns = (
           return <span>-</span>;
         }
         return (
-          <div className="value-container">
-            <span>{info.getValue()}</span>
-            <img src={COINS_IMAGE_URL} alt="Coins" className="value-coin-icon" />
-          </div>
+          <>
+            <div className="value-container">
+              <span>{info.getValue()}</span>
+              <img
+                src={COINS_IMAGE_URL}
+                alt="Coins"
+                className="value-coin-icon"
+              />
+            </div>
+            <span className="match-indicator-spacer right" />
+          </>
         );
       },
       enableSorting: true,

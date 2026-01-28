@@ -161,6 +161,7 @@ const ItemsTable = React.memo(
         itemRequirements={itemRequirements}
         benchNameLookup={benchNameLookup}
         sortedMaterialsCache={sortedMaterialsCache}
+        searchTerm={searchTerm}
       />
     );
   },

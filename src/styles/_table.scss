@@ -63,6 +63,31 @@
     background-color: var(--bg-tertiary);
   }
 
+  .match-indicator-spacer {
+    display: none;
+  }
+  // Search match styling - blue tick on the left side
+  .table-row--search-match {
+    position: relative;
+
+    .match-indicator-spacer {
+      display: block;
+      position: absolute;
+      width: 4px;
+      background-color: var(--color-success-border);
+      &.left {
+        left: 1px;
+        bottom: 1px;
+        top: 1px;
+      }
+      &.right {
+        right: 1px;
+        bottom: 1px;
+        top: 1px;
+      }
+    }
+  }
+
   .table-cell {
     border: 1px solid var(--border-primary);
     border-right-width: 0;
