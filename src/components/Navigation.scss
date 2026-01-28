@@ -1,4 +1,5 @@
 @use "../styles/breakpoints" as *;
+@use "../styles/utilities" as *;
 
 .navigation {
   position: fixed;
@@ -36,7 +37,7 @@
       min-width: 0;
     }
 
-    &:hover {
+    @include hover-supported {
       background-color: #333;
       color: #fff;
     }
@@ -78,7 +79,7 @@
       padding: 0.5em 0.8em;
     }
 
-    &:hover {
+    @include hover-supported {
       background-color: #333;
       color: #fff;
     }
@@ -115,7 +116,8 @@
     transition:
       background 0.2s,
       color 0.2s;
-    &:hover {
+
+    @include hover-supported {
       background: #333;
       color: #fff;
     }
