@@ -160,6 +160,7 @@ const ItemsTable = React.memo(
         className="items-table"
         itemRequirements={itemRequirements}
         benchNameLookup={benchNameLookup}
+        sortedMaterialsCache={sortedMaterialsCache}
       />
     );
   },
