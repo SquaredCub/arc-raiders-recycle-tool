@@ -1,13 +1,26 @@
-import { useVirtualizer } from "@tanstack/react-virtual";
 import { flexRender, type Table as TableType } from "@tanstack/react-table";
+import { useVirtualizer } from "@tanstack/react-virtual";
 import { useEffect, useRef } from "react";
+import MobileItemRow from "./components/MobileItemRow";
+import { MEDIA_QUERIES } from "./constants/breakpoints";
+import { useMediaQuery } from "./hooks/useMediaQuery";
+import type { Item, ItemRequirementLookup } from "./types";
 
 type TableProps<T> = {
   table: TableType<T>;
   className?: string;
+  // Optional props for mobile view (only used when T is Item)
+  itemRequirements?: ItemRequirementLookup;
+  benchNameLookup?: Record<string, string>;
 };
 
-const Table = <T,>({ table, className }: TableProps<T>) => {
+const Table = <T,>({
+  table,
+  className,
+  itemRequirements,
+  benchNameLookup,
+}: TableProps<T>) => {
+  const isMobileOrTablet = useMediaQuery(MEDIA_QUERIES.tabletAndBelow);
   const tableContainerRef = useRef<HTMLDivElement>(null);
   const rows = table.getRowModel().rows;
 
@@ -17,15 +30,18 @@ const Table = <T,>({ table, className }: TableProps<T>) => {
     estimateSize: () => 120, // Initial estimate, will be measured dynamically
     overscan: 5, // Reduced overscan for better performance
     measureElement:
-      typeof window !== "undefined" && navigator.userAgent.indexOf("Firefox") === -1
+      typeof window !== "undefined" &&
+      navigator.userAgent.indexOf("Firefox") === -1
         ? (element) => element.getBoundingClientRect().height
         : undefined, // Dynamic measurement (disabled on Firefox due to bugs)
   });
 
   // Reset scroll position when sorting changes
+  const sorting = table.getState().sorting;
   useEffect(() => {
     rowVirtualizer.scrollToIndex(0);
-  }, [table.getState().sorting, rowVirtualizer]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sorting]);
 
   const virtualRows = rowVirtualizer.getVirtualItems();
   const totalSize = rowVirtualizer.getTotalSize();
@@ -37,6 +53,40 @@ const Table = <T,>({ table, className }: TableProps<T>) => {
       ? totalSize - virtualRows[virtualRows.length - 1].end
       : 0;
 
+  // Mobile/Tablet view - render cards instead of table
+  if (
+    isMobileOrTablet &&
+    className === "items-table" &&
+    itemRequirements &&
+    benchNameLookup
+  ) {
+    return (
+      <div ref={tableContainerRef} className="mobile-items-container">
+        {paddingTop > 0 && <div style={{ height: `${paddingTop}px` }} />}
+        {virtualRows.map((virtualRow) => {
+          const row = rows[virtualRow.index];
+          const item = row.original as Item;
+          return (
+            <div
+              key={row.id}
+              data-index={virtualRow.index}
+              ref={rowVirtualizer.measureElement}
+            >
+              <MobileItemRow
+                item={item}
+                itemRequirements={itemRequirements}
+                benchNameLookup={benchNameLookup}
+                index={virtualRow.index}
+              />
+            </div>
+          );
+        })}
+        {paddingBottom > 0 && <div style={{ height: `${paddingBottom}px` }} />}
+      </div>
+    );
+  }
+
+  // Desktop view - render table
   return (
     <div ref={tableContainerRef} className="table-scroll-container">
       <table id="table" className={className}>
@@ -67,14 +117,14 @@ const Table = <T,>({ table, className }: TableProps<T>) => {
                           ? header.column.getNextSortingOrder() === "asc"
                             ? "Sort ascending"
                             : header.column.getNextSortingOrder() === "desc"
-                            ? "Sort descending"
-                            : "Clear sort"
+                              ? "Sort descending"
+                              : "Clear sort"
                           : undefined
                       }
                     >
                       {flexRender(
                         header.column.columnDef.header,
-                        header.getContext()
+                        header.getContext(),
                       )}
                       {{
                         asc: " 🔼",
@@ -102,7 +152,7 @@ const Table = <T,>({ table, className }: TableProps<T>) => {
                 key={row.id}
                 data-index={virtualRow.index}
                 ref={rowVirtualizer.measureElement}
-                className={`table-row ${isEvenRow ? 'table-row--even' : 'table-row--odd'}`}
+                className={`table-row ${isEvenRow ? "table-row--even" : "table-row--odd"}`}
               >
                 {row.getVisibleCells().map((cell) => (
                   <td key={cell.id} className="table-cell">

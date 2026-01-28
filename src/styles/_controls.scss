@@ -1,0 +1,109 @@
+@use "./breakpoints" as *;
+
+// Control panel styles (search, filters, etc.)
+#controlsSection {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+
+  input {
+    padding: 0.5rem;
+  }
+
+  .controls-container {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+
+    @include mobile {
+      flex-wrap: wrap;
+      max-width: 100%;
+      gap: 0.75rem;
+      margin: 0 auto;
+    }
+  }
+
+  .filter-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem;
+    background-color: transparent;
+    border: 1px solid #70a7e6;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    height: 100%;
+    flex-shrink: 0;
+
+    svg {
+      width: 20px;
+      height: 20px;
+      color: #70a7e6;
+    }
+
+    &:hover {
+      background-color: #70a7e6;
+      border-color: #a3cdfa;
+      box-shadow: 0 0 5px #70a7e6;
+
+      svg {
+        color: #1a1a1a;
+      }
+    }
+
+    @include mobile {
+      width: auto;
+      min-width: 44px;
+    }
+  }
+
+  .item-count {
+    color: #a3cdfa;
+    font-size: 0.9rem;
+    padding: 0.25rem 0.5rem;
+    border: 1px solid rgba(112, 167, 230, 0.3);
+    border-radius: 4px;
+    background-color: rgba(112, 167, 230, 0.1);
+    white-space: nowrap;
+
+    @include mobile {
+      text-align: center;
+      flex-basis: 100%;
+    }
+  }
+
+  @include mobile {
+    flex-direction: column;
+    padding: 0 1rem;
+  }
+}
+
+.search-input {
+  width: 300px;
+  border: 1px solid #70a7e6;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+
+  &--focused {
+    box-shadow: 0 0 5px #70a7e6;
+    border-color: #a3cdfa;
+  }
+
+  input {
+    border: none;
+    outline: none;
+    background-color: transparent;
+    width: 100%;
+  }
+
+  @include mobile {
+    flex: 1;
+    min-width: 0;
+
+    input {
+      font-size: 16px !important;
+    }
+  }
+}

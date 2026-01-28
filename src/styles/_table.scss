@@ -1,0 +1,142 @@
+@use "./breakpoints" as *;
+
+// Table styles for desktop view
+.table-scroll-container {
+  height: calc(100vh - 16rem);
+  overflow: auto;
+  max-width: 1509px;
+  margin: 0 auto;
+  border-bottom: 1px solid #666;
+
+  @include mobile {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+}
+
+#table {
+  table-layout: fixed;
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+
+  .table-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+
+    .table-cell {
+      padding: 0.5rem;
+      font-weight: bold;
+      background-color: #1a1a1a;
+      border: 1px solid #666;
+      border-right-width: 0;
+      // Keep bottom border on header cells to remain visible when scrolling
+
+      &:last-child {
+        border-right-width: 1px;
+      }
+    }
+  }
+
+  .table-body {
+    .table-cell {
+      padding: 0.5rem;
+      vertical-align: middle;
+    }
+  }
+
+  .table-footer {
+    .table-cell {
+      padding: 0.5rem;
+      font-weight: bold;
+    }
+  }
+}
+
+.items-table {
+  .table-row {
+    min-height: 120px;
+  }
+
+  .table-row--even {
+    background-color: rgba(242, 242, 242, 0.04);
+  }
+
+  .table-cell {
+    border: 1px solid #666;
+    border-right-width: 0;
+    border-bottom-width: 0;
+
+    &:last-child {
+      border-right-width: 1px;
+    }
+  }
+
+  .table-row:last-child {
+    .table-cell {
+      border-bottom-width: 1px;
+    }
+  }
+
+  .cell-item {
+    display: grid;
+    grid-template-columns: 1fr 4fr;
+    grid-template-areas: "image name";
+
+    &__name {
+      grid-area: name;
+      align-self: center;
+    }
+
+    &__image {
+      grid-area: image;
+      justify-self: center;
+      width: 50px;
+      height: 50px;
+
+      img {
+        object-fit: contain;
+        width: 100%;
+        height: 100%;
+      }
+    }
+  }
+
+  // Recycles column
+  .recycles-container {
+    display: flex;
+    flex-direction: column;
+  }
+
+  // Needed For column
+  .needed-for-container {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .needed-for-total {
+    font-weight: bold;
+  }
+
+  .needed-for-list {
+    font-size: 0.9em;
+    color: #666;
+  }
+
+  // Value column
+  .value-container {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    text-align: center;
+    padding: 12px;
+  }
+
+  .value-coin-icon {
+    width: 18px;
+    height: 18px;
+    padding-top: 2px;
+  }
+}
