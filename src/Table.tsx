@@ -14,6 +14,7 @@ type TableProps<T> = {
   itemRequirements?: ItemRequirementLookup;
   benchNameLookup?: Record<string, string>;
   sortedMaterialsCache?: Record<string, CachedMaterial[]>;
+  searchTerm?: string;
 };
 
 const Table = <T,>({
@@ -22,10 +23,23 @@ const Table = <T,>({
   itemRequirements,
   benchNameLookup,
   sortedMaterialsCache,
+  searchTerm,
 }: TableProps<T>) => {
   const isMobileOrTablet = useMediaQuery(MEDIA_QUERIES.tabletAndBelow);
   const tableContainerRef = useRef<HTMLDivElement>(null);
   const rows = table.getRowModel().rows;
+
+  // Helper function to determine if a row matches the search term
+  const isSearchMatch = (row: (typeof rows)[0]): boolean => {
+    if (!searchTerm?.trim()) return false;
+
+    const item = row.original as Item;
+    const itemName = item.name?.en?.toLowerCase();
+    const lowerSearchTerm = searchTerm.toLowerCase();
+
+    // Check if item name contains the search term
+    return itemName ? itemName.includes(lowerSearchTerm) : false;
+  };
 
   const rowVirtualizer = useVirtualizer({
     count: rows.length,
@@ -152,12 +166,13 @@ const Table = <T,>({
             const row = rows[virtualRow.index];
             // Use actual data index for alternating row colors (not DOM index)
             const isEvenRow = virtualRow.index % 2 === 0;
+            const isMatch = isSearchMatch(row);
             return (
               <tr
                 key={row.id}
                 data-index={virtualRow.index}
                 ref={rowVirtualizer.measureElement}
-                className={`table-row ${isEvenRow ? "table-row--even" : "table-row--odd"}`}
+                className={`table-row ${isEvenRow ? "table-row--even" : "table-row--odd"} ${isMatch ? "table-row--search-match" : ""}`}
               >
                 {row.getVisibleCells().map((cell) => (
                   <td key={cell.id} className="table-cell">
