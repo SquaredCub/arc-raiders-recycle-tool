@@ -1,4 +1,5 @@
 @use "./breakpoints" as *;
+@use "./utilities" as *;
 
 // Control panel styles (search, filters, etc.)
 #controlsSection {
@@ -42,7 +43,7 @@
       color: #70a7e6;
     }
 
-    &:hover {
+    @include hover-supported {
       background-color: #70a7e6;
       border-color: #a3cdfa;
       box-shadow: 0 0 5px #70a7e6;

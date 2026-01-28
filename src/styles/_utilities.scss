@@ -1,5 +1,14 @@
 @use "./breakpoints" as *;
 
+// Mixins
+@mixin hover-supported {
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      @content;
+    }
+  }
+}
+
 // Utility classes
 .cursor-pointer {
   cursor: pointer;

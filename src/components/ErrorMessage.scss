@@ -32,7 +32,7 @@
     cursor: pointer;
     transition: background-color 0.2s;
 
-    &:hover {
+    @media (hover: hover) and (pointer: fine) {
       background-color: #3a8eef;
     }
   }

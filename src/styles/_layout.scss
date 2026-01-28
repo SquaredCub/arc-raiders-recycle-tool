@@ -1,4 +1,5 @@
 @use "./breakpoints" as *;
+@use "./utilities" as *;
 
 // Layout styles for the main app structure
 #root {
@@ -46,7 +47,8 @@ h1 {
 a {
   color: #70a7e6;
   border-radius: 0.5rem;
-  &:hover {
+
+  @include hover-supported {
     color: #a3cdfa;
   }
 }
