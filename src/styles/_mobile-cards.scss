@@ -2,14 +2,14 @@
 
 // Mobile card layout styles
 .mobile-items-container {
-  height: calc(100svh - 16rem);
+  height: calc(100svh - 16.5rem);
   overflow: auto;
   max-width: 100%;
   margin: 0 auto;
   padding-inline: 1rem;
 
   @include mobile {
-    height: calc(100svh - 21rem);
+    height: calc(100svh - 21.5rem);
   }
 }
 

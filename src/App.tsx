@@ -16,6 +16,7 @@ const App = () => {
       <Navigation activePage={activePage} onNavigate={onNavigate} />
       {activePage === "recycling" && <RecyclingTools />}
       {activePage === "crafts" && <ProfitableItems />}
+      <div id="update-note">Last updated on 28/01/2026</div>
     </>
   );
 };
