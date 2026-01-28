@@ -22,7 +22,7 @@
   .description {
     text-align: center;
     margin-bottom: 2rem;
-    color: rgba(255, 255, 255, 0.7);
+    color: var(--text-muted);
     font-size: 0.95rem;
 
     @include mobile {
@@ -35,7 +35,7 @@
     text-align: center;
     padding: 2rem;
     font-size: 1.1rem;
-    color: rgba(255, 255, 255, 0.6);
+    color: var(--text-faint);
   }
 
   .profitable-list {
@@ -52,8 +52,8 @@
   }
 
   .profitable-card {
-    background-color: rgba(242, 242, 242, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background-color: var(--bg-tertiary);
+    border: 1px solid var(--border-secondary);
     border-radius: 8px;
     padding: 1.5rem;
     transition: all 0.3s ease;
@@ -65,8 +65,8 @@
     }
 
     @include hover-supported {
-      border-color: rgba(112, 167, 230, 0.4);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      border-color: var(--color-primary-border);
+      box-shadow: var(--shadow-lg);
     }
 
     &__header {
@@ -74,7 +74,7 @@
       justify-content: space-between;
       align-items: center;
       padding-bottom: 1rem;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      border-bottom: 1px solid var(--border-secondary);
       margin-bottom: 1rem;
 
       @include mobile {
@@ -101,7 +101,7 @@
 
       .profit-label {
         font-size: 0.85rem;
-        color: rgba(255, 255, 255, 0.6);
+        color: var(--text-faint);
         text-transform: uppercase;
       }
 
@@ -113,7 +113,7 @@
         .profit-amount {
           font-size: 1.5rem;
           font-weight: bold;
-          color: #4ade80;
+          color: var(--color-success);
 
           @include mobile {
             font-size: 1.25rem;
@@ -123,7 +123,7 @@
 
       .profit-margin {
         font-size: 0.9rem;
-        color: rgba(255, 255, 255, 0.7);
+        color: var(--text-muted);
       }
     }
 
@@ -141,7 +141,7 @@
         font-size: 1rem;
         font-weight: 600;
         margin-bottom: 0.75rem;
-        color: #70a7e6;
+        color: var(--color-primary);
 
         @include mobile {
           font-size: 0.95rem;
@@ -154,8 +154,8 @@
           flex-direction: column;
           gap: 0.5rem;
           padding: 0.75rem;
-          background-color: rgba(74, 222, 128, 0.1);
-          border: 1px solid rgba(74, 222, 128, 0.3);
+          background-color: var(--color-success-bg);
+          border: 1px solid var(--color-success-border);
           border-radius: 6px;
 
           @include mobile {
@@ -181,8 +181,8 @@
             justify-content: space-between;
             align-items: center;
             padding: 0.5rem;
-            background-color: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            background-color: var(--bg-tertiary);
+            border: 1px solid var(--border-tertiary);
             border-radius: 4px;
 
             @include mobile {
@@ -206,7 +206,7 @@
               align-items: center;
               gap: 0.25rem;
               font-weight: 500;
-              color: rgba(255, 100, 100, 0.9);
+              color: var(--color-error);
             }
           }
         }
@@ -216,8 +216,8 @@
           justify-content: space-between;
           align-items: center;
           padding: 0.75rem;
-          background-color: rgba(255, 100, 100, 0.1);
-          border: 1px solid rgba(255, 100, 100, 0.3);
+          background-color: var(--color-error-bg);
+          border: 1px solid var(--color-error-border);
           border-radius: 6px;
           font-weight: 600;
 
@@ -263,6 +263,11 @@
     width: 18px;
     height: 18px;
     object-fit: contain;
+    filter: invert(1) brightness(0);
+
+    @media (prefers-color-scheme: dark) {
+      filter: none;
+    }
 
     @include mobile {
       width: 16px;
@@ -274,7 +279,7 @@
     text-align: center;
     margin-block: 2rem;
     padding-top: 1.5rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-top: 1px solid var(--border-secondary);
 
     @include mobile {
       margin-block: 1.5rem;
@@ -283,14 +288,14 @@
 
     p {
       font-size: 1rem;
-      color: rgba(255, 255, 255, 0.7);
+      color: var(--text-muted);
 
       @include mobile {
         font-size: 0.9rem;
       }
 
       strong {
-        color: #70a7e6;
+        color: var(--color-primary);
         font-size: 1.1rem;
 
         @include mobile {

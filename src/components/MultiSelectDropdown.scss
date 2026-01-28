@@ -10,17 +10,17 @@
     justify-content: space-between;
     align-items: center;
     padding: 0.75rem 1rem;
-    background-color: rgba(112, 167, 230, 0.1);
-    border: 1px solid #70a7e6;
+    background-color: var(--color-primary-bg);
+    border: 1px solid var(--color-primary);
     border-radius: 4px;
     cursor: pointer;
     transition: all 0.2s;
-    color: #fff;
+    color: var(--text-primary);
     font-size: 1rem;
 
     @include hover-supported {
-      background-color: rgba(112, 167, 230, 0.2);
-      border-color: #a3cdfa;
+      background-color: var(--color-primary-bg-hover);
+      border-color: var(--color-primary-hover);
     }
   }
 
@@ -31,7 +31,7 @@
   }
 
   &__count {
-    color: #a3cdfa;
+    color: var(--color-primary-hover);
     font-size: 0.9rem;
   }
 
@@ -49,10 +49,10 @@
     top: calc(100% + 0.5rem);
     left: 0;
     right: 0;
-    background-color: #1a1a1a;
-    border: 1px solid #70a7e6;
+    background-color: var(--bg-primary);
+    border: 1px solid var(--color-primary);
     border-radius: 4px;
-    box-shadow: 0 4px 12px rgba(112, 167, 230, 0.3);
+    box-shadow: var(--shadow-primary);
     z-index: 10;
     max-height: 300px;
     overflow-y: auto;
@@ -62,15 +62,15 @@
     display: flex;
     gap: 0.5rem;
     padding: 0.75rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    background-color: rgba(112, 167, 230, 0.05);
+    border-bottom: 1px solid var(--border-secondary);
+    background-color: var(--color-primary-bg);
   }
 
   &__action-button {
     flex: 1;
     background-color: transparent;
-    border: 1px solid #70a7e6;
-    color: #70a7e6;
+    border: 1px solid var(--color-primary);
+    color: var(--color-primary);
     padding: 0.4rem 0.6rem;
     border-radius: 4px;
     cursor: pointer;
@@ -78,8 +78,8 @@
     transition: all 0.2s;
 
     @include hover-supported {
-      background-color: #70a7e6;
-      color: #1a1a1a;
+      background-color: var(--color-primary);
+      color: var(--bg-primary);
     }
   }
 
@@ -97,14 +97,14 @@
     transition: background-color 0.2s;
 
     @include hover-supported {
-      background-color: rgba(112, 167, 230, 0.1);
+      background-color: var(--color-primary-bg);
     }
 
     input[type="checkbox"] {
       cursor: pointer;
       width: 16px;
       height: 16px;
-      accent-color: #70a7e6;
+      accent-color: var(--color-primary);
     }
 
     span {

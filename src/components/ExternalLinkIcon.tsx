@@ -2,20 +2,20 @@ const ExternalLinkIcon = ({
   url,
   alt,
   size,
-  style,
+  classname,
 }: {
   url?: string;
   alt?: string;
   size?: number;
-  style?: React.CSSProperties;
+  classname?: string;
 }) => {
   return (
     <img
       src={url || `${import.meta.env.BASE_URL}external-link.svg`}
       alt={alt || "External link"}
-      width={size || 12}
-      height={size || 12}
-      style={style || { marginLeft: "0.2em" }}
+      width={size || 16}
+      height={size || 16}
+      className={`external-link-icon ${classname ?? ""}`}
     />
   );
 };

@@ -6,7 +6,7 @@
   top: 0;
   padding: 0;
   margin: 0 0 2rem 0;
-  background-color: #1a1a1a;
+  background-color: var(--bg-tertiary);
   width: 100%;
   display: flex;
   flex-direction: row;
@@ -19,13 +19,13 @@
 
   &__item {
     border-radius: 0px !important;
-    color: #ccc;
+    color: var(--text-secondary);
     border: none;
     border-bottom: 3px solid transparent;
     cursor: pointer;
     transition: all 0.2s ease;
     text-align: center;
-    background-color: #1a1a1a;
+    background-color: var(--bg-tertiary);
     height: 100%;
     padding: 0.7em 1.2em;
     font-size: 1rem;
@@ -38,13 +38,13 @@
     }
 
     @include hover-supported {
-      background-color: #333;
-      color: #fff;
+      background-color: var(--bg-secondary);
+      color: var(--text-primary);
     }
 
     &--active {
-      color: #fff;
-      border-bottom-color: #4a9eff;
+      color: var(--text-primary);
+      border-bottom-color: var(--color-primary-active);
     }
   }
 
@@ -64,7 +64,7 @@
     height: 100%;
     background: none;
     border: none;
-    color: #ccc;
+    color: var(--text-secondary);
     cursor: pointer;
     text-align: center;
     border-bottom: 3px solid transparent;
@@ -74,14 +74,18 @@
     justify-content: center;
     gap: 0.4rem;
 
+    .external-link-icon {
+      padding-top: 0.3rem;
+    }
+
     @include mobile {
       width: 100%;
       padding: 0.5em 0.8em;
     }
 
     @include hover-supported {
-      background-color: #333;
-      color: #fff;
+      background-color: var(--bg-secondary);
+      color: var(--text-primary);
     }
   }
 
@@ -89,9 +93,10 @@
     position: absolute;
     top: 100%;
     left: 0;
-    background: #1a1a1a;
+    background: var(--bg-primary);
     border-radius: 0 0 6px 6px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    box-shadow: var(--shadow-lg);
+    clip-path: inset(0px -20px -20px -20px);
     z-index: 10;
     padding: 0.2rem 0.2rem;
     display: flex;
@@ -106,7 +111,7 @@
   }
 
   &__dropdown-link {
-    color: #ccc;
+    color: var(--text-secondary);
     text-decoration: none;
     display: flex;
     align-items: center;
@@ -118,8 +123,8 @@
       color 0.2s;
 
     @include hover-supported {
-      background: #333;
-      color: #fff;
+      background: var(--bg-secondary);
+      color: var(--text-primary);
     }
   }
 }

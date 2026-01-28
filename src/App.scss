@@ -1,7 +1,17 @@
 // Main App.scss - imports all style modules
+@use "./styles/colors";
 @use "./styles/breakpoints";
 @use "./styles/utilities";
 @use "./styles/layout";
 @use "./styles/controls";
 @use "./styles/table";
 @use "./styles/mobile-cards";
+
+// Set base body styles to use theme colors
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+}

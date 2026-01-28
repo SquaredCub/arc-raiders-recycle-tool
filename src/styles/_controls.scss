@@ -30,7 +30,7 @@
     justify-content: center;
     padding: 0.5rem;
     background-color: transparent;
-    border: 1px solid #70a7e6;
+    border: 1px solid var(--color-primary);
     border-radius: 4px;
     cursor: pointer;
     transition: all 0.2s;
@@ -40,16 +40,16 @@
     svg {
       width: 20px;
       height: 20px;
-      color: #70a7e6;
+      color: var(--color-primary);
     }
 
     @include hover-supported {
-      background-color: #70a7e6;
-      border-color: #a3cdfa;
-      box-shadow: 0 0 5px #70a7e6;
+      background-color: var(--color-primary);
+      border-color: var(--color-primary-hover);
+      box-shadow: var(--shadow-sm);
 
       svg {
-        color: #1a1a1a;
+        color: var(--bg-primary);
       }
     }
 
@@ -60,12 +60,12 @@
   }
 
   .item-count {
-    color: #a3cdfa;
+    color: var(--color-primary-hover);
     font-size: 0.9rem;
     padding: 0.25rem 0.5rem;
-    border: 1px solid rgba(112, 167, 230, 0.3);
+    border: 1px solid var(--color-primary-border);
     border-radius: 4px;
-    background-color: rgba(112, 167, 230, 0.1);
+    background-color: var(--color-primary-bg);
     white-space: nowrap;
 
     @include mobile {
@@ -82,14 +82,14 @@
 
 .search-input {
   width: 300px;
-  border: 1px solid #70a7e6;
+  border: 1px solid var(--color-primary);
   border-radius: 4px;
   display: flex;
   align-items: center;
 
   &--focused {
-    box-shadow: 0 0 5px #70a7e6;
-    border-color: #a3cdfa;
+    box-shadow: var(--shadow-sm);
+    border-color: var(--color-primary-hover);
   }
 
   input {

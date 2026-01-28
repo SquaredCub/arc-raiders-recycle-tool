@@ -15,12 +15,13 @@ const externalLinks = [
     label: "Github Repository",
     href: "https://github.com/SquaredCub/arc-raiders-recycle-tool",
     icon: `https://github.com/favicon.ico`,
-    style: { filter: "invert(1)" },
+    classname: "invert-in-dark",
   },
   {
     label: "Maps",
     href: "https://arcraidersmaps.app/",
     icon: "https://arcraidersmaps.app/favicon/favicon-96x96.png",
+    classname: "invert-in-light",
   },
   {
     label: "Map Selector",
@@ -72,7 +73,7 @@ const Navigation = ({ activePage, onNavigate }: NavigationProps) => {
           aria-expanded={dropdownOpen}
           aria-label="External Links"
         >
-          <ExternalLinkIcon style={{ marginBottom: "-0.2rem" }} />
+          <ExternalLinkIcon classname="invert-in-light" />
           <span>External Links</span>
           <svg
             width="16"
@@ -110,7 +111,7 @@ const Navigation = ({ activePage, onNavigate }: NavigationProps) => {
                     url={link.icon}
                     alt={`${link.label} icon`}
                     size={link.size || 16}
-                    style={link.style}
+                    classname={link.classname}
                   />
                 )}
               </a>
