@@ -1,42 +1,36 @@
 import { memo } from "react";
-import { formatMaterialName } from "../data/itemsData";
 import ItemCell from "../ItemCell";
 import { getImageUrl } from "../services/dataService";
 import type { Item, ItemRequirementLookup } from "../types";
 import { DEFAULT_LANGUAGE } from "../utils/functions";
+import type { CachedMaterial } from "../utils/tableCache";
 
 const COINS_IMAGE_URL = getImageUrl("images/coins.png");
+const SHOW_FULL_DATA = false;
 
 interface MobileItemRowProps {
   item: Item;
   itemRequirements: ItemRequirementLookup;
   benchNameLookup: Record<string, string>;
+  sortedMaterialsCache: Record<string, CachedMaterial[]>;
   index: number;
 }
 
 const MobileItemRow = memo(
-  ({ item, itemRequirements, benchNameLookup, index }: MobileItemRowProps) => {
+  ({
+    item,
+    itemRequirements,
+    benchNameLookup,
+    sortedMaterialsCache,
+    index,
+  }: MobileItemRowProps) => {
     const isEven = index % 2 === 0;
 
-    // Get recycle materials
-    const recyclesMaterials = item.recyclesInto
-      ? Object.entries(item.recyclesInto)
-          .map(([materialId, quantity]) => ({
-            name: formatMaterialName(materialId),
-            quantity,
-          }))
-          .sort((a, b) => a.name.localeCompare(b.name))
-      : [];
+    // Get recycle materials from cache
+    const recyclesMaterials = sortedMaterialsCache[`recycle_${item.id}`] || [];
 
-    // Get crafting materials
-    const craftingMaterials = item.recipe
-      ? Object.entries(item.recipe)
-          .map(([materialId, quantity]) => ({
-            name: formatMaterialName(materialId),
-            quantity,
-          }))
-          .sort((a, b) => a.name.localeCompare(b.name))
-      : [];
+    // Get crafting materials from cache
+    const craftingMaterials = sortedMaterialsCache[`recipe_${item.id}`] || [];
 
     // Get needed for information
     const neededFor = itemRequirements[item.id];
@@ -94,53 +88,69 @@ const MobileItemRow = memo(
             <div className="mobile-item-card__value">
               <div className="recycles-container">
                 {recyclesMaterials.length > 0
-                  ? recyclesMaterials.map((mat, idx) => (
-                      <div key={idx}>
-                        {mat.quantity}x {mat.name}
-                      </div>
-                    ))
+                  ? recyclesMaterials.map(
+                      ({ material, quantity, name, image }) => (
+                        <ItemCell
+                          key={material}
+                          name={`${quantity}x ${name}`}
+                          imageSrc={image}
+                        />
+                      ),
+                    )
                   : "---"}
               </div>
             </div>
           </div>
 
-          <div className="mobile-item-card__field mobile-item-card__field--needed">
-            <span className="mobile-item-card__label">Needed For:</span>
-            <div className="mobile-item-card__value">
-              <div className="needed-for-total">
-                {neededFor?.totalQuantity
-                  ? `${neededFor.totalQuantity}x`
-                  : "---"}
-              </div>
-              <div className="needed-for-list">
-                {neededFor?.usedIn.map((usage, idx) => (
-                  <div key={idx}>
-                    {usage.source}: {usage.quantity}x
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <div className="mobile-item-card__field mobile-item-card__field--crafting">
-            <span className="mobile-item-card__label">Crafting Materials:</span>
-            <div className="mobile-item-card__value">
-              <div className="recycles-container">
-                {craftingMaterials.length > 0
-                  ? craftingMaterials.map((mat, idx) => (
-                      <div key={idx}>
-                        {mat.quantity}x {mat.name}
-                      </div>
-                    ))
-                  : "---"}
+          {SHOW_FULL_DATA ?? (
+            <div className="mobile-item-card__field mobile-item-card__field--needed">
+              <span className="mobile-item-card__label">Needed For:</span>
+              <div className="mobile-item-card__value">
+                <div className="needed-for-total">
+                  {neededFor?.totalQuantity
+                    ? `${neededFor.totalQuantity}x`
+                    : "---"}
+                </div>
+                <div className="needed-for-list">
+                  {neededFor?.usedIn.map((usage, idx) => (
+                    <div key={idx}>
+                      {usage.source}: {usage.quantity}x
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
-          <div className="mobile-item-card__field mobile-item-card__field--bench">
-            <span className="mobile-item-card__label">Craft Bench:</span>
-            <span className="mobile-item-card__value">{benchName}</span>
-          </div>
+          {SHOW_FULL_DATA ?? (
+            <div className="mobile-item-card__field mobile-item-card__field--crafting">
+              <span className="mobile-item-card__label">
+                Crafting Materials:
+              </span>
+              <div className="mobile-item-card__value">
+                <div className="recycles-container">
+                  {craftingMaterials.length > 0
+                    ? craftingMaterials.map(
+                        ({ material, quantity, name, image }) => (
+                          <ItemCell
+                            key={material}
+                            name={`${quantity}x ${name}`}
+                            imageSrc={image}
+                          />
+                        ),
+                      )
+                    : "---"}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {SHOW_FULL_DATA ?? (
+            <div className="mobile-item-card__field mobile-item-card__field--bench">
+              <span className="mobile-item-card__label">Craft Bench:</span>
+              <span className="mobile-item-card__value">{benchName}</span>
+            </div>
+          )}
         </div>
       </div>
     );

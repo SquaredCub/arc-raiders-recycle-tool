@@ -5,6 +5,7 @@ import MobileItemRow from "./components/MobileItemRow";
 import { MEDIA_QUERIES } from "./constants/breakpoints";
 import { useMediaQuery } from "./hooks/useMediaQuery";
 import type { Item, ItemRequirementLookup } from "./types";
+import type { CachedMaterial } from "./utils/tableCache";
 
 type TableProps<T> = {
   table: TableType<T>;
@@ -12,6 +13,7 @@ type TableProps<T> = {
   // Optional props for mobile view (only used when T is Item)
   itemRequirements?: ItemRequirementLookup;
   benchNameLookup?: Record<string, string>;
+  sortedMaterialsCache?: Record<string, CachedMaterial[]>;
 };
 
 const Table = <T,>({
@@ -19,6 +21,7 @@ const Table = <T,>({
   className,
   itemRequirements,
   benchNameLookup,
+  sortedMaterialsCache,
 }: TableProps<T>) => {
   const isMobileOrTablet = useMediaQuery(MEDIA_QUERIES.tabletAndBelow);
   const tableContainerRef = useRef<HTMLDivElement>(null);
@@ -58,7 +61,8 @@ const Table = <T,>({
     isMobileOrTablet &&
     className === "items-table" &&
     itemRequirements &&
-    benchNameLookup
+    benchNameLookup &&
+    sortedMaterialsCache
   ) {
     return (
       <div ref={tableContainerRef} className="mobile-items-container">
@@ -76,6 +80,7 @@ const Table = <T,>({
                 item={item}
                 itemRequirements={itemRequirements}
                 benchNameLookup={benchNameLookup}
+                sortedMaterialsCache={sortedMaterialsCache}
                 index={virtualRow.index}
               />
             </div>
