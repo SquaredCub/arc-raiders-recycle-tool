@@ -34,6 +34,11 @@ const externalLinks = [
     icon: "https://arcdamagecalculator.tiiny.site/favicon.ico",
     size: 20,
   },
+  {
+    label: "Tracker",
+    href: "https://arctracker.io/",
+    icon: "https://arctracker.io/favicon.ico",
+  },
 ];
 
 const Navigation = ({ activePage, onNavigate }: NavigationProps) => {

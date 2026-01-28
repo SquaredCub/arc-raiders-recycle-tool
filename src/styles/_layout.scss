@@ -43,6 +43,10 @@ h1 {
 .recycling-tools table {
   margin: 0 auto;
 }
+#tableSection {
+  z-index: 1;
+  position: relative;
+}
 
 a {
   color: var(--color-primary);
