@@ -27,3 +27,10 @@ src/arcraiders-data
 src/arcraiders-data/
 src/arcraiders-data/*
 claude.md
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/
