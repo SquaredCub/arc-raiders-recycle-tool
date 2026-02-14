@@ -97,12 +97,10 @@ export const createItemsTableColumns = (
           </div>
         );
       },
-      enableSorting: true,
+      enableSorting: hasActiveSearch,
       sortDescFirst: true,
       invertSorting: true,
       sortingFn: (rowA, rowB) => {
-        if (!hasActiveSearch) return 0;
-
         const aNameMatch = searchMatchTypes[rowA.original.id]?.has("item") ?? false;
         const bNameMatch = searchMatchTypes[rowB.original.id]?.has("item") ?? false;
 
@@ -146,12 +144,10 @@ export const createItemsTableColumns = (
           </div>
         );
       },
-      enableSorting: true,
+      enableSorting: hasActiveSearch,
       sortDescFirst: true,
       invertSorting: true,
       sortingFn: (rowA, rowB) => {
-        if (!hasActiveSearch) return 0;
-
         const aNameMatch = searchMatchTypes[rowA.original.id]?.has("item") ?? false;
         const bNameMatch = searchMatchTypes[rowB.original.id]?.has("item") ?? false;
 
