@@ -2,7 +2,7 @@
 
 // Search match indicators and highlights within .items-table
 .items-table {
-  // Match indicator bars (left/right edges)
+  // Match indicator bars (left/right edges) — desktop only
   .match-indicator-spacer {
     display: none;
   }
@@ -26,6 +26,10 @@
         bottom: 1px;
         top: 1px;
       }
+
+      @include mobile {
+        display: none;
+      }
     }
   }
 
@@ -37,6 +41,8 @@
 
     @include mobile {
       border-bottom: 3px dotted var(--color-primary);
+      border-bottom-left-radius: 0;
+      border-bottom-right-radius: 0;
 
       .grid-cell {
         border-bottom: 0;
@@ -44,8 +50,37 @@
     }
   }
 
-  // Cell-level search highlight glow
+  // Desktop: cell-level search highlight glow
   .grid-cell--search-match {
     box-shadow: inset 0 0 20px 6px var(--shadow-search-match);
+
+    @include mobile {
+      box-shadow: none;
+    }
+  }
+
+  // Mobile: targeted highlights per column type
+  @include mobile {
+    // Item name match — underline the link/name
+    .grid-cell--item.grid-cell--search-match {
+      .cell-item__name {
+        text-decoration: underline;
+        text-decoration-color: var(--color-primary);
+        text-underline-offset: 3px;
+        text-decoration-thickness: 2px;
+      }
+    }
+
+    // Recycles match — accent the material chips
+    .grid-cell--recycles.grid-cell--search-match {
+      .recycles-container .cell-item {
+        background-color: var(--color-primary-bg);
+        border-color: var(--color-primary-border);
+
+        .cell-item__name {
+          color: var(--text-primary);
+        }
+      }
+    }
   }
 }

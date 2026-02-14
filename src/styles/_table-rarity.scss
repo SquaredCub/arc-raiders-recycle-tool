@@ -59,43 +59,4 @@
     @include rarity-style(epic);
     @include rarity-style(legendary);
   }
-
-  // Mobile rarity badges (hidden on desktop)
-  .mobile-rarity-badge {
-    display: none;
-  }
-
-  @include mobile {
-    .mobile-rarity-badge {
-      display: inline-block;
-      padding: 0.25rem 0.5rem;
-      border-radius: 4px;
-      font-size: 0.85rem;
-      font-weight: bold;
-      text-transform: uppercase;
-      white-space: nowrap;
-      margin-top: 0.5rem;
-
-      &--common {
-        background-color: var(--rarity-common-bg);
-        color: var(--rarity-common);
-      }
-      &--uncommon {
-        background-color: var(--rarity-uncommon-bg);
-        color: var(--rarity-uncommon);
-      }
-      &--rare {
-        background-color: var(--rarity-rare-bg);
-        color: var(--rarity-rare);
-      }
-      &--epic {
-        background-color: var(--rarity-epic-bg);
-        color: var(--rarity-epic);
-      }
-      &--legendary {
-        background-color: var(--rarity-legendary-bg);
-        color: var(--rarity-legendary);
-      }
-    }
-  }
 }

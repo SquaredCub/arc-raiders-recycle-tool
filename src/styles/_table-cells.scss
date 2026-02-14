@@ -23,8 +23,10 @@
     }
 
     @include mobile {
+      align-content: start;
       padding: 0;
       border: 0;
+      min-width: 0;
     }
   }
 
@@ -56,21 +58,22 @@
   .grid-cell--item {
     @include mobile {
       padding-bottom: 0.75rem;
-      border-bottom: 1px solid var(--color-primary-border);
-      margin-bottom: 1rem;
+      margin-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border-secondary);
 
       .cell-item {
         grid-template-columns: auto 1fr;
         gap: 0.75rem;
 
         &__image {
-          width: 60px;
-          height: 60px;
+          width: 56px;
+          height: 56px;
         }
 
         &__name {
-          font-size: 1.1rem;
-          font-weight: bold;
+          font-size: 1.05rem;
+          font-weight: 600;
+          line-height: 1.3;
         }
       }
     }
@@ -101,25 +104,31 @@
     flex-direction: column;
 
     @include mobile {
-      line-height: 1.4;
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 0.375rem;
 
       .cell-item {
-        display: grid;
-        grid-template-columns: auto 1fr;
-        grid-template-areas: "name image";
+        display: inline-flex;
         align-items: center;
+        gap: 0.375rem;
+        padding: 0.25rem 0.5rem 0.25rem 0.25rem;
+        background-color: var(--bg-tertiary);
+        border-radius: 6px;
+        border: 1px solid var(--border-tertiary);
 
         &__image {
-          padding-left: 0.5rem;
-          width: 32px;
-          height: 32px;
-          grid-area: image;
+          width: 24px;
+          height: 24px;
+          flex-shrink: 0;
         }
 
         &__name {
-          font-size: 0.85rem;
-          grid-area: name;
-          justify-self: center;
+          font-size: 0.8rem;
+          padding-left: 0;
+          color: var(--text-secondary);
+          min-width: 0;
         }
       }
     }
@@ -151,6 +160,8 @@
     @include mobile {
       justify-content: flex-start;
       padding: 0;
+      font-weight: 600;
+      font-size: 0.95rem;
     }
   }
 
@@ -160,7 +171,7 @@
 
   // Hide non-core columns on mobile (card layout)
   @include mobile {
-    .grid-cell--salvages,
+    // .grid-cell--salvages,
     .grid-cell--foundIn,
     .grid-cell--neededFor {
       display: none;
@@ -175,27 +186,49 @@
   @include mobile {
     .mobile-type {
       display: block;
-      font-size: 0.9rem;
+      font-size: 0.8rem;
       color: var(--text-tertiary);
-      margin-top: 0.25rem;
+      margin-top: 0.125rem;
+      letter-spacing: 0.02em;
     }
 
-    // Field labels via CSS pseudo-elements
-    .grid-cell--value::before {
-      content: "Value:";
-      font-weight: bold;
-      color: var(--color-primary-hover);
-      font-size: 0.9rem;
-      margin-right: 0.5rem;
-    }
-
+    // Section labels via pseudo-elements
     .grid-cell--recycles::before {
-      content: "Recycles Into:";
-      font-weight: bold;
-      color: var(--color-primary-hover);
-      font-size: 0.9rem;
+      content: "Recycles Into";
+      font-weight: 600;
+      color: var(--text-tertiary);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
       display: block;
-      margin-bottom: 0.25rem;
+      margin-bottom: 0.375rem;
+    }
+    .grid-cell--salvages::before {
+      content: "Salvages Into";
+      font-weight: 600;
+      color: var(--text-tertiary);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      display: block;
+      margin-bottom: 0.375rem;
+    }
+
+    .grid-cell--value {
+      margin-top: 0.5rem;
+      padding-top: 0.625rem;
+      border-top: 1px solid var(--border-tertiary);
+
+      &::before {
+        content: "Value";
+        font-weight: 600;
+        color: var(--text-tertiary);
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        display: block;
+        margin-bottom: 0.25rem;
+      }
     }
   }
 }

@@ -81,16 +81,25 @@ $grid-columns-full: minmax(0, 2.5fr) minmax(0, 3.1fr) minmax(0, 2.5fr)
   grid-template-columns: $grid-columns-full;
 
   @include mobile {
-    grid-template-areas:
-      "item"
-      "recycles"
-      "value";
+    // grid-template-areas:
+    //   "item"
+    //   "recycles"
+    //   "salvages"
+    //   "value";
+    grid-template-areas: "item recycles salvages value";
     grid-template-columns: 1fr;
     background-color: var(--bg-primary);
-    border: 1px solid var(--border-primary);
-    border-radius: 8px;
-    padding: 1rem;
-    margin-bottom: 0.75rem;
+    border: 1px solid var(--border-secondary);
+    border-radius: 10px;
+    padding: 1rem 1rem 0.75rem;
+    margin-bottom: 0.625rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+
+    @media (prefers-color-scheme: dark) {
+      border-color: var(--border-tertiary);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+    }
   }
 }
 
@@ -99,7 +108,8 @@ $grid-columns-full: minmax(0, 2.5fr) minmax(0, 3.1fr) minmax(0, 2.5fr)
   .grid-header,
   .grid-row {
     grid-template-areas: "item recycles salvages neededFor value";
-    grid-template-columns: minmax(0, 2.5fr) minmax(0, 3.1fr) minmax(0, 2.5fr)
+    grid-template-columns:
+      minmax(0, 2.5fr) minmax(0, 3.1fr) minmax(0, 2.5fr)
       minmax(0, 2.75fr) minmax(0, 1fr);
   }
   .grid-header-cell.foundIn,
@@ -111,23 +121,10 @@ $grid-columns-full: minmax(0, 2.5fr) minmax(0, 3.1fr) minmax(0, 2.5fr)
 @include below-800 {
   .grid-header,
   .grid-row {
-    grid-template-areas: "item recycles neededFor value";
-    grid-template-columns: minmax(0, 2.5fr) minmax(0, 3.1fr) minmax(
-        0,
-        2.75fr
-      ) minmax(0, 1fr);
-  }
-  .grid-header-cell.salvages,
-  .grid-cell--salvages {
-    display: none;
-  }
-}
-
-@include below-700 {
-  .grid-header,
-  .grid-row {
-    grid-template-areas: "item recycles value";
-    grid-template-columns: minmax(0, 2.5fr) minmax(0, 3.1fr) minmax(0, 1fr);
+    grid-template-areas: "item recycles salvages value";
+    grid-template-columns:
+      minmax(0, 2.5fr) minmax(0, 3.1fr) minmax(0, 2.75fr)
+      minmax(0, 1fr);
   }
   .grid-header-cell.neededFor,
   .grid-cell--neededFor {
@@ -135,6 +132,22 @@ $grid-columns-full: minmax(0, 2.5fr) minmax(0, 3.1fr) minmax(0, 2.5fr)
   }
 }
 
+// @include below-700 {
+//   .grid-header,
+//   .grid-row {
+//     grid-template-areas: "item recycles value";
+//     grid-template-columns: minmax(0, 2.5fr) minmax(0, 3.1fr) minmax(0, 1fr);
+//   }
+//   .grid-header-cell.salvages,
+//   .grid-cell--salvages {
+//     display: none;
+//   }
+// }
+
 .grid-row--even {
   background-color: var(--bg-tertiary);
+
+  @include mobile {
+    background-color: var(--bg-primary);
+  }
 }
