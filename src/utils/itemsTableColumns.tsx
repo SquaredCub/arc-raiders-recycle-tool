@@ -1,9 +1,21 @@
-import { createColumnHelper } from "@tanstack/react-table";
+import { createColumnHelper, type SortingState } from "@tanstack/react-table";
 import { getItemImage } from "../data/itemsData";
 import ItemCell from "../ItemCell";
 import { getImageUrl } from "../services/dataService";
 import type { Item, ItemRequirementLookup } from "../types";
-import { compareStrings, DEFAULT_LANGUAGE, isNoResultsItem, type SearchMatchType } from "./functions";
+import {
+  DEFAULT_LANGUAGE,
+  isNoResultsItem,
+  type SearchMatchType,
+} from "./functions";
+import {
+  createFoundInAlphabeticalSort,
+  createMaterialScoreSort,
+  createNameAlphabeticalSort,
+  createRequirementTotalSort,
+  createSearchAwareSortFactory,
+  createValueSort,
+} from "./sortingFunctions";
 import type { CachedMaterial, SortKeyCache } from "./tableCache";
 
 const columnHelper = createColumnHelper<Item>();
@@ -18,15 +30,21 @@ export const createItemsTableColumns = (
   _benchNameLookup: Record<string, string>,
   sortedMaterialsCache: Record<string, CachedMaterial[]>,
   sortKeyCache: SortKeyCache,
-  searchRelevanceIndex: Record<string, number>,
+  hasActiveSearch: boolean,
   searchMatchTypes: Record<string, Set<SearchMatchType>>,
   materialMatchScores: Record<string, { recycles: number; salvages: number }>,
+  sorting: SortingState,
 ) => {
   // const getBenchName = (benchId: string): string => {
   //   return benchNameLookup[benchId] || benchId;
   // };
 
-  const hasActiveSearch = Object.keys(searchRelevanceIndex).length > 0;
+  const sortFor = createSearchAwareSortFactory(
+    hasActiveSearch,
+    searchMatchTypes,
+    sortKeyCache,
+    sorting,
+  );
 
   return [
     columnHelper.accessor("name", {
@@ -53,21 +71,8 @@ export const createItemsTableColumns = (
         );
       },
       enableSorting: true,
-      sortDescFirst: true,
-      invertSorting: true,
-      sortingFn: (rowA, rowB) => {
-        // When searching, use relevance order instead of alphabetical
-        if (hasActiveSearch) {
-          const relevanceA = searchRelevanceIndex[rowA.original.id] ?? Infinity;
-          const relevanceB = searchRelevanceIndex[rowB.original.id] ?? Infinity;
-          return relevanceA - relevanceB;
-        }
-        // Use pre-computed lowercase sort keys for faster comparison
-        const nameA = sortKeyCache.nameSortKeys[rowA.original.id] || "";
-        const nameB = sortKeyCache.nameSortKeys[rowB.original.id] || "";
-        // Simple string comparison (sort keys are already lowercase)
-        return compareStrings(nameA, nameB);
-      },
+      sortDescFirst: false,
+      sortingFn: sortFor(createNameAlphabeticalSort(sortKeyCache), "item"),
     }),
     columnHelper.accessor("recyclesInto", {
       id: "recycles",
@@ -98,25 +103,11 @@ export const createItemsTableColumns = (
         );
       },
       enableSorting: hasActiveSearch,
-      sortDescFirst: true,
-      invertSorting: true,
-      sortingFn: (rowA, rowB) => {
-        const aNameMatch = searchMatchTypes[rowA.original.id]?.has("item") ?? false;
-        const bNameMatch = searchMatchTypes[rowB.original.id]?.has("item") ?? false;
-
-        if (aNameMatch && !bNameMatch) return -1;
-        if (!aNameMatch && bNameMatch) return 1;
-
-        if (aNameMatch && bNameMatch) {
-          const nameA = sortKeyCache.nameSortKeys[rowA.original.id] || "";
-          const nameB = sortKeyCache.nameSortKeys[rowB.original.id] || "";
-          return compareStrings(nameA, nameB);
-        }
-
-        const scoreA = materialMatchScores[rowA.original.id]?.recycles ?? 0;
-        const scoreB = materialMatchScores[rowB.original.id]?.recycles ?? 0;
-        return scoreB - scoreA;
-      },
+      sortDescFirst: false,
+      sortingFn: sortFor(
+        createMaterialScoreSort(materialMatchScores, "recycles"),
+        "recycles",
+      ),
     }),
     columnHelper.accessor("salvagesInto", {
       id: "salvages",
@@ -145,25 +136,11 @@ export const createItemsTableColumns = (
         );
       },
       enableSorting: hasActiveSearch,
-      sortDescFirst: true,
-      invertSorting: true,
-      sortingFn: (rowA, rowB) => {
-        const aNameMatch = searchMatchTypes[rowA.original.id]?.has("item") ?? false;
-        const bNameMatch = searchMatchTypes[rowB.original.id]?.has("item") ?? false;
-
-        if (aNameMatch && !bNameMatch) return -1;
-        if (!aNameMatch && bNameMatch) return 1;
-
-        if (aNameMatch && bNameMatch) {
-          const nameA = sortKeyCache.nameSortKeys[rowA.original.id] || "";
-          const nameB = sortKeyCache.nameSortKeys[rowB.original.id] || "";
-          return compareStrings(nameA, nameB);
-        }
-
-        const scoreA = materialMatchScores[rowA.original.id]?.salvages ?? 0;
-        const scoreB = materialMatchScores[rowB.original.id]?.salvages ?? 0;
-        return scoreB - scoreA;
-      },
+      sortDescFirst: false,
+      sortingFn: sortFor(
+        createMaterialScoreSort(materialMatchScores, "salvages"),
+        "salvages",
+      ),
     }),
     // columnHelper.accessor("recipe", {
     //   id: "craftingMaterials",
@@ -256,16 +233,8 @@ export const createItemsTableColumns = (
         );
       },
       enableSorting: true,
-      sortDescFirst: true,
-      invertSorting: true,
-      sortingFn: (rowA, rowB) => {
-        const a = rowA.original.foundIn || "";
-        const b = rowB.original.foundIn || "";
-        if (!a && !b) return 0;
-        if (!a) return 1;
-        if (!b) return -1;
-        return compareStrings(a, b);
-      },
+      sortDescFirst: false,
+      sortingFn: sortFor(createFoundInAlphabeticalSort(), "foundIn"),
     }),
     columnHelper.accessor("id", {
       id: "neededFor",
@@ -300,12 +269,7 @@ export const createItemsTableColumns = (
       },
       enableSorting: true,
       sortDescFirst: true,
-      sortingFn: (rowA, rowB) => {
-        // Use pre-computed requirement totals for faster sorting
-        const totalA = sortKeyCache.requirementTotals[rowA.original.id] ?? 0;
-        const totalB = sortKeyCache.requirementTotals[rowB.original.id] ?? 0;
-        return totalA - totalB;
-      },
+      sortingFn: sortFor(createRequirementTotalSort(sortKeyCache), "neededFor"),
     }),
     columnHelper.accessor("value", {
       header: () => <span>Value</span>,
@@ -332,6 +296,7 @@ export const createItemsTableColumns = (
       },
       enableSorting: true,
       sortDescFirst: true,
+      sortingFn: sortFor(createValueSort(), "value"),
     }),
   ];
 };

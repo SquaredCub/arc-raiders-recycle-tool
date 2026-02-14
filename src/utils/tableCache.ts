@@ -3,7 +3,8 @@ import {
   formatMaterialName,
   getMaterialImage,
 } from "../data/itemsData";
-import { sortMaterialsByName, DEFAULT_LANGUAGE, getItemSortName, getBenchSortKey } from "./functions";
+import { DEFAULT_LANGUAGE } from "./functions";
+import { sortMaterialsByName, getItemSortName, getBenchSortKey } from "./sortingFunctions";
 
 // Cached material data structure
 export interface CachedMaterial {

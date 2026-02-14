@@ -75,7 +75,7 @@ const ItemsTable = React.memo(
     const [sorting, setSorting] = React.useState<SortingState>([
       {
         id: "item",
-        desc: true,
+        desc: false,
       },
     ]);
 
@@ -92,15 +92,15 @@ const ItemsTable = React.memo(
       [itemRequirements, items, searchTerm],
     );
 
-    const searchRelevanceIndex = useMemo(() => {
-      const index: Record<string, number> = {};
-      if (searchTerm.trim()) {
-        searchResult.items.forEach((item, idx) => {
-          index[item.id] = idx;
-        });
+    const hasActiveSearch = searchTerm.trim().length > 0;
+
+    // Reset sorting to default when search is cleared while sorted on a search-only column
+    const searchOnlyColumns = new Set(["recycles", "salvages"]);
+    useEffect(() => {
+      if (!hasActiveSearch && searchOnlyColumns.has(sorting[0]?.id ?? "")) {
+        setSorting([{ id: "item", desc: false }]);
       }
-      return index;
-    }, [searchResult, searchTerm]);
+    }, [hasActiveSearch]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const searchMatchTypes: Record<string, Set<SearchMatchType>> =
       searchResult.matchTypes;
@@ -145,18 +145,20 @@ const ItemsTable = React.memo(
           benchNameLookup,
           sortedMaterialsCache,
           sortKeyCache,
-          searchRelevanceIndex,
+          hasActiveSearch,
           searchMatchTypes,
           materialMatchScores,
+          sorting,
         ),
       [
         itemRequirements,
         benchNameLookup,
         sortedMaterialsCache,
         sortKeyCache,
-        searchRelevanceIndex,
+        hasActiveSearch,
         searchMatchTypes,
         materialMatchScores,
+        sorting,
       ],
     );
 
