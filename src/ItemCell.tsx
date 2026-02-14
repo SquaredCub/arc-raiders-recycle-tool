@@ -5,14 +5,16 @@ const ItemCell = memo(({
   id,
   name,
   imageSrc,
+  rarity,
 }: {
   name: string;
   imageSrc: string | undefined;
   id?: string;
+  rarity?: string;
 }) => {
   return (
     <div className="cell-item">
-      <figure className="cell-item__image">
+      <figure className={`cell-item__image${rarity ? ` ${rarity.toLowerCase()}` : ""}`}>
         {imageSrc ? <img src={imageSrc} alt={name} /> : null}
       </figure>
       <span className="cell-item__name">

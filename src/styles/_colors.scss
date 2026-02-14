@@ -39,6 +39,18 @@
   --color-error-bg: #fef0f0;
   --color-error-border: #f6b5b5;
 
+  // Rarity colors
+  --rarity-common: #575757;
+  --rarity-common-bg: rgba(158, 158, 158, 0.2);
+  --rarity-uncommon: #0e7700;
+  --rarity-uncommon-bg: rgba(30, 255, 0, 0.2);
+  --rarity-rare: #0070dd;
+  --rarity-rare-bg: rgba(0, 112, 221, 0.2);
+  --rarity-epic: #ca2f96;
+  --rarity-epic-bg: rgba(223, 53, 238, 0.2);
+  --rarity-legendary: #fbc301;
+  --rarity-legendary-bg: rgba(255, 251, 0, 0.2);
+
   // Box shadows
   --shadow-sm: 0 0 5px var(--color-primary-shadow);
   --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.5);
@@ -91,6 +103,10 @@
     --color-error: #ff6464;
     --color-error-bg: #4a1f1f;
     --color-error-border: #a63d3d;
+
+    // Rarity colors (dark mode overrides)
+    --rarity-common: #9e9e9e;
+    --rarity-uncommon: #1eff00;
 
     // Box shadows
     --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.5);

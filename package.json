@@ -5,14 +5,17 @@
   "homepage": "https://SquaredCub.github.io/arc-raiders-recycle-tool",
   "type": "module",
   "scripts": {
+    "predev": "node scripts/generate-file-lists.js",
     "dev": "vite",
     "dev:host": "vite --host",
+    "prebuild": "node scripts/generate-file-lists.js",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist",
-    "extract-types": "node scripts/extract-item-types.js"
+    "extract-types": "node scripts/extract-item-types.js",
+    "generate-file-lists": "node scripts/generate-file-lists.js"
   },
   "dependencies": {
     "@tanstack/react-table": "^8.21.3",

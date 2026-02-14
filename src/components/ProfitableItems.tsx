@@ -86,7 +86,7 @@ const calculateCraftingProfit = (
 };
 
 const ProfitableItems = () => {
-  const { items, isLoading, error } = useData();
+  const { items, isLoading, error, refetch } = useData();
 
   // Create a map for quick lookup
   const itemsMap = useMemo(() => {
@@ -115,7 +115,13 @@ const ProfitableItems = () => {
 
   if (isLoading) return <LoadingSpinner />;
   if (error)
-    return <ErrorMessage message={"Something went wrong fetching the data"} />;
+    return (
+      <ErrorMessage
+        message="Something went wrong fetching the data."
+        errorDetails={error}
+        onRetry={refetch}
+      />
+    );
 
   if (profitableItems.length === 0) {
     return (

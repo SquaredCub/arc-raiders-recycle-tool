@@ -46,6 +46,7 @@ export const createItemsTableColumns = (
               id={item.id}
               name={item.name[DEFAULT_LANGUAGE] || item.name.en}
               imageSrc={imageSrc}
+              rarity={item.rarity}
             />
           </>
         );

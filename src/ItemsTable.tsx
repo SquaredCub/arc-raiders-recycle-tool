@@ -38,8 +38,15 @@ const ItemsTable = React.memo(
     filterSettings: FilterSettings;
     onFilteredCountChange?: (filteredCount: number, totalCount: number) => void;
   }) => {
-    const { items, quests, hideoutBenches, projects, isLoading, error } =
-      useData();
+    const {
+      items,
+      quests,
+      hideoutBenches,
+      projects,
+      isLoading,
+      error,
+      refetch,
+    } = useData();
 
     // Compute item requirements from the data
     const itemRequirements = useMemo(
@@ -151,7 +158,11 @@ const ItemsTable = React.memo(
     if (isLoading) return <LoadingSpinner />;
     if (error)
       return (
-        <ErrorMessage message={"Something went wrong fetching the data"} />
+        <ErrorMessage
+          message="Something went wrong fetching the data."
+          errorDetails={error}
+          onRetry={refetch}
+        />
       );
 
     return (

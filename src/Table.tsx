@@ -118,7 +118,10 @@ const Table = <T,>({
           {table.getHeaderGroups().map((headerGroup) => (
             <tr key={headerGroup.id} className="table-row">
               {headerGroup.headers.map((header) => (
-                <th key={header.id} className="table-cell">
+                <th
+                  key={header.id}
+                  className={`table-cell ${header.column.id}`}
+                >
                   {header.isPlaceholder ? null : (
                     <div
                       className={
@@ -172,10 +175,13 @@ const Table = <T,>({
                 key={row.id}
                 data-index={virtualRow.index}
                 ref={rowVirtualizer.measureElement}
-                className={`table-row ${isEvenRow ? "table-row--even" : "table-row--odd"} ${isMatch ? "table-row--search-match" : ""}`}
+                className={`table-row${isEvenRow ? " table-row--even" : " table-row--odd"}${isMatch ? " table-row--search-match" : ""}`}
               >
-                {row.getVisibleCells().map((cell) => (
-                  <td key={cell.id} className="table-cell">
+                {row.getVisibleCells().map((cell, cellIndex) => (
+                  <td
+                    key={cell.id}
+                    className={`table-cell${cellIndex === 0 ? ` ${cell.column.id}` : ""}`}
+                  >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </td>
                 ))}
