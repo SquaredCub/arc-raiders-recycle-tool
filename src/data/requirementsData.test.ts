@@ -1,0 +1,91 @@
+import { describe, it, expect } from "@jest/globals";
+import { getItemRequirements } from "./requirementsData";
+import type { HideoutBench, Quest, Project } from "../types";
+import hideoutData from "../generated/hideout.json";
+import questsData from "../generated/quests.json";
+import projectsData from "../generated/projects.json";
+
+const hideoutBenches = hideoutData as HideoutBench[];
+const quests = questsData as Quest[];
+const projects = projectsData as Project[];
+
+describe("getItemRequirements", () => {
+  const requirements = getItemRequirements(hideoutBenches, quests, projects);
+
+  it("returns a non-empty result from real data", () => {
+    expect(Object.keys(requirements).length).toBeGreaterThan(0);
+  });
+
+  it("every entry has totalQuantity > 0 and non-empty usedIn", () => {
+    for (const [, data] of Object.entries(requirements)) {
+      expect(data.totalQuantity).toBeGreaterThan(0);
+      expect(data.usedIn.length).toBeGreaterThan(0);
+    }
+  });
+
+  it("hideout sources follow 'BenchName Lvl N' format", () => {
+    const hideoutSources = Object.values(requirements).flatMap((data) =>
+      data.usedIn.filter((u) => u.source.includes("Lvl"))
+    );
+    expect(hideoutSources.length).toBeGreaterThan(0);
+    for (const usage of hideoutSources) {
+      expect(usage.source).toMatch(/.+ Lvl \d+/);
+    }
+  });
+
+  it("quest sources follow 'Quest: QuestName' format", () => {
+    const questSources = Object.values(requirements).flatMap((data) =>
+      data.usedIn.filter((u) => u.source.startsWith("Quest:"))
+    );
+    expect(questSources.length).toBeGreaterThan(0);
+    for (const usage of questSources) {
+      expect(usage.source).toMatch(/^Quest: .+/);
+    }
+  });
+
+  it("project sources follow 'ProjectName - Step N' format", () => {
+    const projectSources = Object.values(requirements).flatMap((data) =>
+      data.usedIn.filter((u) => u.source.includes("Step"))
+    );
+    expect(projectSources.length).toBeGreaterThan(0);
+    for (const usage of projectSources) {
+      expect(usage.source).toMatch(/.+ - Step \d+/);
+    }
+  });
+
+  it("filters out Season 1 projects", () => {
+    const allSources = Object.values(requirements).flatMap((data) =>
+      data.usedIn.map((u) => u.source)
+    );
+    const season1Sources = allSources.filter((s) => s.includes("Season 1"));
+    expect(season1Sources).toHaveLength(0);
+  });
+
+  it("filters out Flickering Flames projects", () => {
+    const allSources = Object.values(requirements).flatMap((data) =>
+      data.usedIn.map((u) => u.source)
+    );
+    const flickeringSources = allSources.filter((s) =>
+      s.includes("Flickering Flames")
+    );
+    expect(flickeringSources).toHaveLength(0);
+  });
+
+  it("correctly merges items used in multiple sources", () => {
+    // Find an item used in multiple sources
+    const multiSourceItem = Object.entries(requirements).find(
+      ([, data]) => data.usedIn.length > 1
+    );
+    expect(multiSourceItem).toBeDefined();
+    if (multiSourceItem) {
+      const [, data] = multiSourceItem;
+      const sumOfUsages = data.usedIn.reduce((sum, u) => sum + u.quantity, 0);
+      expect(data.totalQuantity).toBe(sumOfUsages);
+    }
+  });
+
+  it("returns empty object for empty inputs", () => {
+    const result = getItemRequirements([], [], []);
+    expect(result).toEqual({});
+  });
+});

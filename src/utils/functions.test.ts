@@ -1,0 +1,173 @@
+import { jest, describe, it, expect } from "@jest/globals";
+
+jest.mock("../services/dataService");
+
+import {
+  capitalizeItemId,
+  filterItemsBySearch,
+  createNoResultsItem,
+  isNoResultsItem,
+  NO_RESULTS_ID,
+} from "./functions";
+import { formatMaterialName } from "../data/itemsData";
+import type { Item } from "../types";
+import itemsData from "../generated/items.json";
+
+const items = itemsData as Item[];
+
+describe("capitalizeItemId", () => {
+  it("returns null for undefined", () => {
+    expect(capitalizeItemId(undefined)).toBeNull();
+  });
+
+  it("returns null for empty string", () => {
+    expect(capitalizeItemId("")).toBeNull();
+  });
+
+  it("capitalizes simple single word", () => {
+    expect(capitalizeItemId("bandage")).toBe("Bandage");
+  });
+
+  it("capitalizes multi-word ids", () => {
+    expect(capitalizeItemId("plastic_parts")).toBe("Plastic_Parts");
+  });
+
+  it("strips Roman numeral suffix for gun variants (2-word)", () => {
+    expect(capitalizeItemId("osprey_i")).toBe("Osprey");
+    expect(capitalizeItemId("osprey_iii")).toBe("Osprey");
+  });
+
+  it("keeps Roman numerals for non-gun items (3+ words)", () => {
+    expect(capitalizeItemId("heavy_armor_ii")).toBe("Heavy_Armor_II");
+  });
+
+  it("formats augment mk pattern", () => {
+    expect(capitalizeItemId("combat_mk3_aggressive")).toBe(
+      "Combat_Mk._3_(Aggressive)"
+    );
+  });
+
+  it("keeps ARC as uppercase acronym", () => {
+    expect(capitalizeItemId("arc_drone")).toBe("ARC_Drone");
+  });
+});
+
+describe("filterItemsBySearch", () => {
+  it("returns all items with empty matchTypes for empty search", () => {
+    const result = filterItemsBySearch(items, "", formatMaterialName);
+    expect(result.items).toBe(items);
+    expect(result.matchTypes).toEqual({});
+  });
+
+  it("returns all items for whitespace-only search", () => {
+    const result = filterItemsBySearch(items, "   ", formatMaterialName);
+    expect(result.items).toBe(items);
+    expect(result.matchTypes).toEqual({});
+  });
+
+  it("places exact name match first", () => {
+    const result = filterItemsBySearch(items, "Bandage", formatMaterialName);
+    expect(result.items.length).toBeGreaterThan(0);
+    expect(result.items[0].name.en).toBe("Bandage");
+  });
+
+  it("is case-insensitive", () => {
+    const result = filterItemsBySearch(items, "bandage", formatMaterialName);
+    expect(result.items.length).toBeGreaterThan(0);
+    expect(result.items[0].name.en).toBe("Bandage");
+  });
+
+  it("tags name matches as 'item'", () => {
+    const result = filterItemsBySearch(items, "Bandage", formatMaterialName);
+    const bandage = result.items.find((i) => i.name.en === "Bandage");
+    expect(bandage).toBeDefined();
+    expect(result.matchTypes[bandage!.id].has("item")).toBe(true);
+  });
+
+  it("tags recyclesInto matches as 'recycles'", () => {
+    // "metal_parts" formatted as "Metal Parts" - search for it
+    const result = filterItemsBySearch(
+      items,
+      "Metal Parts",
+      formatMaterialName
+    );
+    const itemWithRecycle = result.items.find(
+      (i) =>
+        i.recyclesInto &&
+        Object.keys(i.recyclesInto).some(
+          (m) => formatMaterialName(m).toLowerCase().includes("metal parts")
+        )
+    );
+    expect(itemWithRecycle).toBeDefined();
+    expect(result.matchTypes[itemWithRecycle!.id].has("recycles")).toBe(true);
+  });
+
+  it("tags salvagesInto matches as 'salvages'", () => {
+    // Acoustic Guitar salvages into "wires"
+    const result = filterItemsBySearch(items, "Wires", formatMaterialName);
+    const guitarMatch = result.items.find((i) => i.id === "acoustic_guitar");
+    if (guitarMatch) {
+      expect(result.matchTypes[guitarMatch.id].has("salvages")).toBe(true);
+    }
+  });
+
+  it("tags requirement matches as 'requirement'", () => {
+    const mockRequirements = {
+      bandage: {
+        totalQuantity: 5,
+        usedIn: [{ source: "Test Bench Lvl 1", quantity: 5 }],
+      },
+    };
+    const result = filterItemsBySearch(
+      items,
+      "Test Bench",
+      formatMaterialName,
+      "en",
+      mockRequirements
+    );
+    const bandage = result.items.find((i) => i.id === "bandage");
+    expect(bandage).toBeDefined();
+    expect(result.matchTypes["bandage"].has("requirement")).toBe(true);
+  });
+
+  it("prioritizes name matches over material matches", () => {
+    const result = filterItemsBySearch(items, "Plastic", formatMaterialName);
+    // Items with "Plastic" in their name should come before items that
+    // only match via recyclesInto/salvagesInto materials
+    const firstNameMatchIdx = result.items.findIndex((i) =>
+      i.name.en?.toLowerCase().includes("plastic")
+    );
+    const firstMaterialOnlyIdx = result.items.findIndex(
+      (i) =>
+        !i.name.en?.toLowerCase().includes("plastic") &&
+        result.matchTypes[i.id] &&
+        !result.matchTypes[i.id].has("item")
+    );
+    if (firstNameMatchIdx !== -1 && firstMaterialOnlyIdx !== -1) {
+      expect(firstNameMatchIdx).toBeLessThan(firstMaterialOnlyIdx);
+    }
+  });
+});
+
+describe("createNoResultsItem", () => {
+  it("creates item with NO_RESULTS_ID", () => {
+    const item = createNoResultsItem("test");
+    expect(item.id).toBe(NO_RESULTS_ID);
+  });
+
+  it("includes search term in name", () => {
+    const item = createNoResultsItem("bandage");
+    expect(item.name.en).toContain("bandage");
+  });
+});
+
+describe("isNoResultsItem", () => {
+  it("returns true for NO_RESULTS_ID", () => {
+    expect(isNoResultsItem(NO_RESULTS_ID)).toBe(true);
+  });
+
+  it("returns false for other ids", () => {
+    expect(isNoResultsItem("bandage")).toBe(false);
+    expect(isNoResultsItem("")).toBe(false);
+  });
+});

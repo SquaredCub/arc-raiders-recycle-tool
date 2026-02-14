@@ -15,7 +15,10 @@
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist",
     "extract-types": "node scripts/extract-item-types.js",
-    "generate-file-lists": "node scripts/generate-file-lists.js"
+    "generate-file-lists": "node scripts/generate-file-lists.js",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
   },
   "dependencies": {
     "@tanstack/react-table": "^8.21.3",
@@ -26,6 +29,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
+    "@jest/globals": "^30.2.0",
     "@playwright/test": "^1.58.1",
     "@types/node": "^24.10.1",
     "@types/react": "^19.2.5",
@@ -37,6 +41,7 @@
     "gh-pages": "^6.3.0",
     "globals": "^16.5.0",
     "jest": "^30.2.0",
+    "ts-jest": "^29.4.6",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.46.4",
     "vite": "^7.2.4"
