@@ -13,6 +13,7 @@ import type { Item } from "../types";
 import itemsData from "../generated/items.json";
 
 const items = itemsData as Item[];
+const itemLookup = new Map(items.map((item) => [item.id, item]));
 
 describe("formatMaterialName", () => {
   it("capitalizes and joins underscored words", () => {
@@ -80,17 +81,17 @@ describe("getItemImage", () => {
 });
 
 describe("getMaterialImage", () => {
-  it("finds item in items array and returns its image", () => {
-    const realItem = items.find((i) => i.id === "plastic_parts");
+  it("finds item in lookup map and returns its image", () => {
+    const realItem = itemLookup.get("plastic_parts");
     if (realItem) {
-      const url = getMaterialImage("plastic_parts", items);
+      const url = getMaterialImage("plastic_parts", itemLookup);
       expect(url).toBeDefined();
       expect(url).toContain("test-cdn");
     }
   });
 
   it("falls back to id-based URL when item not found", () => {
-    const url = getMaterialImage("nonexistent_material", items);
+    const url = getMaterialImage("nonexistent_material", itemLookup);
     expect(url).toBe("https://test-cdn/images/items/nonexistent_material.png");
   });
 });

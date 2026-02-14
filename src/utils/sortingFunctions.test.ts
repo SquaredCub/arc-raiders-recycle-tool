@@ -130,7 +130,6 @@ describe("sortItems", () => {
         b: "bravo",
         c: "charlie",
       },
-      benchSortKeys: {},
       requirementTotals: {},
     };
     return {
@@ -227,8 +226,7 @@ describe("sortItems", () => {
     const config = makeConfig({
       sortKeyCache: {
         nameSortKeys: { a: "a", b: "b", c: "c" },
-        benchSortKeys: {},
-        requirementTotals: { a: 10, b: 5, c: 0 },
+          requirementTotals: { a: 10, b: 5, c: 0 },
       },
     });
     const result = sortItems(

@@ -4,9 +4,7 @@ import {
   type SortingState,
 } from "@tanstack/react-table";
 import React, { useEffect, useMemo } from "react";
-import ErrorMessage from "./components/ErrorMessage";
 import type { FilterSettings } from "./components/FilterModal";
-import LoadingSpinner from "./components/LoadingSpinner";
 import { formatMaterialName } from "./data/itemsData";
 import { getItemRequirements } from "./data/requirementsData";
 import { useData } from "./hooks/useData";
@@ -44,9 +42,6 @@ const ItemsTable = React.memo(
       quests,
       hideoutBenches,
       projects,
-      isLoading,
-      error,
-      refetch,
     } = useData();
 
     // Compute item requirements from the data
@@ -152,13 +147,11 @@ const ItemsTable = React.memo(
       () =>
         createItemsTableColumns(
           itemRequirements,
-          benchNameLookup,
           sortedMaterialsCache,
           hasActiveSearch,
         ),
       [
         itemRequirements,
-        benchNameLookup,
         sortedMaterialsCache,
         hasActiveSearch,
       ],
@@ -251,24 +244,11 @@ const ItemsTable = React.memo(
       },
     });
 
-    if (isLoading) return <LoadingSpinner />;
-    if (error)
-      return (
-        <ErrorMessage
-          message="Something went wrong fetching the data."
-          errorDetails={error}
-          onRetry={refetch}
-        />
-      );
-
     return (
       <Table<Item>
         table={table}
         className="items-table"
-        itemRequirements={itemRequirements}
-        benchNameLookup={benchNameLookup}
         sortedMaterialsCache={sortedMaterialsCache}
-        searchTerm={searchTerm}
         searchMatchTypes={searchMatchTypes}
         nameMatchBoundaryIndex={nameMatchBoundaryIndex}
       />

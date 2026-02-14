@@ -4,8 +4,7 @@ import type {
   Project,
   Quest,
 } from "../types";
-
-const language = "en";
+import { DEFAULT_LANGUAGE } from "../utils/functions";
 
 /**
  * Build lookup map from hideout bench requirements
@@ -16,7 +15,7 @@ const buildHideoutLookup = (
   const lookup: ItemRequirementLookup = {};
 
   for (const bench of hideoutBenches) {
-    const benchName = bench.name[language];
+    const benchName = bench.name[DEFAULT_LANGUAGE] ?? bench.id;
 
     for (const level of bench.levels) {
       for (const requirement of level.requirementItemIds) {
@@ -48,7 +47,7 @@ const buildQuestLookup = (quests: Quest[]): ItemRequirementLookup => {
   for (const quest of quests) {
     if (!quest.requiredItemIds) continue;
 
-    const questName = quest.name[language];
+    const questName = quest.name[DEFAULT_LANGUAGE] ?? quest.id;
 
     for (const requirement of quest.requiredItemIds) {
       const { itemId, quantity } = requirement;
@@ -76,7 +75,7 @@ const buildProjectLookup = (projects: Project[]): ItemRequirementLookup => {
   const lookup: ItemRequirementLookup = {};
 
   for (const project of projects) {
-    const projectName = project.name[language];
+    const projectName = project.name[DEFAULT_LANGUAGE] ?? "";
 
     // Filter out Season 1 projects & Flickering Flames event
     if (

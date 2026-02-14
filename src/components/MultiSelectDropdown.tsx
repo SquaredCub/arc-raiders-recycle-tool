@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
+import { useModalBehavior } from "../hooks/useModalBehavior";
 import "./MultiSelectDropdown.scss";
 
 interface MultiSelectDropdownProps {
@@ -21,25 +22,12 @@ const MultiSelectDropdown = ({
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
-        setIsOpen(false);
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [isOpen]);
+  useModalBehavior({
+    isOpen,
+    onClose: () => setIsOpen(false),
+    modalRef: dropdownRef,
+    preventBodyScroll: false,
+  });
 
   const selectedCount = selectedOptions.size;
   const totalCount = options.length;

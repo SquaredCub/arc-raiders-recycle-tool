@@ -2,12 +2,12 @@ const ExternalLinkIcon = ({
   url,
   alt,
   size,
-  classname,
+  className,
 }: {
   url?: string;
   alt?: string;
   size?: number;
-  classname?: string;
+  className?: string;
 }) => {
   return (
     <img
@@ -15,7 +15,7 @@ const ExternalLinkIcon = ({
       alt={alt || "External link"}
       width={size || 16}
       height={size || 16}
-      className={`external-link-icon ${classname ?? ""}`}
+      className={`external-link-icon ${className ?? ""}`}
     />
   );
 };

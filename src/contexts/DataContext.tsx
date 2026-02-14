@@ -1,12 +1,12 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useMemo, type ReactNode } from "react";
 import { filterBlacklistedItemCategories } from "../data/itemsData";
 import {
-  fetchAllItems,
-  fetchAllQuests,
-  fetchHideoutBenches,
-  fetchProjects,
+  getAllItems,
+  getAllQuests,
+  getHideoutBenches,
+  getProjects,
 } from "../services/dataService";
-import type { HideoutBench, Item, Project, Quest } from "../types";
+import type { Item } from "../types";
 import { DataContext, type DataContextType } from "./DataContextDefinition";
 
 interface DataProviderProps {
@@ -14,59 +14,16 @@ interface DataProviderProps {
 }
 
 export const DataProvider = ({ children }: DataProviderProps) => {
-  const [items, setItems] = useState<Item[]>([]);
-  const [quests, setQuests] = useState<Quest[]>([]);
-  const [hideoutBenches, setHideoutBenches] = useState<HideoutBench[]>([]);
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const value: DataContextType = useMemo(() => {
+    const items = filterBlacklistedItemCategories(getAllItems()).filter(
+      (item) => item.value > 0,
+    ) as Item[];
+    const quests = getAllQuests();
+    const hideoutBenches = getHideoutBenches();
+    const projects = getProjects();
 
-  const fetchData = async () => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      // Fetch all data in parallel
-      const [itemsData, questsData, benchesData, projectsData] =
-        await Promise.all([
-          fetchAllItems(),
-          fetchAllQuests(),
-          fetchHideoutBenches(),
-          fetchProjects(),
-        ]);
-
-      // Filter blacklisted items
-      const filteredItems = filterBlacklistedItemCategories(itemsData).filter(
-        (item) => !!Object.hasOwn(item, "value") && item.value > 0,
-      ) as Item[];
-
-      setItems(filteredItems);
-      setQuests(questsData);
-      setHideoutBenches(benchesData);
-      setProjects(projectsData);
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "Failed to load data";
-      setError(errorMessage);
-      console.error("Error loading data:", err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchData();
+    return { items, quests, hideoutBenches, projects };
   }, []);
-
-  const value: DataContextType = {
-    items,
-    quests,
-    hideoutBenches,
-    projects,
-    isLoading,
-    error,
-    refetch: fetchData,
-  };
 
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>;
 };

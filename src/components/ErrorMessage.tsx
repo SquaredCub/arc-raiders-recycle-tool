@@ -23,11 +23,11 @@ const buildErrorReport = (message: string, errorDetails?: string): string => {
   return lines.join("\n");
 };
 
-export default function ErrorMessage({
+const ErrorMessage = ({
   message,
   errorDetails,
   onRetry,
-}: ErrorMessageProps) {
+}: ErrorMessageProps) => {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
@@ -68,4 +68,6 @@ export default function ErrorMessage({
       </div>
     </div>
   );
-}
+};
+
+export default ErrorMessage;

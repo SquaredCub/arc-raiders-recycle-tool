@@ -2,6 +2,8 @@ import { BLACKLISTED_ITEM_CATEGORIES } from "../constants/itemCategories";
 import { getImageUrl } from "../services/dataService";
 import type { Item } from "../types";
 
+export const COINS_IMAGE_URL = getImageUrl("images/coins.png");
+
 // Helper function to get image for an item
 export const getItemImage = (item: Item): string | undefined => {
   // Use GitHub CDN for images
@@ -18,10 +20,9 @@ export const getItemImage = (item: Item): string | undefined => {
 };
 
 // Helper function to get image for a material by ID
-// This requires access to the items list to get the correct imageFilename
-export const getMaterialImage = (materialId: string, items: Item[]): string | undefined => {
-  // Look up the item in the items array
-  const item = items.find(i => i.id === materialId);
+// This requires access to the items map for O(1) lookup
+export const getMaterialImage = (materialId: string, itemLookup: Map<string, Item>): string | undefined => {
+  const item = itemLookup.get(materialId);
   if (item) {
     return getItemImage(item);
   }

@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { FILTERABLE_ITEM_CATEGORIES } from "../constants/itemCategories";
-import useModalBehavior from "../hooks/useModalBehavior";
+import { useModalBehavior } from "../hooks/useModalBehavior";
 import "./FilterModal.scss";
 import MultiSelectDropdown from "./MultiSelectDropdown";
 

@@ -9,14 +9,11 @@ export const getImageUrl = (path: string): string => {
   return `https://test-cdn/${path}`;
 };
 
-export const fetchAllItems = async (): Promise<Item[]> =>
-  itemsData as Item[];
+export const getAllItems = (): Item[] => itemsData as Item[];
 
-export const fetchAllQuests = async (): Promise<Quest[]> =>
-  questsData as Quest[];
+export const getAllQuests = (): Quest[] => questsData as Quest[];
 
-export const fetchHideoutBenches = async (): Promise<HideoutBench[]> =>
+export const getHideoutBenches = (): HideoutBench[] =>
   hideoutData as HideoutBench[];
 
-export const fetchProjects = async (): Promise<Project[]> =>
-  projectsData as Project[];
+export const getProjects = (): Project[] => projectsData as Project[];

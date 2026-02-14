@@ -6,9 +6,6 @@ export interface DataContextType {
   quests: Quest[];
   hideoutBenches: HideoutBench[];
   projects: Project[];
-  isLoading: boolean;
-  error: string | null;
-  refetch: () => Promise<void>;
 }
 
 export const DataContext = createContext<DataContextType | undefined>(undefined);

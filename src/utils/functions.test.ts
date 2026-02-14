@@ -130,22 +130,20 @@ describe("filterItemsBySearch", () => {
     expect(result.matchTypes["bandage"].has("requirement")).toBe(true);
   });
 
-  it("prioritizes name matches over material matches", () => {
+  it("returns both name matches and material matches", () => {
     const result = filterItemsBySearch(items, "Plastic", formatMaterialName);
-    // Items with "Plastic" in their name should come before items that
-    // only match via recyclesInto/salvagesInto materials
-    const firstNameMatchIdx = result.items.findIndex((i) =>
-      i.name.en?.toLowerCase().includes("plastic")
+    // Should include items with "Plastic" in name (tagged as "item")
+    const nameMatches = result.items.filter((i) =>
+      result.matchTypes[i.id]?.has("item")
     );
-    const firstMaterialOnlyIdx = result.items.findIndex(
+    // Should include items that only match via materials (no "item" tag)
+    const materialOnlyMatches = result.items.filter(
       (i) =>
-        !i.name.en?.toLowerCase().includes("plastic") &&
         result.matchTypes[i.id] &&
         !result.matchTypes[i.id].has("item")
     );
-    if (firstNameMatchIdx !== -1 && firstMaterialOnlyIdx !== -1) {
-      expect(firstNameMatchIdx).toBeLessThan(firstMaterialOnlyIdx);
-    }
+    expect(nameMatches.length).toBeGreaterThan(0);
+    expect(materialOnlyMatches.length).toBeGreaterThan(0);
   });
 });
 

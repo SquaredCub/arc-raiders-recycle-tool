@@ -13,19 +13,15 @@ const GITHUB_RAW_BASE_URL = `https://raw.githubusercontent.com/${GITHUB_OWNER}/$
 
 /**
  * Data accessors — all data is bundled at build time, no runtime fetches needed.
- * These remain async to preserve the existing API contract.
  */
-export const fetchAllItems = async (): Promise<Item[]> =>
-  itemsData as Item[];
+export const getAllItems = (): Item[] => itemsData as Item[];
 
-export const fetchAllQuests = async (): Promise<Quest[]> =>
-  questsData as Quest[];
+export const getAllQuests = (): Quest[] => questsData as Quest[];
 
-export const fetchHideoutBenches = async (): Promise<HideoutBench[]> =>
+export const getHideoutBenches = (): HideoutBench[] =>
   hideoutData as HideoutBench[];
 
-export const fetchProjects = async (): Promise<Project[]> =>
-  projectsData as Project[];
+export const getProjects = (): Project[] => projectsData as Project[];
 
 /**
  * Get image URL for an item from GitHub

@@ -104,8 +104,7 @@ export const capitalizeItemId = (id?: string): string | null => {
 
 /**
  * Filter items based on search term
- * Returns exact matches first, then name matches starting with search term,
- * then other name matches, then material matches
+ * Returns matched items and their match types for highlighting
  */
 export type SearchMatchType = "item" | "recycles" | "salvages" | "requirement";
 
@@ -127,12 +126,7 @@ export const filterItemsBySearch = (
 
   const lowerSearchTerm = searchTerm.toLowerCase();
 
-  // Separate items into groups based on match quality
-  const exactMatches: Item[] = [];
-  const startsWithMatches: Item[] = [];
-  const otherNameMatches: Item[] = [];
-  const materialMatches: Item[] = [];
-  const requirementMatches: Item[] = [];
+  const matchedItems: Item[] = [];
   const matchTypes: Record<string, Set<SearchMatchType>> = {};
 
   for (const item of items) {
@@ -174,31 +168,11 @@ export const filterItemsBySearch = (
     if (types.size === 0) continue;
 
     matchTypes[item.id] = types;
-
-    // Place into priority bucket based on highest-priority match
-    if (types.has("item")) {
-      if (itemName === lowerSearchTerm) {
-        exactMatches.push(item);
-      } else if (itemName?.startsWith(lowerSearchTerm)) {
-        startsWithMatches.push(item);
-      } else {
-        otherNameMatches.push(item);
-      }
-    } else if (types.has("recycles") || types.has("salvages")) {
-      materialMatches.push(item);
-    } else {
-      requirementMatches.push(item);
-    }
+    matchedItems.push(item);
   }
 
   return {
-    items: [
-      ...exactMatches,
-      ...startsWithMatches,
-      ...otherNameMatches,
-      ...materialMatches,
-      ...requirementMatches,
-    ],
+    items: matchedItems,
     matchTypes,
   };
 };

@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import MobileItemRow from "./components/MobileItemRow";
 import { MEDIA_QUERIES } from "./constants/breakpoints";
 import { useMediaQuery } from "./hooks/useMediaQuery";
-import type { Item, ItemRequirementLookup } from "./types";
+import type { Item } from "./types";
 import type { SearchMatchType } from "./utils/functions";
 import type { CachedMaterial } from "./utils/tableCache";
 
@@ -12,10 +12,7 @@ type TableProps<T> = {
   table: TableType<T>;
   className?: string;
   // Optional props for mobile view (only used when T is Item)
-  itemRequirements?: ItemRequirementLookup;
-  benchNameLookup?: Record<string, string>;
   sortedMaterialsCache?: Record<string, CachedMaterial[]>;
-  searchTerm?: string; // kept for potential mobile view use
   searchMatchTypes?: Record<string, Set<SearchMatchType>>;
   nameMatchBoundaryIndex?: number;
 };
@@ -23,8 +20,6 @@ type TableProps<T> = {
 const Table = <T,>({
   table,
   className,
-  itemRequirements,
-  benchNameLookup,
   sortedMaterialsCache,
   searchMatchTypes,
   nameMatchBoundaryIndex = -1,
@@ -86,8 +81,6 @@ const Table = <T,>({
   if (
     isMobileOrTablet &&
     className === "items-table" &&
-    itemRequirements &&
-    benchNameLookup &&
     sortedMaterialsCache
   ) {
     return (
@@ -104,8 +97,6 @@ const Table = <T,>({
             >
               <MobileItemRow
                 item={item}
-                itemRequirements={itemRequirements}
-                benchNameLookup={benchNameLookup}
                 sortedMaterialsCache={sortedMaterialsCache}
                 index={virtualRow.index}
               />

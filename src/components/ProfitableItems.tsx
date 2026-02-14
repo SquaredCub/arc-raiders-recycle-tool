@@ -1,15 +1,10 @@
 import { useMemo } from "react";
-import { getItemImage } from "../data/itemsData";
+import { COINS_IMAGE_URL, getItemImage } from "../data/itemsData";
 import { useData } from "../hooks/useData";
 import ItemCell from "../ItemCell";
-import { getImageUrl } from "../services/dataService";
 import type { Item } from "../types";
 import { DEFAULT_LANGUAGE } from "../utils/functions";
-import ErrorMessage from "./ErrorMessage";
-import LoadingSpinner from "./LoadingSpinner";
 import "./ProfitableItems.scss";
-
-const COINS_IMAGE_URL = getImageUrl("images/coins.png");
 
 interface CraftingProfit {
   item: Item;
@@ -86,7 +81,7 @@ const calculateCraftingProfit = (
 };
 
 const ProfitableItems = () => {
-  const { items, isLoading, error, refetch } = useData();
+  const { items } = useData();
 
   // Create a map for quick lookup
   const itemsMap = useMemo(() => {
@@ -112,16 +107,6 @@ const ProfitableItems = () => {
 
     return profitable;
   }, [items, itemsMap]);
-
-  if (isLoading) return <LoadingSpinner />;
-  if (error)
-    return (
-      <ErrorMessage
-        message="Something went wrong fetching the data."
-        errorDetails={error}
-        onRetry={refetch}
-      />
-    );
 
   if (profitableItems.length === 0) {
     return (

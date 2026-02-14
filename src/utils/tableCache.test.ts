@@ -111,12 +111,6 @@ describe("createSortKeyCache", () => {
     }
   });
 
-  it("populates benchSortKeys for all items", () => {
-    for (const item of items) {
-      expect(sortKeyCache.benchSortKeys[item.id]).toBeDefined();
-    }
-  });
-
   it("populates requirementTotals as numbers", () => {
     for (const item of items) {
       const total = sortKeyCache.requirementTotals[item.id];

@@ -7,7 +7,7 @@ interface UseModalBehaviorOptions {
   preventBodyScroll?: boolean;
 }
 
-const useModalBehavior = ({
+export const useModalBehavior = ({
   isOpen,
   onClose,
   modalRef,
@@ -67,5 +67,3 @@ const useModalBehavior = ({
     };
   }, [isOpen, onClose]);
 };
-
-export default useModalBehavior;

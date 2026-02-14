@@ -4,7 +4,7 @@ import {
   getMaterialImage,
 } from "../data/itemsData";
 import { DEFAULT_LANGUAGE } from "./functions";
-import { sortMaterialsByName, getItemSortName, getBenchSortKey } from "./sortingFunctions";
+import { sortMaterialsByName, getItemSortName } from "./sortingFunctions";
 
 // Cached material data structure
 export interface CachedMaterial {
@@ -13,6 +13,30 @@ export interface CachedMaterial {
   name: string;
   image: string | undefined;
 }
+
+/**
+ * Cache sorted material entries for a given materials record
+ */
+const cacheMaterialEntries = (
+  materials: Record<string, number>,
+  prefix: string,
+  itemId: string,
+  itemLookup: Map<string, Item>,
+  cache: Record<string, CachedMaterial[]>,
+) => {
+  if (Object.keys(materials).length > 0) {
+    const sortedEntries = sortMaterialsByName(
+      Object.entries(materials),
+      formatMaterialName,
+    );
+    cache[`${prefix}_${itemId}`] = sortedEntries.map(([material, quantity]) => ({
+      material,
+      quantity,
+      name: formatMaterialName(material),
+      image: getMaterialImage(material, itemLookup),
+    }));
+  }
+};
 
 /**
  * Create a lookup map for hideout bench names
@@ -39,47 +63,21 @@ export const createSortedMaterialsCache = (
 ): Record<string, CachedMaterial[]> => {
   const cache: Record<string, CachedMaterial[]> = {};
 
+  // Build item lookup map for O(1) material image lookups
+  const itemLookup = new Map<string, Item>();
   for (const item of items) {
-    // Cache recyclesInto materials
-    if (item.recyclesInto && Object.keys(item.recyclesInto).length > 0) {
-      const sortedEntries = sortMaterialsByName(
-        Object.entries(item.recyclesInto),
-        formatMaterialName
-      );
-      cache[`recycle_${item.id}`] = sortedEntries.map(([material, quantity]) => ({
-        material,
-        quantity,
-        name: formatMaterialName(material),
-        image: getMaterialImage(material, items),
-      }));
-    }
+    itemLookup.set(item.id, item);
+  }
 
-    // Cache salvagesInto materials
-    if (item.salvagesInto && Object.keys(item.salvagesInto).length > 0) {
-      const sortedEntries = sortMaterialsByName(
-        Object.entries(item.salvagesInto),
-        formatMaterialName
-      );
-      cache[`salvage_${item.id}`] = sortedEntries.map(([material, quantity]) => ({
-        material,
-        quantity,
-        name: formatMaterialName(material),
-        image: getMaterialImage(material, items),
-      }));
+  for (const item of items) {
+    if (item.recyclesInto) {
+      cacheMaterialEntries(item.recyclesInto, "recycle", item.id, itemLookup, cache);
     }
-
-    // Cache recipe materials
-    if (item.recipe && Object.keys(item.recipe).length > 0) {
-      const sortedEntries = sortMaterialsByName(
-        Object.entries(item.recipe),
-        formatMaterialName
-      );
-      cache[`recipe_${item.id}`] = sortedEntries.map(([material, quantity]) => ({
-        material,
-        quantity,
-        name: formatMaterialName(material),
-        image: getMaterialImage(material, items),
-      }));
+    if (item.salvagesInto) {
+      cacheMaterialEntries(item.salvagesInto, "salvage", item.id, itemLookup, cache);
+    }
+    if (item.recipe) {
+      cacheMaterialEntries(item.recipe, "recipe", item.id, itemLookup, cache);
     }
   }
 
@@ -95,7 +93,6 @@ export const createSortedMaterialsCache = (
  */
 export interface SortKeyCache {
   nameSortKeys: Record<string, string>;
-  benchSortKeys: Record<string, string>;
   requirementTotals: Record<string, number>;
 }
 
@@ -105,24 +102,15 @@ export interface SortKeyCache {
  */
 export const createSortKeyCache = (
   items: Item[],
-  benchNameLookup: Record<string, string>,
+  _benchNameLookup: Record<string, string>,
   itemRequirements: ItemRequirementLookup
 ): SortKeyCache => {
   const nameSortKeys: Record<string, string> = {};
-  const benchSortKeys: Record<string, string> = {};
   const requirementTotals: Record<string, number> = {};
-
-  // Helper function to get bench name from lookup
-  const getBenchName = (benchId: string): string => {
-    return benchNameLookup[benchId] || benchId;
-  };
 
   for (const item of items) {
     // Pre-compute name sort key (lowercase for faster comparison)
     nameSortKeys[item.id] = getItemSortName(item, DEFAULT_LANGUAGE).toLowerCase();
-
-    // Pre-compute bench sort key
-    benchSortKeys[item.id] = getBenchSortKey(item.craftBench, getBenchName);
 
     // Pre-compute requirement total
     requirementTotals[item.id] = itemRequirements[item.id]?.totalQuantity ?? 0;
@@ -130,7 +118,6 @@ export const createSortKeyCache = (
 
   return {
     nameSortKeys,
-    benchSortKeys,
     requirementTotals,
   };
 };

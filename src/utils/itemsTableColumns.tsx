@@ -1,5 +1,5 @@
 import { createColumnHelper } from "@tanstack/react-table";
-import { getItemImage } from "../data/itemsData";
+import { COINS_IMAGE_URL, getItemImage } from "../data/itemsData";
 import ItemCell from "../ItemCell";
 import { getImageUrl } from "../services/dataService";
 import type { Item, ItemRequirementLookup } from "../types";
@@ -7,7 +7,6 @@ import { DEFAULT_LANGUAGE, isNoResultsItem } from "./functions";
 import type { CachedMaterial } from "./tableCache";
 
 const columnHelper = createColumnHelper<Item>();
-const COINS_IMAGE_URL = getImageUrl("images/coins.png");
 
 /**
  * Create table column definitions
@@ -15,7 +14,6 @@ const COINS_IMAGE_URL = getImageUrl("images/coins.png");
  */
 export const createItemsTableColumns = (
   itemRequirements: ItemRequirementLookup,
-  _benchNameLookup: Record<string, string>,
   sortedMaterialsCache: Record<string, CachedMaterial[]>,
   hasActiveSearch: boolean,
 ) => {

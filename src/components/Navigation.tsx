@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import useModalBehavior from "../hooks/useModalBehavior";
+import { useModalBehavior } from "../hooks/useModalBehavior";
 import ExternalLinkIcon from "./ExternalLinkIcon";
 import "./Navigation.scss";
 
@@ -14,7 +14,7 @@ interface ExternalLink {
   label: string;
   href: string;
   icon: string;
-  classname?: string;
+  className?: string;
   size?: number;
 }
 
@@ -23,7 +23,7 @@ const communityLinks: ExternalLink[] = [
     label: "Maps",
     href: "https://arcraidersmaps.app/",
     icon: "https://arcraidersmaps.app/favicon/favicon-96x96.png",
-    classname: "invert-in-light",
+    className: "invert-in-light",
   },
   {
     label: "Map Selector",
@@ -48,7 +48,7 @@ const myLinks: ExternalLink[] = [
     label: "Github Repository",
     href: "https://github.com/SquaredCub/arc-raiders-recycle-tool",
     icon: `https://github.com/favicon.ico`,
-    classname: "invert-in-dark",
+    className: "invert-in-dark",
   },
   {
     label: "Donate",
@@ -94,7 +94,7 @@ const Navigation = ({ activePage, onNavigate }: NavigationProps) => {
           aria-expanded={dropdownOpen}
           aria-label="External Links"
         >
-          <ExternalLinkIcon classname="invert-in-light" />
+          <ExternalLinkIcon className="invert-in-light" />
           <span>External Links</span>
           <svg
             width="16"
@@ -132,7 +132,7 @@ const Navigation = ({ activePage, onNavigate }: NavigationProps) => {
                     url={link.icon}
                     alt={`${link.label} icon`}
                     size={link.size || 16}
-                    classname={link.classname}
+                    className={link.className}
                   />
                 )}
               </a>
@@ -152,7 +152,7 @@ const Navigation = ({ activePage, onNavigate }: NavigationProps) => {
                     url={link.icon}
                     alt={`${link.label} icon`}
                     size={link.size || 16}
-                    classname={link.classname}
+                    className={link.className}
                   />
                 )}
               </a>
