@@ -171,11 +171,8 @@ export const sortItems = (
       }
     }
 
-    // Name matches always sorted alphabetically ascending
-    const nameComparator = getColumnComparator("item", config);
-    nameMatches.sort(nameComparator);
-
-    // Others sorted by selected column with direction
+    // Both partitions sorted by selected column with direction
+    nameMatches.sort(sortWithDirection);
     others.sort(sortWithDirection);
 
     return [...nameMatches, ...others];
