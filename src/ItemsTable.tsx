@@ -105,6 +105,38 @@ const ItemsTable = React.memo(
     const searchMatchTypes: Record<string, Set<SearchMatchType>> =
       searchResult.matchTypes;
 
+    // Compute material match scores for sorting recycles/salvages columns
+    const materialMatchScores = useMemo(() => {
+      const scores: Record<string, { recycles: number; salvages: number }> = {};
+      const lowerSearch = searchTerm.trim().toLowerCase();
+      if (!lowerSearch) return scores;
+
+      for (const item of searchResult.items) {
+        let recycleScore = 0;
+        let salvageScore = 0;
+
+        if (item.recyclesInto) {
+          for (const [material, quantity] of Object.entries(item.recyclesInto)) {
+            if (formatMaterialName(material).toLowerCase().includes(lowerSearch)) {
+              recycleScore += quantity;
+            }
+          }
+        }
+
+        if (item.salvagesInto) {
+          for (const [material, quantity] of Object.entries(item.salvagesInto)) {
+            if (formatMaterialName(material).toLowerCase().includes(lowerSearch)) {
+              salvageScore += quantity;
+            }
+          }
+        }
+
+        scores[item.id] = { recycles: recycleScore, salvages: salvageScore };
+      }
+
+      return scores;
+    }, [searchResult, searchTerm]);
+
     // Create column definitions using extracted function
     const columns = useMemo(
       () =>
@@ -114,6 +146,8 @@ const ItemsTable = React.memo(
           sortedMaterialsCache,
           sortKeyCache,
           searchRelevanceIndex,
+          searchMatchTypes,
+          materialMatchScores,
         ),
       [
         itemRequirements,
@@ -121,6 +155,8 @@ const ItemsTable = React.memo(
         sortedMaterialsCache,
         sortKeyCache,
         searchRelevanceIndex,
+        searchMatchTypes,
+        materialMatchScores,
       ],
     );
 

@@ -3,7 +3,7 @@ import { getItemImage } from "../data/itemsData";
 import ItemCell from "../ItemCell";
 import { getImageUrl } from "../services/dataService";
 import type { Item, ItemRequirementLookup } from "../types";
-import { compareStrings, DEFAULT_LANGUAGE, isNoResultsItem } from "./functions";
+import { compareStrings, DEFAULT_LANGUAGE, isNoResultsItem, type SearchMatchType } from "./functions";
 import type { CachedMaterial, SortKeyCache } from "./tableCache";
 
 const columnHelper = createColumnHelper<Item>();
@@ -19,6 +19,8 @@ export const createItemsTableColumns = (
   sortedMaterialsCache: Record<string, CachedMaterial[]>,
   sortKeyCache: SortKeyCache,
   searchRelevanceIndex: Record<string, number>,
+  searchMatchTypes: Record<string, Set<SearchMatchType>>,
+  materialMatchScores: Record<string, { recycles: number; salvages: number }>,
 ) => {
   // const getBenchName = (benchId: string): string => {
   //   return benchNameLookup[benchId] || benchId;
@@ -95,7 +97,28 @@ export const createItemsTableColumns = (
           </div>
         );
       },
-      enableSorting: false,
+      enableSorting: true,
+      sortDescFirst: true,
+      invertSorting: true,
+      sortingFn: (rowA, rowB) => {
+        if (!hasActiveSearch) return 0;
+
+        const aNameMatch = searchMatchTypes[rowA.original.id]?.has("item") ?? false;
+        const bNameMatch = searchMatchTypes[rowB.original.id]?.has("item") ?? false;
+
+        if (aNameMatch && !bNameMatch) return -1;
+        if (!aNameMatch && bNameMatch) return 1;
+
+        if (aNameMatch && bNameMatch) {
+          const nameA = sortKeyCache.nameSortKeys[rowA.original.id] || "";
+          const nameB = sortKeyCache.nameSortKeys[rowB.original.id] || "";
+          return compareStrings(nameA, nameB);
+        }
+
+        const scoreA = materialMatchScores[rowA.original.id]?.recycles ?? 0;
+        const scoreB = materialMatchScores[rowB.original.id]?.recycles ?? 0;
+        return scoreB - scoreA;
+      },
     }),
     columnHelper.accessor("salvagesInto", {
       id: "salvages",
@@ -123,7 +146,28 @@ export const createItemsTableColumns = (
           </div>
         );
       },
-      enableSorting: false,
+      enableSorting: true,
+      sortDescFirst: true,
+      invertSorting: true,
+      sortingFn: (rowA, rowB) => {
+        if (!hasActiveSearch) return 0;
+
+        const aNameMatch = searchMatchTypes[rowA.original.id]?.has("item") ?? false;
+        const bNameMatch = searchMatchTypes[rowB.original.id]?.has("item") ?? false;
+
+        if (aNameMatch && !bNameMatch) return -1;
+        if (!aNameMatch && bNameMatch) return 1;
+
+        if (aNameMatch && bNameMatch) {
+          const nameA = sortKeyCache.nameSortKeys[rowA.original.id] || "";
+          const nameB = sortKeyCache.nameSortKeys[rowB.original.id] || "";
+          return compareStrings(nameA, nameB);
+        }
+
+        const scoreA = materialMatchScores[rowA.original.id]?.salvages ?? 0;
+        const scoreB = materialMatchScores[rowB.original.id]?.salvages ?? 0;
+        return scoreB - scoreA;
+      },
     }),
     // columnHelper.accessor("recipe", {
     //   id: "craftingMaterials",
