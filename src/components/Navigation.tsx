@@ -10,7 +10,15 @@ interface NavigationProps {
   onNavigate: (page: NavigationPage) => void;
 }
 
-const communityLinks = [
+interface ExternalLink {
+  label: string;
+  href: string;
+  icon: string;
+  classname?: string;
+  size?: number;
+}
+
+const communityLinks: ExternalLink[] = [
   {
     label: "Maps",
     href: "https://arcraidersmaps.app/",
@@ -35,7 +43,7 @@ const communityLinks = [
   },
 ];
 
-const myLinks = [
+const myLinks: ExternalLink[] = [
   {
     label: "Github Repository",
     href: "https://github.com/SquaredCub/arc-raiders-recycle-tool",
