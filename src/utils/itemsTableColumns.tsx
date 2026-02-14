@@ -1,22 +1,10 @@
-import { createColumnHelper, type SortingState } from "@tanstack/react-table";
+import { createColumnHelper } from "@tanstack/react-table";
 import { getItemImage } from "../data/itemsData";
 import ItemCell from "../ItemCell";
 import { getImageUrl } from "../services/dataService";
 import type { Item, ItemRequirementLookup } from "../types";
-import {
-  DEFAULT_LANGUAGE,
-  isNoResultsItem,
-  type SearchMatchType,
-} from "./functions";
-import {
-  createFoundInAlphabeticalSort,
-  createMaterialScoreSort,
-  createNameAlphabeticalSort,
-  createRequirementTotalSort,
-  createSearchAwareSortFactory,
-  createValueSort,
-} from "./sortingFunctions";
-import type { CachedMaterial, SortKeyCache } from "./tableCache";
+import { DEFAULT_LANGUAGE, isNoResultsItem } from "./functions";
+import type { CachedMaterial } from "./tableCache";
 
 const columnHelper = createColumnHelper<Item>();
 const COINS_IMAGE_URL = getImageUrl("images/coins.png");
@@ -29,23 +17,8 @@ export const createItemsTableColumns = (
   itemRequirements: ItemRequirementLookup,
   _benchNameLookup: Record<string, string>,
   sortedMaterialsCache: Record<string, CachedMaterial[]>,
-  sortKeyCache: SortKeyCache,
   hasActiveSearch: boolean,
-  searchMatchTypes: Record<string, Set<SearchMatchType>>,
-  materialMatchScores: Record<string, { recycles: number; salvages: number }>,
-  sorting: SortingState,
 ) => {
-  // const getBenchName = (benchId: string): string => {
-  //   return benchNameLookup[benchId] || benchId;
-  // };
-
-  const sortFor = createSearchAwareSortFactory(
-    hasActiveSearch,
-    searchMatchTypes,
-    sortKeyCache,
-    sorting,
-  );
-
   return [
     columnHelper.accessor("name", {
       id: "item",
@@ -72,7 +45,6 @@ export const createItemsTableColumns = (
       },
       enableSorting: true,
       sortDescFirst: false,
-      sortingFn: sortFor(createNameAlphabeticalSort(sortKeyCache), "item"),
     }),
     columnHelper.accessor("recyclesInto", {
       id: "recycles",
@@ -103,11 +75,7 @@ export const createItemsTableColumns = (
         );
       },
       enableSorting: hasActiveSearch,
-      sortDescFirst: false,
-      sortingFn: sortFor(
-        createMaterialScoreSort(materialMatchScores, "recycles"),
-        "recycles",
-      ),
+      sortDescFirst: true,
     }),
     columnHelper.accessor("salvagesInto", {
       id: "salvages",
@@ -136,73 +104,8 @@ export const createItemsTableColumns = (
         );
       },
       enableSorting: hasActiveSearch,
-      sortDescFirst: false,
-      sortingFn: sortFor(
-        createMaterialScoreSort(materialMatchScores, "salvages"),
-        "salvages",
-      ),
+      sortDescFirst: true,
     }),
-    // columnHelper.accessor("recipe", {
-    //   id: "craftingMaterials",
-    //   header: () => <span>Crafting Materials</span>,
-    //   size: 250,
-    //   cell: (info) => {
-    //     const item = info.row.original;
-    //     if (isNoResultsItem(item.id)) {
-    //       return <span>-</span>;
-    //     }
-    //     const cachedMaterials = sortedMaterialsCache[`recipe_${item.id}`];
-    //     if (!cachedMaterials) {
-    //       return <span>-</span>;
-    //     }
-    //     return (
-    //       <div className="recycles-container">
-    //         {cachedMaterials.map(({ material, quantity, name, image }) => (
-    //           <ItemCell
-    //             key={material}
-    //             name={`${quantity} x ${name}`}
-    //             imageSrc={image}
-    //           />
-    //         ))}
-    //       </div>
-    //     );
-    //   },
-    //   enableSorting: false,
-    // }),
-    // columnHelper.accessor("craftBench", {
-    //   id: "craftingStation",
-    //   header: () => <span>Crafting Station</span>,
-    //   size: 140,
-    //   cell: (info) => {
-    //     const item = info.row.original;
-    //     if (isNoResultsItem(item.id)) {
-    //       return <span>-</span>;
-    //     }
-    //     const craftBench = info.getValue();
-    //     if (!craftBench) {
-    //       return <span>-</span>;
-    //     }
-    //     const benches = Array.isArray(craftBench) ? craftBench : [craftBench];
-    //     return (
-    //       <div className="craft-bench-container">
-    //         {benches.map((benchId, index) => (
-    //           <div key={index}>{getBenchName(benchId)}</div>
-    //         ))}
-    //       </div>
-    //     );
-    //   },
-    //   enableSorting: true,
-    //   sortDescFirst: true,
-    //   invertSorting: true,
-    //   sortingFn: (rowA, rowB) => {
-    //     const benchA = sortKeyCache.benchSortKeys[rowA.original.id] || "";
-    //     const benchB = sortKeyCache.benchSortKeys[rowB.original.id] || "";
-    //     if (!benchA && !benchB) return 0;
-    //     if (!benchA) return 1;
-    //     if (!benchB) return -1;
-    //     return compareStrings(benchA, benchB);
-    //   },
-    // }),
     columnHelper.accessor("foundIn", {
       id: "foundIn",
       header: () => <span>Found In</span>,
@@ -234,7 +137,6 @@ export const createItemsTableColumns = (
       },
       enableSorting: true,
       sortDescFirst: false,
-      sortingFn: sortFor(createFoundInAlphabeticalSort(), "foundIn"),
     }),
     columnHelper.accessor("id", {
       id: "neededFor",
@@ -269,7 +171,6 @@ export const createItemsTableColumns = (
       },
       enableSorting: true,
       sortDescFirst: true,
-      sortingFn: sortFor(createRequirementTotalSort(sortKeyCache), "neededFor"),
     }),
     columnHelper.accessor("value", {
       header: () => <span>Value</span>,
@@ -296,7 +197,6 @@ export const createItemsTableColumns = (
       },
       enableSorting: true,
       sortDescFirst: true,
-      sortingFn: sortFor(createValueSort(), "value"),
     }),
   ];
 };

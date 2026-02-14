@@ -227,4 +227,3 @@ export const createNoResultsItem = (searchTerm: string): Item => {
 export const isNoResultsItem = (itemId: string): boolean => {
   return itemId === NO_RESULTS_ID;
 };
-

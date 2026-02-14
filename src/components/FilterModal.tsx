@@ -6,6 +6,7 @@ import MultiSelectDropdown from "./MultiSelectDropdown";
 
 export interface FilterSettings {
   includedCategories: Set<string>;
+  prioritizeNameMatches: boolean;
 }
 
 interface FilterModalProps {
@@ -76,6 +77,26 @@ const FilterModal = ({
               onDeselectAll={handleDeselectAll}
               label="Item Categories"
             />
+          </div>
+
+          <div className="filter-setting">
+            <label className="filter-setting__toggle">
+              <input
+                type="checkbox"
+                checked={filterSettings.prioritizeNameMatches}
+                onChange={(e) =>
+                  onFilterChange({
+                    ...filterSettings,
+                    prioritizeNameMatches: e.target.checked,
+                  })
+                }
+              />
+              <span>Prioritize name matches when sorting</span>
+            </label>
+            <p className="filter-setting__description">
+              When searching, items matching by name appear first regardless of
+              sort column.
+            </p>
           </div>
         </div>
       </div>

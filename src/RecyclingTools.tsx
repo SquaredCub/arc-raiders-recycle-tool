@@ -12,6 +12,7 @@ const RecyclingTools = () => {
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [filterSettings, setFilterSettings] = useState<FilterSettings>({
     includedCategories: new Set(FILTERABLE_ITEM_CATEGORIES),
+    prioritizeNameMatches: true,
   });
   const [itemCount, setItemCount] = useState<{
     filtered: number;

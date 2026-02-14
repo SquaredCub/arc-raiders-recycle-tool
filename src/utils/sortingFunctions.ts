@@ -1,9 +1,7 @@
-import type { Row, SortingState } from "@tanstack/react-table";
+import type { SortingState } from "@tanstack/react-table";
 import type { Item, LocalizedText } from "../types";
 import { DEFAULT_LANGUAGE, type SearchMatchType } from "./functions";
 import type { SortKeyCache } from "./tableCache";
-
-type ItemSortingFn = (rowA: Row<Item>, rowB: Row<Item>) => number;
 
 // ============================================================================
 // String Comparison Utilities
@@ -83,115 +81,108 @@ export const getBenchSortKey = (
 };
 
 // ============================================================================
-// Base Column Sorting Functions (no search awareness)
+// Manual Sorting (used with manualSorting: true)
 // ============================================================================
 
+export interface SortItemsConfig {
+  prioritizeNameMatches: boolean;
+  searchMatchTypes: Record<string, Set<SearchMatchType>>;
+  sortKeyCache: SortKeyCache;
+  materialMatchScores: Record<string, { recycles: number; salvages: number }>;
+}
+
 /**
- * Sort alphabetically by pre-computed item name keys.
+ * Get a pure ascending-order comparator for a given column.
+ * Returns (a: Item, b: Item) => number.
  */
-export const createNameAlphabeticalSort = (
-  sortKeyCache: SortKeyCache,
-): ItemSortingFn =>
-  (rowA, rowB) => {
-    const nameA = sortKeyCache.nameSortKeys[rowA.original.id] || "";
-    const nameB = sortKeyCache.nameSortKeys[rowB.original.id] || "";
-    return compareStrings(nameA, nameB);
-  };
+const getColumnComparator = (
+  columnId: string,
+  config: SortItemsConfig,
+): ((a: Item, b: Item) => number) => {
+  switch (columnId) {
+    case "item":
+      return (a, b) => {
+        const nameA = config.sortKeyCache.nameSortKeys[a.id] || "";
+        const nameB = config.sortKeyCache.nameSortKeys[b.id] || "";
+        return compareStrings(nameA, nameB);
+      };
+    case "recycles":
+      return (a, b) => {
+        const scoreA = config.materialMatchScores[a.id]?.recycles ?? 0;
+        const scoreB = config.materialMatchScores[b.id]?.recycles ?? 0;
+        return scoreA - scoreB;
+      };
+    case "salvages":
+      return (a, b) => {
+        const scoreA = config.materialMatchScores[a.id]?.salvages ?? 0;
+        const scoreB = config.materialMatchScores[b.id]?.salvages ?? 0;
+        return scoreA - scoreB;
+      };
+    case "foundIn":
+      return (a, b) => compareStringsEmptyLast(a.foundIn, b.foundIn);
+    case "neededFor":
+      return (a, b) => {
+        const totalA = config.sortKeyCache.requirementTotals[a.id] ?? 0;
+        const totalB = config.sortKeyCache.requirementTotals[b.id] ?? 0;
+        return totalA - totalB;
+      };
+    case "value":
+      return (a, b) => (a.value ?? 0) - (b.value ?? 0);
+    default:
+      return () => 0;
+  }
+};
 
 /**
- * Sort by material match score for the given field (recycles or salvages).
- * Higher scores (more matched materials received) come first.
- */
-export const createMaterialScoreSort = (
-  materialMatchScores: Record<string, { recycles: number; salvages: number }>,
-  scoreField: "recycles" | "salvages",
-): ItemSortingFn =>
-  (rowA, rowB) => {
-    const scoreA = materialMatchScores[rowA.original.id]?.[scoreField] ?? 0;
-    const scoreB = materialMatchScores[rowB.original.id]?.[scoreField] ?? 0;
-    return scoreB - scoreA;
-  };
-
-/**
- * Sort alphabetically by Found In location, with empty values last.
- */
-export const createFoundInAlphabeticalSort = (): ItemSortingFn =>
-  (rowA, rowB) => {
-    return compareStringsEmptyLast(rowA.original.foundIn, rowB.original.foundIn);
-  };
-
-/**
- * Sort by total requirement quantity.
- */
-export const createRequirementTotalSort = (
-  sortKeyCache: SortKeyCache,
-): ItemSortingFn =>
-  (rowA, rowB) => {
-    const totalA = sortKeyCache.requirementTotals[rowA.original.id] ?? 0;
-    const totalB = sortKeyCache.requirementTotals[rowB.original.id] ?? 0;
-    return totalA - totalB;
-  };
-
-/**
- * Sort by item value (numeric).
- */
-export const createValueSort = (): ItemSortingFn =>
-  (rowA, rowB) => {
-    return (rowA.original.value ?? 0) - (rowB.original.value ?? 0);
-  };
-
-// ============================================================================
-// Search-Aware Sorting Wrapper
-// ============================================================================
-
-/**
- * Wrap a column sorting function to prioritize item name matches during search.
- * Items that matched on name are always pinned to the top (sorted alphabetically),
- * regardless of the column's sort direction. The remaining items are sorted
- * by the column-specific base sort with normal direction behavior.
+ * Sort items with optional name-match pinning.
  *
- * TanStack applies `sortResult * (isDesc ? -1 : 1)` to the sortingFn result.
- * We counter that multiplier for the name-match partition and within-name-match
- * alphabetical sort, while leaving the base sort untouched.
+ * When prioritizeNameMatches is true:
+ *   1. Partition into nameMatches and others
+ *   2. Sort nameMatches alphabetically (always ascending)
+ *   3. Sort others by selected column with direction
+ *   4. Return [...nameMatches, ...others]
+ *
+ * When prioritizeNameMatches is false:
+ *   Sort all items by selected column with direction.
  */
-const withNameMatchPriority = (
-  baseSortFn: ItemSortingFn,
-  searchMatchTypes: Record<string, Set<SearchMatchType>>,
-  sortKeyCache: SortKeyCache,
-  directionMultiplier: number,
-): ItemSortingFn =>
-  (rowA, rowB) => {
-    const aNameMatch = searchMatchTypes[rowA.original.id]?.has("item") ?? false;
-    const bNameMatch = searchMatchTypes[rowB.original.id]?.has("item") ?? false;
+export const sortItems = (
+  items: Item[],
+  sorting: SortingState,
+  config: SortItemsConfig,
+): Item[] => {
+  if (sorting.length === 0) return items;
 
-    if (aNameMatch && !bNameMatch) return -1 * directionMultiplier;
-    if (!aNameMatch && bNameMatch) return 1 * directionMultiplier;
+  const { id: columnId, desc } = sorting[0];
+  const comparator = getColumnComparator(columnId, config);
+  const directionMultiplier = desc ? -1 : 1;
 
-    if (aNameMatch && bNameMatch) {
-      const nameA = sortKeyCache.nameSortKeys[rowA.original.id] || "";
-      const nameB = sortKeyCache.nameSortKeys[rowB.original.id] || "";
-      return compareStrings(nameA, nameB) * directionMultiplier;
+  const sortWithDirection = (a: Item, b: Item) =>
+    comparator(a, b) * directionMultiplier;
+
+  if (config.prioritizeNameMatches) {
+    const nameMatches: Item[] = [];
+    const others: Item[] = [];
+
+    for (const item of items) {
+      if (config.searchMatchTypes[item.id]?.has("item")) {
+        nameMatches.push(item);
+      } else {
+        others.push(item);
+      }
     }
 
-    return baseSortFn(rowA, rowB);
-  };
+    // Name matches always sorted alphabetically ascending
+    const nameComparator = getColumnComparator("item", config);
+    nameMatches.sort(nameComparator);
 
-/**
- * Create a helper that produces search-aware sorting functions for table columns.
- * When search is active, wraps the base sort with name-match priority.
- * When search is inactive, returns the base sort as-is.
- */
-export const createSearchAwareSortFactory = (
-  hasActiveSearch: boolean,
-  searchMatchTypes: Record<string, Set<SearchMatchType>>,
-  sortKeyCache: SortKeyCache,
-  sorting: SortingState,
-) =>
-  (baseSortFn: ItemSortingFn, columnId: string): ItemSortingFn => {
-    if (!hasActiveSearch) return baseSortFn;
+    // Others sorted by selected column with direction
+    others.sort(sortWithDirection);
 
-    const isDesc = sorting.find((s) => s.id === columnId)?.desc ?? false;
-    const directionMultiplier = isDesc ? -1 : 1;
+    return [...nameMatches, ...others];
+  }
 
-    return withNameMatchPriority(baseSortFn, searchMatchTypes, sortKeyCache, directionMultiplier);
-  };
+  // No name-match pinning: sort everything by selected column
+  const sorted = [...items];
+  sorted.sort(sortWithDirection);
+  return sorted;
+};

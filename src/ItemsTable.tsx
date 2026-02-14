@@ -1,6 +1,5 @@
 import {
   getCoreRowModel,
-  getSortedRowModel,
   useReactTable,
   type SortingState,
 } from "@tanstack/react-table";
@@ -21,6 +20,7 @@ import {
   type SearchMatchType,
 } from "./utils/functions";
 import { createItemsTableColumns } from "./utils/itemsTableColumns";
+import { sortItems } from "./utils/sortingFunctions";
 import {
   createBenchNameLookup,
   createSortedMaterialsCache,
@@ -102,8 +102,10 @@ const ItemsTable = React.memo(
       }
     }, [hasActiveSearch]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    const searchMatchTypes: Record<string, Set<SearchMatchType>> =
-      searchResult.matchTypes;
+    const searchMatchTypes: Record<
+      string,
+      Set<SearchMatchType>
+    > = searchResult.matchTypes;
 
     // Compute material match scores for sorting recycles/salvages columns
     const materialMatchScores = useMemo(() => {
@@ -116,16 +118,24 @@ const ItemsTable = React.memo(
         let salvageScore = 0;
 
         if (item.recyclesInto) {
-          for (const [material, quantity] of Object.entries(item.recyclesInto)) {
-            if (formatMaterialName(material).toLowerCase().includes(lowerSearch)) {
+          for (const [material, quantity] of Object.entries(
+            item.recyclesInto,
+          )) {
+            if (
+              formatMaterialName(material).toLowerCase().includes(lowerSearch)
+            ) {
               recycleScore += quantity;
             }
           }
         }
 
         if (item.salvagesInto) {
-          for (const [material, quantity] of Object.entries(item.salvagesInto)) {
-            if (formatMaterialName(material).toLowerCase().includes(lowerSearch)) {
+          for (const [material, quantity] of Object.entries(
+            item.salvagesInto,
+          )) {
+            if (
+              formatMaterialName(material).toLowerCase().includes(lowerSearch)
+            ) {
               salvageScore += quantity;
             }
           }
@@ -144,29 +154,23 @@ const ItemsTable = React.memo(
           itemRequirements,
           benchNameLookup,
           sortedMaterialsCache,
-          sortKeyCache,
           hasActiveSearch,
-          searchMatchTypes,
-          materialMatchScores,
-          sorting,
         ),
       [
         itemRequirements,
         benchNameLookup,
         sortedMaterialsCache,
-        sortKeyCache,
         hasActiveSearch,
-        searchMatchTypes,
-        materialMatchScores,
-        sorting,
       ],
     );
 
     // Filter data based on search term and category filters
     const filteredData = useMemo(() => {
-      let results = searchResult.items;
+      let results = hasActiveSearch
+        ? items.filter((item) => searchResult.matchTypes[item.id])
+        : items;
 
-      // Then filter by included categories
+      // Filter by included categories
       results = results.filter((item) =>
         filterSettings.includedCategories.has(item.type),
       );
@@ -181,7 +185,30 @@ const ItemsTable = React.memo(
       searchResult,
       searchTerm,
       filterSettings.includedCategories,
+      hasActiveSearch,
+      items,
     ]);
+
+    // Sort data manually (manualSorting: true means TanStack won't sort for us)
+    const sortedData = useMemo(
+      () =>
+        sortItems(filteredData, sorting, {
+          prioritizeNameMatches:
+            hasActiveSearch && filterSettings.prioritizeNameMatches,
+          searchMatchTypes,
+          sortKeyCache,
+          materialMatchScores,
+        }),
+      [
+        filteredData,
+        sorting,
+        hasActiveSearch,
+        filterSettings.prioritizeNameMatches,
+        searchMatchTypes,
+        sortKeyCache,
+        materialMatchScores,
+      ],
+    );
 
     // Notify parent of filtered count changes
     useEffect(() => {
@@ -196,9 +223,9 @@ const ItemsTable = React.memo(
     // eslint-disable-next-line react-hooks/incompatible-library
     const table = useReactTable({
       columns,
-      data: filteredData ?? fallbackData,
+      data: sortedData ?? fallbackData,
       getCoreRowModel: getCoreRowModel(),
-      getSortedRowModel: getSortedRowModel(),
+      manualSorting: true,
       onSortingChange: setSorting,
       enableSortingRemoval: false,
       state: {
@@ -234,6 +261,8 @@ const ItemsTable = React.memo(
     return (
       prevProps.searchTerm === nextProps.searchTerm &&
       prevProps.onFilteredCountChange === nextProps.onFilteredCountChange &&
+      prevProps.filterSettings.prioritizeNameMatches ===
+        nextProps.filterSettings.prioritizeNameMatches &&
       areSetsEqual(
         prevProps.filterSettings.includedCategories,
         nextProps.filterSettings.includedCategories,
