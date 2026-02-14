@@ -5,6 +5,7 @@ import MobileItemRow from "./components/MobileItemRow";
 import { MEDIA_QUERIES } from "./constants/breakpoints";
 import { useMediaQuery } from "./hooks/useMediaQuery";
 import type { Item, ItemRequirementLookup } from "./types";
+import type { SearchMatchType } from "./utils/functions";
 import type { CachedMaterial } from "./utils/tableCache";
 
 type TableProps<T> = {
@@ -14,7 +15,8 @@ type TableProps<T> = {
   itemRequirements?: ItemRequirementLookup;
   benchNameLookup?: Record<string, string>;
   sortedMaterialsCache?: Record<string, CachedMaterial[]>;
-  searchTerm?: string;
+  searchTerm?: string; // kept for potential mobile view use
+  searchMatchTypes?: Record<string, Set<SearchMatchType>>;
 };
 
 const Table = <T,>({
@@ -23,22 +25,30 @@ const Table = <T,>({
   itemRequirements,
   benchNameLookup,
   sortedMaterialsCache,
-  searchTerm,
+  searchMatchTypes,
 }: TableProps<T>) => {
   const isMobileOrTablet = useMediaQuery(MEDIA_QUERIES.tabletAndBelow);
   const tableContainerRef = useRef<HTMLDivElement>(null);
   const rows = table.getRowModel().rows;
 
-  // Helper function to determine if a row matches the search term
-  const isSearchMatch = (row: (typeof rows)[0]): boolean => {
-    if (!searchTerm?.trim()) return false;
+  // Map search match types to the column ID that should be highlighted
+  const matchTypeToColumnId: Record<SearchMatchType, string> = {
+    item: "item",
+    recycles: "recycles",
+    salvages: "salvages",
+    requirement: "neededFor",
+  };
 
+  const getMatchColumnIds = (row: (typeof rows)[0]): Set<string> => {
+    if (!searchMatchTypes) return new Set();
     const item = row.original as Item;
-    const itemName = item.name?.en?.toLowerCase();
-    const lowerSearchTerm = searchTerm.toLowerCase();
-
-    // Check if item name contains the search term
-    return itemName ? itemName.includes(lowerSearchTerm) : false;
+    const types = searchMatchTypes[item.id];
+    if (!types) return new Set();
+    const columnIds = new Set<string>();
+    for (const type of types) {
+      columnIds.add(matchTypeToColumnId[type]);
+    }
+    return columnIds;
   };
 
   const rowVirtualizer = useVirtualizer({
@@ -169,22 +179,25 @@ const Table = <T,>({
             const row = rows[virtualRow.index];
             // Use actual data index for alternating row colors (not DOM index)
             const isEvenRow = virtualRow.index % 2 === 0;
-            const isMatch = isSearchMatch(row);
+            const matchColumnIds = getMatchColumnIds(row);
             return (
               <tr
                 key={row.id}
                 data-index={virtualRow.index}
                 ref={rowVirtualizer.measureElement}
-                className={`table-row${isEvenRow ? " table-row--even" : " table-row--odd"}${isMatch ? " table-row--search-match" : ""}`}
+                className={`table-row${isEvenRow ? " table-row--even" : " table-row--odd"}`}
               >
-                {row.getVisibleCells().map((cell, cellIndex) => (
-                  <td
-                    key={cell.id}
-                    className={`table-cell${cellIndex === 0 ? ` ${cell.column.id}` : ""}`}
-                  >
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </td>
-                ))}
+                {row.getVisibleCells().map((cell, cellIndex) => {
+                  const isHighlighted = matchColumnIds.has(cell.column.id);
+                  return (
+                    <td
+                      key={cell.id}
+                      className={`table-cell${cellIndex === 0 ? ` ${cell.column.id}` : ""}${isHighlighted ? " table-cell--search-match" : ""}`}
+                    >
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </td>
+                  );
+                })}
               </tr>
             );
           })}

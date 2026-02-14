@@ -18,6 +18,7 @@ import {
   DEFAULT_LANGUAGE,
   filterItemsBySearch,
   isNoResultsItem,
+  type SearchMatchType,
 } from "./utils/functions";
 import { createItemsTableColumns } from "./utils/itemsTableColumns";
 import {
@@ -78,24 +79,31 @@ const ItemsTable = React.memo(
       },
     ]);
 
-    // Create search relevance index to preserve filter order during sorting
-    const searchRelevanceIndex = useMemo(() => {
-      const index: Record<string, number> = {};
-      if (searchTerm.trim()) {
-        const results = filterItemsBySearch(
+    // Run search once and derive relevance index, match types, and filtered data
+    const searchResult = useMemo(
+      () =>
+        filterItemsBySearch(
           items,
           searchTerm,
           formatMaterialName,
           DEFAULT_LANGUAGE,
           itemRequirements,
-        );
-        // Assign relevance scores (lower = more relevant)
-        results.forEach((item, idx) => {
+        ),
+      [itemRequirements, items, searchTerm],
+    );
+
+    const searchRelevanceIndex = useMemo(() => {
+      const index: Record<string, number> = {};
+      if (searchTerm.trim()) {
+        searchResult.items.forEach((item, idx) => {
           index[item.id] = idx;
         });
       }
       return index;
-    }, [itemRequirements, items, searchTerm]);
+    }, [searchResult, searchTerm]);
+
+    const searchMatchTypes: Record<string, Set<SearchMatchType>> =
+      searchResult.matchTypes;
 
     // Create column definitions using extracted function
     const columns = useMemo(
@@ -118,14 +126,7 @@ const ItemsTable = React.memo(
 
     // Filter data based on search term and category filters
     const filteredData = useMemo(() => {
-      // First filter by search term
-      let results = filterItemsBySearch(
-        items,
-        searchTerm,
-        formatMaterialName,
-        DEFAULT_LANGUAGE,
-        itemRequirements,
-      );
+      let results = searchResult.items;
 
       // Then filter by included categories
       results = results.filter((item) =>
@@ -139,9 +140,8 @@ const ItemsTable = React.memo(
 
       return results;
     }, [
-      items,
+      searchResult,
       searchTerm,
-      itemRequirements,
       filterSettings.includedCategories,
     ]);
 
@@ -186,6 +186,7 @@ const ItemsTable = React.memo(
         benchNameLookup={benchNameLookup}
         sortedMaterialsCache={sortedMaterialsCache}
         searchTerm={searchTerm}
+        searchMatchTypes={searchMatchTypes}
       />
     );
   },

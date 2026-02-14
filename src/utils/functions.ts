@@ -107,15 +107,22 @@ export const capitalizeItemId = (id?: string): string | null => {
  * Returns exact matches first, then name matches starting with search term,
  * then other name matches, then material matches
  */
+export type SearchMatchType = "item" | "recycles" | "salvages" | "requirement";
+
+export interface SearchResult {
+  items: Item[];
+  matchTypes: Record<string, Set<SearchMatchType>>;
+}
+
 export const filterItemsBySearch = (
   items: Item[],
   searchTerm: string,
   formatMaterialName: (id: string) => string,
   language: keyof LocalizedText = DEFAULT_LANGUAGE,
   itemRequirements?: ItemRequirementLookup,
-): Item[] => {
+): SearchResult => {
   if (!searchTerm.trim()) {
-    return items;
+    return { items, matchTypes: {} };
   }
 
   const lowerSearchTerm = searchTerm.toLowerCase();
@@ -126,66 +133,74 @@ export const filterItemsBySearch = (
   const otherNameMatches: Item[] = [];
   const materialMatches: Item[] = [];
   const requirementMatches: Item[] = [];
-  const matched = new Set<string>();
+  const matchTypes: Record<string, Set<SearchMatchType>> = {};
 
   for (const item of items) {
+    const types = new Set<SearchMatchType>();
     const itemName = item.name[language]?.toLowerCase();
 
     // Check if item name matches
     if (itemName && itemName.includes(lowerSearchTerm)) {
-      matched.add(item.id);
-      // Exact match (highest priority)
-      if (itemName === lowerSearchTerm) {
-        exactMatches.push(item);
-      }
-      // Starts with search term (second priority)
-      else if (itemName.startsWith(lowerSearchTerm)) {
-        startsWithMatches.push(item);
-      }
-      // Contains search term somewhere (third priority)
-      else {
-        otherNameMatches.push(item);
-      }
-      continue;
+      types.add("item");
     }
 
     // Check if any material in recyclesInto matches
     if (item.recyclesInto) {
-      const materials = Object.keys(item.recyclesInto);
-      const hasMatch = materials.some((material) => {
-        const materialName = formatMaterialName(material).toLowerCase();
-        return materialName.includes(lowerSearchTerm);
-      });
-
-      if (hasMatch) {
-        matched.add(item.id);
-        materialMatches.push(item);
-        continue;
-      }
+      const hasMatch = Object.keys(item.recyclesInto).some((material) =>
+        formatMaterialName(material).toLowerCase().includes(lowerSearchTerm),
+      );
+      if (hasMatch) types.add("recycles");
     }
 
-    // Check if any requirement source matches (e.g. project/quest/bench name)
+    // Check if any material in salvagesInto matches
+    if (item.salvagesInto) {
+      const hasMatch = Object.keys(item.salvagesInto).some((material) =>
+        formatMaterialName(material).toLowerCase().includes(lowerSearchTerm),
+      );
+      if (hasMatch) types.add("salvages");
+    }
+
+    // Check if any requirement source matches
     if (itemRequirements) {
       const requirements = itemRequirements[item.id];
       if (requirements) {
         const hasMatch = requirements.usedIn.some((usage) =>
           usage.source.toLowerCase().includes(lowerSearchTerm),
         );
-        if (hasMatch && !matched.has(item.id)) {
-          requirementMatches.push(item);
-        }
+        if (hasMatch) types.add("requirement");
       }
+    }
+
+    if (types.size === 0) continue;
+
+    matchTypes[item.id] = types;
+
+    // Place into priority bucket based on highest-priority match
+    if (types.has("item")) {
+      if (itemName === lowerSearchTerm) {
+        exactMatches.push(item);
+      } else if (itemName?.startsWith(lowerSearchTerm)) {
+        startsWithMatches.push(item);
+      } else {
+        otherNameMatches.push(item);
+      }
+    } else if (types.has("recycles") || types.has("salvages")) {
+      materialMatches.push(item);
+    } else {
+      requirementMatches.push(item);
     }
   }
 
-  // Return matches in order of relevance
-  return [
-    ...exactMatches,
-    ...startsWithMatches,
-    ...otherNameMatches,
-    ...materialMatches,
-    ...requirementMatches,
-  ];
+  return {
+    items: [
+      ...exactMatches,
+      ...startsWithMatches,
+      ...otherNameMatches,
+      ...materialMatches,
+      ...requirementMatches,
+    ],
+    matchTypes,
+  };
 };
 
 /**

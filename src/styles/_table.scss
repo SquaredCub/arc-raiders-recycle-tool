@@ -88,6 +88,14 @@
     }
   }
 
+  .table-cell--search-match {
+    background-color: color-mix(
+      in srgb,
+      var(--bg-search-match),
+      transparent 50%
+    );
+  }
+
   .table-cell {
     border: 1px solid var(--border-primary);
     border-right-width: 0;

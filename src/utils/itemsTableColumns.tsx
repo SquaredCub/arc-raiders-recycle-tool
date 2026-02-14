@@ -97,6 +97,34 @@ export const createItemsTableColumns = (
       },
       enableSorting: false,
     }),
+    columnHelper.accessor("salvagesInto", {
+      id: "salvages",
+      header: () => <span>Salvages Into</span>,
+      size: 200,
+      cell: (info) => {
+        const item = info.row.original;
+        if (isNoResultsItem(item.id)) {
+          return <span>-</span>;
+        }
+        const cachedMaterials = sortedMaterialsCache[`salvage_${item.id}`];
+        if (!cachedMaterials) {
+          return <span>-</span>;
+        }
+
+        return (
+          <div className="recycles-container">
+            {cachedMaterials.map(({ material, quantity, name, image }) => (
+              <ItemCell
+                key={material}
+                name={`${quantity} x ${name}`}
+                imageSrc={image}
+              />
+            ))}
+          </div>
+        );
+      },
+      enableSorting: false,
+    }),
     // columnHelper.accessor("recipe", {
     //   id: "craftingMaterials",
     //   header: () => <span>Crafting Materials</span>,

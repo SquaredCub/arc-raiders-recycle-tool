@@ -53,6 +53,20 @@ export const createSortedMaterialsCache = (
       }));
     }
 
+    // Cache salvagesInto materials
+    if (item.salvagesInto && Object.keys(item.salvagesInto).length > 0) {
+      const sortedEntries = sortMaterialsByName(
+        Object.entries(item.salvagesInto),
+        formatMaterialName
+      );
+      cache[`salvage_${item.id}`] = sortedEntries.map(([material, quantity]) => ({
+        material,
+        quantity,
+        name: formatMaterialName(material),
+        image: getMaterialImage(material, items),
+      }));
+    }
+
     // Cache recipe materials
     if (item.recipe && Object.keys(item.recipe).length > 0) {
       const sortedEntries = sortMaterialsByName(
