@@ -1,10 +1,27 @@
 import { execSync } from "child_process";
+import { readFileSync, writeFileSync } from "fs";
 import { createInterface } from "readline";
 
 const RED = "\x1b[0;31m";
 const GREEN = "\x1b[0;32m";
 const YELLOW = "\x1b[1;33m";
 const NC = "\x1b[0m";
+
+const updateLastUpdatedDate = () => {
+  const appFile = "src/App.tsx";
+  const content = readFileSync(appFile, "utf-8");
+  const now = new Date();
+  const day = String(now.getDate()).padStart(2, "0");
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const year = now.getFullYear();
+  const date = `${day}/${month}/${year}`;
+  const updated = content.replace(
+    /Last updated on \d{2}\/\d{2}\/\d{4}/,
+    `Last updated on ${date}`
+  );
+  writeFileSync(appFile, updated, "utf-8");
+  console.log(`${GREEN}Updated last updated date to ${date}.${NC}`);
+};
 
 const run = (cmd) => {
   try {
@@ -55,6 +72,7 @@ console.log("");
 if (failures.length === 0) {
   console.log(`${GREEN}All tests passed. Proceeding with deploy.${NC}`);
   console.log("");
+  updateLastUpdatedDate();
   if (!run("npm run build && npx gh-pages -d dist")) {
     process.exit(1);
   }
@@ -70,6 +88,7 @@ if (failures.length === 0) {
   if (answer.match(/^[Yy]$/)) {
     console.log("");
     console.log("Deploying despite test failures...");
+    updateLastUpdatedDate();
     if (!run("npm run build && npx gh-pages -d dist")) {
       process.exit(1);
     }
