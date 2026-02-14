@@ -47,7 +47,7 @@ test.describe("Search Functionality", () => {
     await page.getByPlaceholder("Search items...").fill("guitar");
     await expect(page.locator(".item-count")).not.toHaveText(initialText!, { timeout: 5000 });
 
-    const matchCells = page.locator(".table-cell--search-match");
+    const matchCells = page.locator(".grid-cell--search-match");
     await expect(matchCells.first()).toBeVisible({ timeout: 5000 });
     expect(await matchCells.count()).toBeGreaterThan(0);
   });

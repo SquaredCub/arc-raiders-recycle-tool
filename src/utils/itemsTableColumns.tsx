@@ -38,6 +38,12 @@ export const createItemsTableColumns = (
               imageSrc={imageSrc}
               rarity={item.rarity}
             />
+            <span
+              className={`mobile-rarity-badge mobile-rarity-badge--${item.rarity.toLowerCase()}`}
+            >
+              {item.rarity}
+            </span>
+            <span className="mobile-type">{item.type}</span>
           </>
         );
       },

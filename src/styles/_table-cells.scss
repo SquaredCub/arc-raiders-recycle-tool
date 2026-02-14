@@ -1,0 +1,201 @@
+@use "./breakpoints" as *;
+
+// Per-column content styles within .items-table
+.items-table {
+  .grid-row {
+    min-height: 120px;
+
+    @include mobile {
+      min-height: 0;
+    }
+  }
+
+  // Base grid cell (borders, padding)
+  .grid-cell {
+    padding: 0.5rem;
+    border: 1px solid var(--border-primary);
+    border-right-width: 0;
+    border-bottom-width: 0;
+    align-content: center;
+
+    &:last-child {
+      border-right-width: 1px;
+    }
+
+    @include mobile {
+      padding: 0;
+      border: 0;
+    }
+  }
+
+  .grid-row:last-child {
+    .grid-cell {
+      border-bottom-width: 1px;
+
+      @include mobile {
+        border-bottom-width: 0;
+      }
+    }
+  }
+
+  // Table-specific cell-item overrides (base in _shared-cells.scss)
+  .cell-item {
+    grid-template-columns: min-content 1fr;
+
+    &__name {
+      padding-left: 0.3rem;
+    }
+
+    &__image {
+      width: 30px;
+      height: 30px;
+    }
+  }
+
+  // Item column — mobile layout
+  .grid-cell--item {
+    @include mobile {
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--color-primary-border);
+      margin-bottom: 1rem;
+
+      .cell-item {
+        grid-template-columns: auto 1fr;
+        gap: 0.75rem;
+
+        &__image {
+          width: 60px;
+          height: 60px;
+        }
+
+        &__name {
+          font-size: 1.1rem;
+          font-weight: bold;
+        }
+      }
+    }
+  }
+
+  // Found In column
+  .found-in-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .found-in-item {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .found-in-icon {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+  }
+
+  // Recycles column
+  .recycles-container {
+    display: flex;
+    flex-direction: column;
+
+    @include mobile {
+      line-height: 1.4;
+
+      .cell-item {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        grid-template-areas: "name image";
+        align-items: center;
+
+        &__image {
+          padding-left: 0.5rem;
+          width: 32px;
+          height: 32px;
+          grid-area: image;
+        }
+
+        &__name {
+          font-size: 0.85rem;
+          grid-area: name;
+          justify-self: center;
+        }
+      }
+    }
+  }
+
+  // Needed For column
+  .needed-for-container {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .needed-for-total {
+    font-weight: bold;
+  }
+
+  .needed-for-list {
+    font-size: 0.9em;
+    color: var(--text-tertiary);
+  }
+
+  // Value column
+  .value-container {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    text-align: center;
+
+    @include mobile {
+      justify-content: flex-start;
+      padding: 0;
+    }
+  }
+
+  .value-coin-icon {
+    padding-top: 2px;
+  }
+
+  // Hide non-core columns on mobile (card layout)
+  @include mobile {
+    .grid-cell--salvages,
+    .grid-cell--foundIn,
+    .grid-cell--neededFor {
+      display: none;
+    }
+  }
+
+  // Mobile-only type label
+  .mobile-type {
+    display: none;
+  }
+
+  @include mobile {
+    .mobile-type {
+      display: block;
+      font-size: 0.9rem;
+      color: var(--text-tertiary);
+      margin-top: 0.25rem;
+    }
+
+    // Field labels via CSS pseudo-elements
+    .grid-cell--value::before {
+      content: "Value:";
+      font-weight: bold;
+      color: var(--color-primary-hover);
+      font-size: 0.9rem;
+      margin-right: 0.5rem;
+    }
+
+    .grid-cell--recycles::before {
+      content: "Recycles Into:";
+      font-weight: bold;
+      color: var(--color-primary-hover);
+      font-size: 0.9rem;
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+  }
+}

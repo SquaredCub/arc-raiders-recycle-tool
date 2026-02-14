@@ -1,0 +1,101 @@
+@use "./breakpoints" as *;
+
+// Rarity-themed image borders, gradients, and mobile badges within .items-table
+
+// Mixin to avoid repeating the per-rarity pattern
+@mixin rarity-style($name) {
+  &.#{$name} {
+    --wedge-color: var(--rarity-#{$name});
+    border-color: var(--rarity-#{$name});
+    background: radial-gradient(
+      circle at top left,
+      color-mix(in srgb, var(--rarity-#{$name}-bg), transparent 20%),
+      transparent 120%
+    );
+  }
+}
+
+.items-table {
+  // Item cell image — rarity border + gradient
+  .grid-cell--item .cell-item__image {
+    position: relative;
+    overflow: hidden;
+    border: 2px solid var(--border-primary);
+    border-radius: 4px;
+    width: 50px;
+    height: 50px;
+    padding: 5px;
+
+    img {
+      position: relative;
+      z-index: 1;
+    }
+
+    // Diagonal wedge overlay for all rarities
+    &.common,
+    &.uncommon,
+    &.rare,
+    &.epic,
+    &.legendary {
+      &::before {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(
+          ellipse 175% 150% at 100% 0%,
+          transparent 60%,
+          var(--wedge-color) 61%
+        );
+        opacity: 0.1;
+      }
+    }
+
+    @include rarity-style(common);
+    @include rarity-style(uncommon);
+    @include rarity-style(rare);
+    @include rarity-style(epic);
+    @include rarity-style(legendary);
+  }
+
+  // Mobile rarity badges (hidden on desktop)
+  .mobile-rarity-badge {
+    display: none;
+  }
+
+  @include mobile {
+    .mobile-rarity-badge {
+      display: inline-block;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      font-weight: bold;
+      text-transform: uppercase;
+      white-space: nowrap;
+      margin-top: 0.5rem;
+
+      &--common {
+        background-color: var(--rarity-common-bg);
+        color: var(--rarity-common);
+      }
+      &--uncommon {
+        background-color: var(--rarity-uncommon-bg);
+        color: var(--rarity-uncommon);
+      }
+      &--rare {
+        background-color: var(--rarity-rare-bg);
+        color: var(--rarity-rare);
+      }
+      &--epic {
+        background-color: var(--rarity-epic-bg);
+        color: var(--rarity-epic);
+      }
+      &--legendary {
+        background-color: var(--rarity-legendary-bg);
+        color: var(--rarity-legendary);
+      }
+    }
+  }
+}

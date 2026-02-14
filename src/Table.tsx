@@ -1,18 +1,12 @@
 import { flexRender, type Table as TableType } from "@tanstack/react-table";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { useEffect, useRef } from "react";
-import MobileItemRow from "./components/MobileItemRow";
-import { MEDIA_QUERIES } from "./constants/breakpoints";
-import { useMediaQuery } from "./hooks/useMediaQuery";
 import type { Item } from "./types";
 import type { SearchMatchType } from "./utils/functions";
-import type { CachedMaterial } from "./utils/tableCache";
 
 type TableProps<T> = {
   table: TableType<T>;
   className?: string;
-  // Optional props for mobile view (only used when T is Item)
-  sortedMaterialsCache?: Record<string, CachedMaterial[]>;
   searchMatchTypes?: Record<string, Set<SearchMatchType>>;
   nameMatchBoundaryIndex?: number;
 };
@@ -20,11 +14,9 @@ type TableProps<T> = {
 const Table = <T,>({
   table,
   className,
-  sortedMaterialsCache,
   searchMatchTypes,
   nameMatchBoundaryIndex = -1,
 }: TableProps<T>) => {
-  const isMobileOrTablet = useMediaQuery(MEDIA_QUERIES.tabletAndBelow);
   const tableContainerRef = useRef<HTMLDivElement>(null);
   const rows = table.getRowModel().rows;
 
@@ -77,130 +69,83 @@ const Table = <T,>({
       ? totalSize - virtualRows[virtualRows.length - 1].end
       : 0;
 
-  // Mobile/Tablet view - render cards instead of table
-  if (
-    isMobileOrTablet &&
-    className === "items-table" &&
-    sortedMaterialsCache
-  ) {
-    return (
-      <div ref={tableContainerRef} className="mobile-items-container">
+  return (
+    <div ref={tableContainerRef} className="table-scroll-container">
+      <div className={className}>
+        <div className="grid-header">
+          {table.getHeaderGroups().map((headerGroup) =>
+            headerGroup.headers.map((header) => (
+              <div
+                key={header.id}
+                className={`grid-header-cell ${header.column.id}`}
+              >
+                {header.isPlaceholder ? null : (
+                  <div
+                    className={
+                      header.column.getCanSort()
+                        ? "cursor-pointer select-none"
+                        : ""
+                    }
+                    onClick={
+                      header.column.getCanSort()
+                        ? header.column.getToggleSortingHandler()
+                        : undefined
+                    }
+                    title={
+                      header.column.getCanSort()
+                        ? header.column.getNextSortingOrder() === "asc"
+                          ? "Sort ascending"
+                          : header.column.getNextSortingOrder() === "desc"
+                            ? "Sort descending"
+                            : "Clear sort"
+                        : undefined
+                    }
+                  >
+                    {flexRender(
+                      header.column.columnDef.header,
+                      header.getContext(),
+                    )}
+                    {{
+                      asc: " 🔼",
+                      desc: " 🔽",
+                    }[header.column.getIsSorted() as string] ?? null}
+                  </div>
+                )}
+              </div>
+            )),
+          )}
+        </div>
         {paddingTop > 0 && <div style={{ height: `${paddingTop}px` }} />}
         {virtualRows.map((virtualRow) => {
           const row = rows[virtualRow.index];
-          const item = row.original as Item;
+          const isEvenRow = virtualRow.index % 2 === 0;
+          const matchColumnIds = getMatchColumnIds(row);
           return (
             <div
               key={row.id}
               data-index={virtualRow.index}
               ref={rowVirtualizer.measureElement}
+              className={`grid-row${isEvenRow ? " grid-row--even" : " grid-row--odd"}${virtualRow.index === nameMatchBoundaryIndex ? " grid-row--name-match-boundary" : ""}`}
             >
-              <MobileItemRow
-                item={item}
-                sortedMaterialsCache={sortedMaterialsCache}
-                index={virtualRow.index}
-              />
+              {row.getVisibleCells().map((cell) => {
+                const isHighlighted = matchColumnIds.has(cell.column.id);
+                return (
+                  <div
+                    key={cell.id}
+                    className={`grid-cell grid-cell--${cell.column.id}${isHighlighted ? " grid-cell--search-match" : ""}`}
+                  >
+                    {flexRender(
+                      cell.column.columnDef.cell,
+                      cell.getContext(),
+                    )}
+                  </div>
+                );
+              })}
             </div>
           );
         })}
         {paddingBottom > 0 && <div style={{ height: `${paddingBottom}px` }} />}
       </div>
-    );
-  }
-
-  // Desktop view - render table
-  return (
-    <div ref={tableContainerRef} className="table-scroll-container">
-      <table id="table" className={className}>
-        <colgroup>
-          {table.getAllColumns().map((column) => (
-            <col key={column.id} style={{ width: `${column.getSize()}px` }} />
-          ))}
-        </colgroup>
-        <thead className="table-header">
-          {table.getHeaderGroups().map((headerGroup) => (
-            <tr key={headerGroup.id} className="table-row">
-              {headerGroup.headers.map((header) => (
-                <th
-                  key={header.id}
-                  className={`table-cell ${header.column.id}`}
-                >
-                  {header.isPlaceholder ? null : (
-                    <div
-                      className={
-                        header.column.getCanSort()
-                          ? "cursor-pointer select-none"
-                          : ""
-                      }
-                      onClick={
-                        header.column.getCanSort()
-                          ? header.column.getToggleSortingHandler()
-                          : undefined
-                      }
-                      title={
-                        header.column.getCanSort()
-                          ? header.column.getNextSortingOrder() === "asc"
-                            ? "Sort ascending"
-                            : header.column.getNextSortingOrder() === "desc"
-                              ? "Sort descending"
-                              : "Clear sort"
-                          : undefined
-                      }
-                    >
-                      {flexRender(
-                        header.column.columnDef.header,
-                        header.getContext(),
-                      )}
-                      {{
-                        asc: " 🔼",
-                        desc: " 🔽",
-                      }[header.column.getIsSorted() as string] ?? null}
-                    </div>
-                  )}
-                </th>
-              ))}
-            </tr>
-          ))}
-        </thead>
-        <tbody className="table-body">
-          {paddingTop > 0 && (
-            <tr>
-              <td style={{ height: `${paddingTop}px` }} />
-            </tr>
-          )}
-          {virtualRows.map((virtualRow) => {
-            const row = rows[virtualRow.index];
-            // Use actual data index for alternating row colors (not DOM index)
-            const isEvenRow = virtualRow.index % 2 === 0;
-            const matchColumnIds = getMatchColumnIds(row);
-            return (
-              <tr
-                key={row.id}
-                data-index={virtualRow.index}
-                ref={rowVirtualizer.measureElement}
-                className={`table-row${isEvenRow ? " table-row--even" : " table-row--odd"}${virtualRow.index === nameMatchBoundaryIndex ? " table-row--name-match-boundary" : ""}`}
-              >
-                {row.getVisibleCells().map((cell, cellIndex) => {
-                  const isHighlighted = matchColumnIds.has(cell.column.id);
-                  return (
-                    <td
-                      key={cell.id}
-                      className={`table-cell${cellIndex === 0 ? ` ${cell.column.id}` : ""}${isHighlighted ? " table-cell--search-match" : ""}`}
-                    >
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </td>
-                  );
-                })}
-              </tr>
-            );
-          })}
-          {paddingBottom > 0 && (
-            <tr>
-              <td style={{ height: `${paddingBottom}px` }} />
-            </tr>
-          )}
-        </tbody>
-      </table>
     </div>
   );
 };

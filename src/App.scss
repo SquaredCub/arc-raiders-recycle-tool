@@ -1,13 +1,15 @@
-// Main App.scss - imports all style modules
+// Main App.scss — imports all style modules in cascade order
+@use "./styles/reset";
+@use "./styles/base";
 @use "./styles/colors";
 @use "./styles/breakpoints";
 @use "./styles/utilities";
 @use "./styles/layout";
 @use "./styles/controls";
+@use "./styles/shared-cells";
 @use "./styles/table";
-@use "./styles/mobile-cards";
 
-// Set base body styles to use theme colors
+// Theme-aware body styles (layered on top of base)
 body {
   background-color: var(--bg-primary);
   color: var(--text-primary);

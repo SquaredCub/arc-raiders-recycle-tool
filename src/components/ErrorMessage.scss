@@ -1,3 +1,5 @@
+@use "../styles/utilities" as *;
+
 .error-container {
   display: flex;
   flex-direction: column;
@@ -46,7 +48,7 @@
     cursor: pointer;
     transition: background-color 0.2s;
 
-    @media (hover: hover) and (pointer: fine) {
+    @include hover-supported {
       background-color: var(--color-primary);
     }
   }
@@ -63,7 +65,7 @@
       background-color 0.2s,
       border-color 0.2s;
 
-    &:hover {
+    @include hover-supported {
       background-color: var(--bg-tertiary);
       border-color: var(--text-secondary);
     }

@@ -1,0 +1,51 @@
+@use "./breakpoints" as *;
+
+// Search match indicators and highlights within .items-table
+.items-table {
+  // Match indicator bars (left/right edges)
+  .match-indicator-spacer {
+    display: none;
+  }
+
+  .grid-row--search-match {
+    position: relative;
+
+    .match-indicator-spacer {
+      display: block;
+      position: absolute;
+      width: 4px;
+      background-color: var(--color-success-border);
+
+      &.left {
+        left: 1px;
+        bottom: 1px;
+        top: 1px;
+      }
+      &.right {
+        right: 1px;
+        bottom: 1px;
+        top: 1px;
+      }
+    }
+  }
+
+  // Dotted boundary between name-matches and other results
+  .grid-row--name-match-boundary {
+    .grid-cell {
+      border-bottom: 3px dotted var(--color-primary);
+    }
+
+    @include mobile {
+      border-bottom: 3px dotted var(--color-primary);
+
+      .grid-cell {
+        border-bottom: 0;
+      }
+    }
+  }
+
+  // Cell-level search highlight glow
+  .grid-cell--search-match {
+    box-shadow: inset 0 0 20px 6px var(--shadow-search-match);
+  }
+}

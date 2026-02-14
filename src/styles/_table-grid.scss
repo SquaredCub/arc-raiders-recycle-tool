@@ -1,0 +1,140 @@
+@use "./breakpoints" as *;
+
+// Grid area assignments for cells
+.grid-header-cell.item,
+.grid-cell--item {
+  grid-area: item;
+}
+.grid-header-cell.recycles,
+.grid-cell--recycles {
+  grid-area: recycles;
+}
+.grid-header-cell.salvages,
+.grid-cell--salvages {
+  grid-area: salvages;
+}
+.grid-header-cell.foundIn,
+.grid-cell--foundIn {
+  grid-area: foundIn;
+}
+.grid-header-cell.neededFor,
+.grid-cell--neededFor {
+  grid-area: neededFor;
+}
+.grid-header-cell.value,
+.grid-cell--value {
+  grid-area: value;
+}
+
+// Shared column template used by both header and rows
+$grid-columns-full: minmax(0, 2.5fr) minmax(0, 3.1fr) minmax(0, 2.5fr)
+  minmax(0, 2.25fr) minmax(0, 2.75fr) minmax(0, 1fr);
+
+// Scroll container
+.table-scroll-container {
+  height: calc(100svh - 16.5rem);
+  overflow: auto;
+  max-width: 1509px;
+  margin: 0 auto;
+  border-bottom: 1px solid var(--border-primary);
+
+  @include mobile {
+    max-width: 100%;
+    overflow-x: hidden;
+    padding-inline: 1rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.4);
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.8);
+    height: calc(100svh - 21.5rem);
+  }
+}
+
+// Grid header (sticky column headers)
+.grid-header {
+  display: grid;
+  grid-template-areas: "item recycles salvages foundIn neededFor value";
+  grid-template-columns: $grid-columns-full;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+
+  @include mobile {
+    display: none;
+  }
+}
+
+.grid-header-cell {
+  padding: 0.5rem;
+  font-weight: bold;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-primary);
+  border-right-width: 0;
+
+  &:last-child {
+    border-right-width: 1px;
+  }
+}
+
+// Grid rows
+.grid-row {
+  display: grid;
+  grid-template-areas: "item recycles salvages foundIn neededFor value";
+  grid-template-columns: $grid-columns-full;
+
+  @include mobile {
+    grid-template-areas:
+      "item"
+      "recycles"
+      "value";
+    grid-template-columns: 1fr;
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-primary);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+  }
+}
+
+// Progressive column hiding at intermediate breakpoints
+@include tablet-and-below {
+  .grid-header,
+  .grid-row {
+    grid-template-areas: "item recycles salvages neededFor value";
+    grid-template-columns: minmax(0, 2.5fr) minmax(0, 3.1fr) minmax(0, 2.5fr)
+      minmax(0, 2.75fr) minmax(0, 1fr);
+  }
+  .grid-header-cell.foundIn,
+  .grid-cell--foundIn {
+    display: none;
+  }
+}
+
+@include below-800 {
+  .grid-header,
+  .grid-row {
+    grid-template-areas: "item recycles neededFor value";
+    grid-template-columns: minmax(0, 2.5fr) minmax(0, 3.1fr) minmax(
+        0,
+        2.75fr
+      ) minmax(0, 1fr);
+  }
+  .grid-header-cell.salvages,
+  .grid-cell--salvages {
+    display: none;
+  }
+}
+
+@include below-700 {
+  .grid-header,
+  .grid-row {
+    grid-template-areas: "item recycles value";
+    grid-template-columns: minmax(0, 2.5fr) minmax(0, 3.1fr) minmax(0, 1fr);
+  }
+  .grid-header-cell.neededFor,
+  .grid-cell--neededFor {
+    display: none;
+  }
+}
+
+.grid-row--even {
+  background-color: var(--bg-tertiary);
+}

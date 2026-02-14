@@ -1,0 +1,42 @@
+@use "./breakpoints" as *;
+
+// Shared cell-item layout — used in table rows and profitable item cards.
+// Consumers can override grid-template-columns and gap as needed.
+.cell-item {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-areas: "image name";
+
+  &__name {
+    grid-area: name;
+    align-self: center;
+  }
+
+  &__image {
+    grid-area: image;
+    justify-self: center;
+
+    img {
+      object-fit: contain;
+      width: 100%;
+      height: 100%;
+    }
+  }
+}
+
+// Coin icon shown next to currency values
+.value-coin-icon {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  filter: invert(1) brightness(0);
+
+  @media (prefers-color-scheme: dark) {
+    filter: none;
+  }
+
+  @include mobile {
+    width: 16px;
+    height: 16px;
+  }
+}

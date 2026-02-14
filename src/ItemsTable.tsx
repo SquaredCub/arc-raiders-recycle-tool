@@ -248,7 +248,6 @@ const ItemsTable = React.memo(
       <Table<Item>
         table={table}
         className="items-table"
-        sortedMaterialsCache={sortedMaterialsCache}
         searchMatchTypes={searchMatchTypes}
         nameMatchBoundaryIndex={nameMatchBoundaryIndex}
       />
