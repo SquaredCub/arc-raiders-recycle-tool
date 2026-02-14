@@ -17,6 +17,7 @@ type TableProps<T> = {
   sortedMaterialsCache?: Record<string, CachedMaterial[]>;
   searchTerm?: string; // kept for potential mobile view use
   searchMatchTypes?: Record<string, Set<SearchMatchType>>;
+  nameMatchBoundaryIndex?: number;
 };
 
 const Table = <T,>({
@@ -26,6 +27,7 @@ const Table = <T,>({
   benchNameLookup,
   sortedMaterialsCache,
   searchMatchTypes,
+  nameMatchBoundaryIndex = -1,
 }: TableProps<T>) => {
   const isMobileOrTablet = useMediaQuery(MEDIA_QUERIES.tabletAndBelow);
   const tableContainerRef = useRef<HTMLDivElement>(null);
@@ -185,7 +187,7 @@ const Table = <T,>({
                 key={row.id}
                 data-index={virtualRow.index}
                 ref={rowVirtualizer.measureElement}
-                className={`table-row${isEvenRow ? " table-row--even" : " table-row--odd"}`}
+                className={`table-row${isEvenRow ? " table-row--even" : " table-row--odd"}${virtualRow.index === nameMatchBoundaryIndex ? " table-row--name-match-boundary" : ""}`}
               >
                 {row.getVisibleCells().map((cell, cellIndex) => {
                   const isHighlighted = matchColumnIds.has(cell.column.id);

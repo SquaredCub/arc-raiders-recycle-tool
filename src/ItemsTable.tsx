@@ -189,12 +189,14 @@ const ItemsTable = React.memo(
       items,
     ]);
 
+    const isPrioritizing =
+      hasActiveSearch && filterSettings.prioritizeNameMatches;
+
     // Sort data manually (manualSorting: true means TanStack won't sort for us)
     const sortedData = useMemo(
       () =>
         sortItems(filteredData, sorting, {
-          prioritizeNameMatches:
-            hasActiveSearch && filterSettings.prioritizeNameMatches,
+          prioritizeNameMatches: isPrioritizing,
           searchMatchTypes,
           sortKeyCache,
           materialMatchScores,
@@ -202,13 +204,29 @@ const ItemsTable = React.memo(
       [
         filteredData,
         sorting,
-        hasActiveSearch,
-        filterSettings.prioritizeNameMatches,
+        isPrioritizing,
         searchMatchTypes,
         sortKeyCache,
         materialMatchScores,
       ],
     );
+
+    // Index of the last name-matched row when prioritizing (for visual separator)
+    const nameMatchBoundaryIndex = useMemo(() => {
+      if (!isPrioritizing) return -1;
+      let lastIndex = -1;
+      for (let i = 0; i < sortedData.length; i++) {
+        if (searchMatchTypes[sortedData[i].id]?.has("item")) {
+          lastIndex = i;
+        } else {
+          break; // Name matches are contiguous at the top
+        }
+      }
+      // Only show boundary if there are also non-name-matched items after
+      return lastIndex >= 0 && lastIndex < sortedData.length - 1
+        ? lastIndex
+        : -1;
+    }, [isPrioritizing, sortedData, searchMatchTypes]);
 
     // Notify parent of filtered count changes
     useEffect(() => {
@@ -252,6 +270,7 @@ const ItemsTable = React.memo(
         sortedMaterialsCache={sortedMaterialsCache}
         searchTerm={searchTerm}
         searchMatchTypes={searchMatchTypes}
+        nameMatchBoundaryIndex={nameMatchBoundaryIndex}
       />
     );
   },
