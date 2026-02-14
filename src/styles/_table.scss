@@ -89,11 +89,7 @@
   }
 
   .table-cell--search-match {
-    background-color: color-mix(
-      in srgb,
-      var(--bg-search-match),
-      transparent 50%
-    );
+    box-shadow: inset 0 0 20px 6px var(--shadow-search-match);
   }
 
   .table-cell {
