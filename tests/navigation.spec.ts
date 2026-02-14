@@ -37,16 +37,17 @@ test.describe("Navigation & Page Switching", () => {
     await expect(page.locator(".navigation__dropdown-menu")).not.toBeVisible();
   });
 
-  test("External Links dropdown contains all 5 links with correct hrefs", async ({ page }) => {
+  test("External Links dropdown contains all 6 links with correct hrefs", async ({ page }) => {
     await page.getByLabel("External Links").click();
     const menu = page.locator(".navigation__dropdown-menu");
 
     const expectedLinks = [
-      { name: "Github Repository", href: "https://github.com/SquaredCub/arc-raiders-recycle-tool" },
       { name: "Maps", href: "https://arcraidersmaps.app/" },
       { name: "Map Selector", href: "https://wheelofnames.com/stu-fhg" },
       { name: "Damage Calculator", href: "https://arcdamagecalculator.tiiny.site/" },
       { name: "Tracker", href: "https://arctracker.io/" },
+      { name: "Github Repository", href: "https://github.com/SquaredCub/arc-raiders-recycle-tool" },
+      { name: "Donate", href: "https://paypal.me/SquaredCub" },
     ];
 
     for (const { name, href } of expectedLinks) {

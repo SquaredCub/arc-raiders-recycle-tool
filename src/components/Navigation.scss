@@ -111,6 +111,13 @@
     }
   }
 
+  &__dropdown-divider {
+    border: none;
+    border-top: 3px dotted var(--text-secondary);
+    margin: 0.4rem 0.5rem;
+    opacity: 0.4;
+  }
+
   &__dropdown-link {
     color: var(--text-secondary);
     text-decoration: none;
