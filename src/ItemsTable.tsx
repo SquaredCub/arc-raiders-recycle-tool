@@ -95,7 +95,7 @@ const ItemsTable = React.memo(
         });
       }
       return index;
-    }, [items, searchTerm]);
+    }, [itemRequirements, items, searchTerm]);
 
     // Create column definitions using extracted function
     const columns = useMemo(
@@ -107,7 +107,13 @@ const ItemsTable = React.memo(
           sortKeyCache,
           searchRelevanceIndex,
         ),
-      [itemRequirements, benchNameLookup, sortedMaterialsCache, sortKeyCache, searchRelevanceIndex],
+      [
+        itemRequirements,
+        benchNameLookup,
+        sortedMaterialsCache,
+        sortKeyCache,
+        searchRelevanceIndex,
+      ],
     );
 
     // Filter data based on search term and category filters
@@ -132,7 +138,12 @@ const ItemsTable = React.memo(
       }
 
       return results;
-    }, [items, searchTerm, filterSettings]);
+    }, [
+      items,
+      searchTerm,
+      itemRequirements,
+      filterSettings.includedCategories,
+    ]);
 
     // Notify parent of filtered count changes
     useEffect(() => {

@@ -148,7 +148,7 @@
 
     .cell-item {
       display: grid;
-      grid-template-columns: 1fr 4fr;
+      grid-template-columns: min-content 1fr;
       grid-template-areas: "image name";
 
       &__name {
@@ -170,6 +170,24 @@
         }
       }
     }
+    .found-in-container {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .found-in-item {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .found-in-icon {
+      width: 18px;
+      height: 18px;
+      object-fit: contain;
+    }
+
     &:last-child {
       border-right-width: 1px;
     }
