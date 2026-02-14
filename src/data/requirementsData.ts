@@ -86,12 +86,12 @@ const buildProjectLookup = (projects: Project[]): ItemRequirementLookup => {
       continue;
     }
 
-    for (const phase of project.phases) {
-      const phaseName = phase.name[language];
+    for (let i = 0; i < project.phases.length; i++) {
+      const phase = project.phases[i];
 
       for (const requirement of phase.requirementItemIds) {
         const { itemId, quantity } = requirement;
-        const source = `${projectName} - ${phaseName}`;
+        const source = `${projectName} - Step ${i + 1}`;
 
         if (!lookup[itemId]) {
           lookup[itemId] = {

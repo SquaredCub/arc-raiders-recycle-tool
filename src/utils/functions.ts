@@ -1,4 +1,4 @@
-import type { Item, LocalizedText } from "../types";
+import type { Item, ItemRequirementLookup, LocalizedText } from "../types";
 
 // ============================================================================
 // Constants
@@ -112,6 +112,7 @@ export const filterItemsBySearch = (
   searchTerm: string,
   formatMaterialName: (id: string) => string,
   language: keyof LocalizedText = DEFAULT_LANGUAGE,
+  itemRequirements?: ItemRequirementLookup,
 ): Item[] => {
   if (!searchTerm.trim()) {
     return items;
@@ -124,12 +125,15 @@ export const filterItemsBySearch = (
   const startsWithMatches: Item[] = [];
   const otherNameMatches: Item[] = [];
   const materialMatches: Item[] = [];
+  const requirementMatches: Item[] = [];
+  const matched = new Set<string>();
 
   for (const item of items) {
     const itemName = item.name[language]?.toLowerCase();
 
     // Check if item name matches
     if (itemName && itemName.includes(lowerSearchTerm)) {
+      matched.add(item.id);
       // Exact match (highest priority)
       if (itemName === lowerSearchTerm) {
         exactMatches.push(item);
@@ -145,7 +149,7 @@ export const filterItemsBySearch = (
       continue;
     }
 
-    // Check if any material in recyclesInto matches (lowest priority)
+    // Check if any material in recyclesInto matches
     if (item.recyclesInto) {
       const materials = Object.keys(item.recyclesInto);
       const hasMatch = materials.some((material) => {
@@ -154,7 +158,22 @@ export const filterItemsBySearch = (
       });
 
       if (hasMatch) {
+        matched.add(item.id);
         materialMatches.push(item);
+        continue;
+      }
+    }
+
+    // Check if any requirement source matches (e.g. project/quest/bench name)
+    if (itemRequirements) {
+      const requirements = itemRequirements[item.id];
+      if (requirements) {
+        const hasMatch = requirements.usedIn.some((usage) =>
+          usage.source.toLowerCase().includes(lowerSearchTerm),
+        );
+        if (hasMatch && !matched.has(item.id)) {
+          requirementMatches.push(item);
+        }
       }
     }
   }
@@ -165,6 +184,7 @@ export const filterItemsBySearch = (
     ...startsWithMatches,
     ...otherNameMatches,
     ...materialMatches,
+    ...requirementMatches,
   ];
 };
 

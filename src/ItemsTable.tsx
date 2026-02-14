@@ -87,6 +87,7 @@ const ItemsTable = React.memo(
           searchTerm,
           formatMaterialName,
           DEFAULT_LANGUAGE,
+          itemRequirements,
         );
         // Assign relevance scores (lower = more relevant)
         results.forEach((item, idx) => {
@@ -117,6 +118,7 @@ const ItemsTable = React.memo(
         searchTerm,
         formatMaterialName,
         DEFAULT_LANGUAGE,
+        itemRequirements,
       );
 
       // Then filter by included categories
