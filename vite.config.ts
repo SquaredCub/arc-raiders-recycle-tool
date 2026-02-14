@@ -5,4 +5,19 @@ import { defineConfig } from "vite";
 export default defineConfig({
   plugins: [react()],
   base: "/arc-raiders-recycle-tool/",
+  build: {
+    chunkSizeWarningLimit: 3000,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          "game-data": [
+            "./src/generated/items.json",
+            "./src/generated/quests.json",
+            "./src/generated/projects.json",
+            "./src/generated/hideout.json",
+          ],
+        },
+      },
+    },
+  },
 });
