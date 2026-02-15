@@ -111,6 +111,8 @@ export type SearchMatchType = "item" | "recycles" | "salvages" | "requirement";
 export interface SearchResult {
   items: Item[];
   matchTypes: Record<string, Set<SearchMatchType>>;
+  matchedMaterials: Record<string, Set<string>>;
+  matchedSources: Record<string, Set<string>>;
 }
 
 export const filterItemsBySearch = (
@@ -121,13 +123,15 @@ export const filterItemsBySearch = (
   itemRequirements?: ItemRequirementLookup,
 ): SearchResult => {
   if (!searchTerm.trim()) {
-    return { items, matchTypes: {} };
+    return { items, matchTypes: {}, matchedMaterials: {}, matchedSources: {} };
   }
 
   const lowerSearchTerm = searchTerm.toLowerCase();
 
   const matchedItems: Item[] = [];
   const matchTypes: Record<string, Set<SearchMatchType>> = {};
+  const matchedMaterials: Record<string, Set<string>> = {};
+  const matchedSources: Record<string, Set<string>> = {};
 
   for (const item of items) {
     const types = new Set<SearchMatchType>();
@@ -138,30 +142,39 @@ export const filterItemsBySearch = (
       types.add("item");
     }
 
-    // Check if any material in recyclesInto matches
+    // Check which materials in recyclesInto match
     if (item.recyclesInto) {
-      const hasMatch = Object.keys(item.recyclesInto).some((material) =>
-        formatMaterialName(material).toLowerCase().includes(lowerSearchTerm),
-      );
-      if (hasMatch) types.add("recycles");
+      for (const material of Object.keys(item.recyclesInto)) {
+        if (formatMaterialName(material).toLowerCase().includes(lowerSearchTerm)) {
+          types.add("recycles");
+          if (!matchedMaterials[item.id]) matchedMaterials[item.id] = new Set();
+          matchedMaterials[item.id].add(material);
+        }
+      }
     }
 
-    // Check if any material in salvagesInto matches
+    // Check which materials in salvagesInto match
     if (item.salvagesInto) {
-      const hasMatch = Object.keys(item.salvagesInto).some((material) =>
-        formatMaterialName(material).toLowerCase().includes(lowerSearchTerm),
-      );
-      if (hasMatch) types.add("salvages");
+      for (const material of Object.keys(item.salvagesInto)) {
+        if (formatMaterialName(material).toLowerCase().includes(lowerSearchTerm)) {
+          types.add("salvages");
+          if (!matchedMaterials[item.id]) matchedMaterials[item.id] = new Set();
+          matchedMaterials[item.id].add(material);
+        }
+      }
     }
 
-    // Check if any requirement source matches
+    // Check which requirement sources match
     if (itemRequirements) {
       const requirements = itemRequirements[item.id];
       if (requirements) {
-        const hasMatch = requirements.usedIn.some((usage) =>
-          usage.source.toLowerCase().includes(lowerSearchTerm),
-        );
-        if (hasMatch) types.add("requirement");
+        for (const usage of requirements.usedIn) {
+          if (usage.source.toLowerCase().includes(lowerSearchTerm)) {
+            types.add("requirement");
+            if (!matchedSources[item.id]) matchedSources[item.id] = new Set();
+            matchedSources[item.id].add(usage.source);
+          }
+        }
       }
     }
 
@@ -174,6 +187,8 @@ export const filterItemsBySearch = (
   return {
     items: matchedItems,
     matchTypes,
+    matchedMaterials,
+    matchedSources,
   };
 };
 

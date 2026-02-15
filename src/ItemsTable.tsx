@@ -105,34 +105,25 @@ const ItemsTable = React.memo(
     // Compute material match scores for sorting recycles/salvages columns
     const materialMatchScores = useMemo(() => {
       const scores: Record<string, { recycles: number; salvages: number }> = {};
-      const lowerSearch = searchTerm.trim().toLowerCase();
-      if (!lowerSearch) return scores;
+      const { matchedMaterials } = searchResult;
+      if (Object.keys(matchedMaterials).length === 0) return scores;
 
       for (const item of searchResult.items) {
+        const matched = matchedMaterials[item.id];
+        if (!matched) continue;
+
         let recycleScore = 0;
         let salvageScore = 0;
 
         if (item.recyclesInto) {
-          for (const [material, quantity] of Object.entries(
-            item.recyclesInto,
-          )) {
-            if (
-              formatMaterialName(material).toLowerCase().includes(lowerSearch)
-            ) {
-              recycleScore += quantity;
-            }
+          for (const [material, quantity] of Object.entries(item.recyclesInto)) {
+            if (matched.has(material)) recycleScore += quantity;
           }
         }
 
         if (item.salvagesInto) {
-          for (const [material, quantity] of Object.entries(
-            item.salvagesInto,
-          )) {
-            if (
-              formatMaterialName(material).toLowerCase().includes(lowerSearch)
-            ) {
-              salvageScore += quantity;
-            }
+          for (const [material, quantity] of Object.entries(item.salvagesInto)) {
+            if (matched.has(material)) salvageScore += quantity;
           }
         }
 
@@ -140,7 +131,7 @@ const ItemsTable = React.memo(
       }
 
       return scores;
-    }, [searchResult, searchTerm]);
+    }, [searchResult]);
 
     // Create column definitions using extracted function
     const columns = useMemo(
@@ -149,11 +140,15 @@ const ItemsTable = React.memo(
           itemRequirements,
           sortedMaterialsCache,
           hasActiveSearch,
+          searchResult.matchedMaterials,
+          searchResult.matchedSources,
         ),
       [
         itemRequirements,
         sortedMaterialsCache,
         hasActiveSearch,
+        searchResult.matchedMaterials,
+        searchResult.matchedSources,
       ],
     );
 

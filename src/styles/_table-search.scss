@@ -3,37 +3,6 @@
 
 // Search match indicators and highlights within .items-table
 .items-table {
-  // Match indicator bars (left/right edges) — desktop only
-  .match-indicator-spacer {
-    display: none;
-  }
-
-  .grid-row--search-match {
-    position: relative;
-
-    .match-indicator-spacer {
-      display: block;
-      position: absolute;
-      width: 4px;
-      background-color: var(--color-success-border);
-
-      &.left {
-        left: 1px;
-        bottom: 1px;
-        top: 1px;
-      }
-      &.right {
-        right: 1px;
-        bottom: 1px;
-        top: 1px;
-      }
-
-      @include mobile {
-        display: none;
-      }
-    }
-  }
-
   // Dotted boundary between name-matches and other results
   .grid-row--name-match-boundary {
     position: relative;
@@ -58,31 +27,51 @@
     }
   }
 
-  // Desktop: cell-level search highlight glow
-  .grid-cell--search-match {
-    box-shadow: inset 0 0 20px 6px var(--shadow-search-match);
+  // Per-item highlight for item column (overrides cell-level glow)
+  .grid-cell--item.grid-cell--search-match {
+    .cell-item__name {
+      text-decoration: underline;
+      text-decoration-color: var(--color-primary);
+      text-underline-offset: 3px;
+      text-decoration-thickness: 2px;
+    }
+  }
 
-    @include mobile {
-      box-shadow: none;
+  // Per-source highlight for neededFor column (overrides cell-level glow)
+  .grid-cell--neededFor.grid-cell--search-match {
+    .needed-for-source--highlighted {
+      text-decoration: underline;
+      text-decoration-color: var(--color-primary);
+      text-underline-offset: 3px;
+      text-decoration-thickness: 2px;
+    }
+  }
+
+  // Per-material highlight for recycles/salvages (overrides cell-level glow)
+  .grid-cell--recycles.grid-cell--search-match,
+  .grid-cell--salvages.grid-cell--search-match {
+    .cell-item--highlighted {
+      background-color: var(--color-primary-bg-subtle);
+      box-shadow: inset 2px 0 var(--color-primary-muted);
+      padding: 0.15rem 0.25rem;
+      margin-left: -0.15rem;
+      border-radius: 0 4px 4px 0;
+
+      @include mobile {
+        box-shadow: none;
+        border-left: 1px solid var(--border-tertiary);
+        padding: 0.25rem 0.5rem 0.25rem 0.25rem;
+        border-radius: 6px;
+      }
     }
   }
 
   // Mobile: targeted highlights per column type
   @include mobile {
-    // Item name match — underline the link/name
-    .grid-cell--item.grid-cell--search-match {
-      .cell-item__name {
-        text-decoration: underline;
-        text-decoration-color: var(--color-primary);
-        text-underline-offset: 3px;
-        text-decoration-thickness: 2px;
-      }
-    }
-
-    // Recycles match — accent the material chips
-    .grid-cell--recycles.grid-cell--search-match {
-      .recycles-salvages-container .cell-item {
-        background-color: var(--color-primary-bg);
+    // Recycles/Salvages match — accent only the matching material chips
+    .grid-cell--recycles.grid-cell--search-match,
+    .grid-cell--salvages.grid-cell--search-match {
+      .recycles-salvages-container .cell-item--highlighted {
         border-color: var(--color-primary-border);
 
         .cell-item__name {

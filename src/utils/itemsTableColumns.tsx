@@ -16,6 +16,8 @@ export const createItemsTableColumns = (
   itemRequirements: ItemRequirementLookup,
   sortedMaterialsCache: Record<string, CachedMaterial[]>,
   hasActiveSearch: boolean,
+  matchedMaterials?: Record<string, Set<string>>,
+  matchedSources?: Record<string, Set<string>>,
 ) => {
   return [
     columnHelper.accessor("name", {
@@ -30,15 +32,12 @@ export const createItemsTableColumns = (
         }
         const imageSrc = getItemImage(item);
         return (
-          <>
-            <span className="match-indicator-spacer left" />
-            <ItemCell
-              id={item.id}
-              name={item.name[DEFAULT_LANGUAGE] || item.name.en}
-              imageSrc={imageSrc}
-              rarity={item.rarity}
-            />
-          </>
+          <ItemCell
+            id={item.id}
+            name={item.name[DEFAULT_LANGUAGE] || item.name.en}
+            imageSrc={imageSrc}
+            rarity={item.rarity}
+          />
         );
       },
       enableSorting: true,
@@ -60,6 +59,7 @@ export const createItemsTableColumns = (
           return <span>-</span>;
         }
 
+        const itemMatched = matchedMaterials?.[item.id];
         return (
           <div className="recycles-salvages-container">
             {cachedMaterials.map(({ material, quantity, name, image }) => (
@@ -67,6 +67,7 @@ export const createItemsTableColumns = (
                 key={material}
                 name={`${quantity} x ${name}`}
                 imageSrc={image}
+                highlighted={itemMatched?.has(material)}
               />
             ))}
           </div>
@@ -89,6 +90,7 @@ export const createItemsTableColumns = (
           return <span>-</span>;
         }
 
+        const itemMatched = matchedMaterials?.[item.id];
         return (
           <div className="recycles-salvages-container">
             {cachedMaterials.map(({ material, quantity, name, image }) => (
@@ -96,6 +98,7 @@ export const createItemsTableColumns = (
                 key={material}
                 name={`${quantity} x ${name}`}
                 imageSrc={image}
+                highlighted={itemMatched?.has(material)}
               />
             ))}
           </div>
@@ -159,7 +162,14 @@ export const createItemsTableColumns = (
             </div>
             <div className="needed-for-list">
               {requirements.usedIn.map((usage, index) => (
-                <div key={index}>
+                <div
+                  key={index}
+                  className={
+                    matchedSources?.[itemId]?.has(usage.source)
+                      ? "needed-for-source--highlighted"
+                      : undefined
+                  }
+                >
                   • {usage.source} ({usage.quantity})
                 </div>
               ))}
@@ -180,17 +190,14 @@ export const createItemsTableColumns = (
           return <span>-</span>;
         }
         return (
-          <>
-            <div className="value-container">
-              <span>{info.getValue()}</span>
-              <img
-                src={COINS_IMAGE_URL}
-                alt="Coins"
-                className="value-coin-icon"
-              />
-            </div>
-            <span className="match-indicator-spacer right" />
-          </>
+          <div className="value-container">
+            <span>{info.getValue()}</span>
+            <img
+              src={COINS_IMAGE_URL}
+              alt="Coins"
+              className="value-coin-icon"
+            />
+          </div>
         );
       },
       enableSorting: true,

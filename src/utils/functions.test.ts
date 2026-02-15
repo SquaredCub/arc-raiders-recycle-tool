@@ -57,12 +57,16 @@ describe("filterItemsBySearch", () => {
     const result = filterItemsBySearch(items, "", formatMaterialName);
     expect(result.items).toBe(items);
     expect(result.matchTypes).toEqual({});
+    expect(result.matchedMaterials).toEqual({});
+    expect(result.matchedSources).toEqual({});
   });
 
   it("returns all items for whitespace-only search", () => {
     const result = filterItemsBySearch(items, "   ", formatMaterialName);
     expect(result.items).toBe(items);
     expect(result.matchTypes).toEqual({});
+    expect(result.matchedMaterials).toEqual({});
+    expect(result.matchedSources).toEqual({});
   });
 
   it("places exact name match first", () => {
@@ -102,6 +106,30 @@ describe("filterItemsBySearch", () => {
     expect(result.matchTypes[itemWithRecycle!.id].has("recycles")).toBe(true);
   });
 
+  it("populates matchedMaterials with only matching material IDs", () => {
+    const result = filterItemsBySearch(
+      items,
+      "Metal Parts",
+      formatMaterialName
+    );
+    // Find an item that recycles into metal_parts
+    const itemWithRecycle = result.items.find(
+      (i) =>
+        i.recyclesInto &&
+        Object.keys(i.recyclesInto).includes("metal_parts")
+    );
+    expect(itemWithRecycle).toBeDefined();
+    const matched = result.matchedMaterials[itemWithRecycle!.id];
+    expect(matched).toBeDefined();
+    expect(matched.has("metal_parts")).toBe(true);
+    // Non-matching materials should NOT be in the set
+    const nonMatchingMaterials = Object.keys(itemWithRecycle!.recyclesInto!)
+      .filter((m) => !formatMaterialName(m).toLowerCase().includes("metal parts"));
+    for (const m of nonMatchingMaterials) {
+      expect(matched.has(m)).toBe(false);
+    }
+  });
+
   it("tags salvagesInto matches as 'salvages'", () => {
     // Acoustic Guitar salvages into "wires"
     const result = filterItemsBySearch(items, "Wires", formatMaterialName);
@@ -111,11 +139,14 @@ describe("filterItemsBySearch", () => {
     }
   });
 
-  it("tags requirement matches as 'requirement'", () => {
+  it("tags requirement matches as 'requirement' and populates matchedSources", () => {
     const mockRequirements = {
       bandage: {
-        totalQuantity: 5,
-        usedIn: [{ source: "Test Bench Lvl 1", quantity: 5 }],
+        totalQuantity: 10,
+        usedIn: [
+          { source: "Test Bench Lvl 1", quantity: 5 },
+          { source: "Other Bench Lvl 2", quantity: 5 },
+        ],
       },
     };
     const result = filterItemsBySearch(
@@ -128,6 +159,11 @@ describe("filterItemsBySearch", () => {
     const bandage = result.items.find((i) => i.id === "bandage");
     expect(bandage).toBeDefined();
     expect(result.matchTypes["bandage"].has("requirement")).toBe(true);
+    // Only the matching source should be in matchedSources
+    const sources = result.matchedSources["bandage"];
+    expect(sources).toBeDefined();
+    expect(sources.has("Test Bench Lvl 1")).toBe(true);
+    expect(sources.has("Other Bench Lvl 2")).toBe(false);
   });
 
   it("returns both name matches and material matches", () => {
