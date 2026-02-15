@@ -1,6 +1,7 @@
 import { useCallback, useState } from "react";
 import type { FilterSettings } from "./components/FilterModal";
 import FilterModal from "./components/FilterModal";
+import Tooltip from "./components/Tooltip";
 import { FILTERABLE_ITEM_CATEGORIES } from "./constants/itemCategories";
 import { useDebounce } from "./hooks/useDebounce";
 import ItemsTable from "./ItemsTable";
@@ -8,6 +9,7 @@ import SearchInput from "./SearchInput";
 
 const RecyclingTools = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [showIntroduction, setShowIntroduction] = useState(false);
   const debouncedSearchTerm = useDebounce(searchTerm);
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [filterSettings, setFilterSettings] = useState<FilterSettings>({
@@ -31,18 +33,26 @@ const RecyclingTools = () => {
 
   return (
     <div className="recycling-tools">
-      <h1>Recycling Tool</h1>
-      <section id="introduction">
-        <p>Welcome to the Arc Raiders Recycle Tool!</p>
-        <p>
-          This is a list of all the items in the game and what they recycle
-          into.
-        </p>
-        <p>
-          Search an item by name to see its recycle results or what to recycle
-          to obtain it.
-        </p>
-      </section>
+      <h1>
+        Recycling Tool{" "}
+        <Tooltip
+          active={showIntroduction}
+          callback={() => setShowIntroduction((prev) => !prev)}
+        />
+      </h1>
+      {showIntroduction && (
+        <section id="introduction">
+          <p>Welcome to the Arc Raiders Recycle Tool!</p>
+          <p>
+            This is a list of all the items in the game and what they recycle
+            into.
+          </p>
+          <p>
+            Search an item by name to see its recycle results or what to recycle
+            to obtain it.
+          </p>
+        </section>
+      )}
       <section id="controlsSection">
         <div className="controls-container">
           <SearchInput searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
@@ -79,7 +89,10 @@ const RecyclingTools = () => {
           )}
         </div>
       </section>
-      <section id="tableSection">
+      <section
+        id="tableSection"
+        className={showIntroduction ? "with-introduction" : ""}
+      >
         <ItemsTable
           searchTerm={debouncedSearchTerm}
           filterSettings={filterSettings}

@@ -1,0 +1,12 @@
+.tooltip-toggle {
+  background: none;
+  border: none;
+  padding: 0;
+  margin-left: 8;
+  cursor: "pointer";
+  img {
+    width: 30px;
+    height: 30px;
+    filter: invert(100%);
+  }
+}

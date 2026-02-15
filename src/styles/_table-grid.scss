@@ -33,20 +33,30 @@ $grid-columns-full: minmax(0, 2.5fr) minmax(0, 3.1fr) minmax(0, 2.5fr)
   minmax(0, 2.25fr) minmax(0, 2.75fr) minmax(0, 1fr);
 
 // Scroll container
-.table-scroll-container {
-  height: calc(100svh - 16.5rem);
-  overflow: auto;
-  max-width: 1509px;
-  margin: 0 auto;
-  border-bottom: 1px solid var(--border-primary);
+#tableSection {
+  .table-scroll-container {
+    height: calc(100svh - 12rem);
+    overflow: auto;
+    max-width: 1509px;
+    margin: 0 auto;
+    border-bottom: 1px solid var(--border-primary);
 
-  @include mobile {
-    max-width: 100%;
-    overflow-x: hidden;
-    padding-inline: 1rem;
-    border-top: 1px solid rgba(0, 0, 0, 0.4);
-    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.8);
-    height: calc(100svh - 21.5rem);
+    @include mobile {
+      max-width: 100%;
+      overflow-x: hidden;
+      padding-inline: 1rem;
+      border-top: 1px solid rgba(0, 0, 0, 0.4);
+      box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.8);
+      height: calc(100svh - 16.5rem);
+    }
+  }
+  &.with-introduction {
+    .table-scroll-container {
+      height: calc(100svh - 16rem);
+      @include mobile {
+        height: calc(100svh - 20.5rem);
+      }
+    }
   }
 }
 .items-table {
