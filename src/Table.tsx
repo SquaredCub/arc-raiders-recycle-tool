@@ -1,6 +1,6 @@
 import { flexRender, type Table as TableType } from "@tanstack/react-table";
-import { useVirtualizer } from "@tanstack/react-virtual";
-import { useEffect, useRef } from "react";
+import { useWindowVirtualizer } from "@tanstack/react-virtual";
+import { useEffect, useRef, useState } from "react";
 import type { Item } from "./types";
 import type { SearchMatchType } from "./utils/functions";
 
@@ -17,8 +17,20 @@ const Table = <T,>({
   searchMatchTypes,
   nameMatchBoundaryIndex = -1,
 }: TableProps<T>) => {
-  const tableContainerRef = useRef<HTMLDivElement>(null);
+  const tableWrapperRef = useRef<HTMLDivElement>(null);
+  const [scrollMargin, setScrollMargin] = useState(0);
   const rows = table.getRowModel().rows;
+
+  // Measure distance from the top of the page to the table wrapper.
+  // Intentionally runs on every render to stay current when content above shifts.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (tableWrapperRef.current) {
+      const top =
+        tableWrapperRef.current.getBoundingClientRect().top + window.scrollY;
+      setScrollMargin((prev) => (prev !== top ? top : prev));
+    }
+  });
 
   // Map search match types to the column ID that should be highlighted
   const matchTypeToColumnId: Record<SearchMatchType, string> = {
@@ -40,37 +52,45 @@ const Table = <T,>({
     return columnIds;
   };
 
-  const rowVirtualizer = useVirtualizer({
+  const rowVirtualizer = useWindowVirtualizer({
     count: rows.length,
-    getScrollElement: () => tableContainerRef.current,
-    estimateSize: () => 120, // Initial estimate, will be measured dynamically
-    overscan: 5, // Reduced overscan for better performance
+    estimateSize: () => 120,
+    overscan: 5,
+    scrollMargin,
     measureElement:
       typeof window !== "undefined" &&
       navigator.userAgent.indexOf("Firefox") === -1
         ? (element) => element.getBoundingClientRect().height
-        : undefined, // Dynamic measurement (disabled on Firefox due to bugs)
+        : undefined,
   });
 
   // Reset scroll position when sorting changes
   const sorting = table.getState().sorting;
   useEffect(() => {
-    rowVirtualizer.scrollToIndex(0);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (tableWrapperRef.current) {
+      window.scrollTo({
+        top:
+          tableWrapperRef.current.getBoundingClientRect().top +
+          window.scrollY -
+          60,
+        behavior: "instant",
+      });
+    }
   }, [sorting]);
 
   const virtualRows = rowVirtualizer.getVirtualItems();
   const totalSize = rowVirtualizer.getTotalSize();
 
-  // Calculate padding for non-rendered rows
-  const paddingTop = virtualRows.length > 0 ? virtualRows[0].start : 0;
+  // Calculate padding for non-rendered rows (offset by scrollMargin)
+  const paddingTop =
+    virtualRows.length > 0 ? virtualRows[0].start - scrollMargin : 0;
   const paddingBottom =
     virtualRows.length > 0
       ? totalSize - virtualRows[virtualRows.length - 1].end
       : 0;
 
   return (
-    <div ref={tableContainerRef} className="table-scroll-container">
+    <div ref={tableWrapperRef} className="table-wrapper">
       <div className={className}>
         <div className="grid-header">
           {table.getHeaderGroups().map((headerGroup) =>

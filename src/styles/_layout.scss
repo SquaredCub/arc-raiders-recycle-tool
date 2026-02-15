@@ -7,7 +7,7 @@
   margin-top: 1em;
 
   @include mobile {
-    margin-top: 3.5rem;
+    margin-top: 0;
     max-width: 100vw;
     overflow-x: hidden;
   }
@@ -58,16 +58,8 @@ a {
 }
 
 #update-note {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: -10;
-  display: flex;
-  justify-content: center;
-  align-items: end;
-  background-color: var(--bg-primary);
+  text-align: center;
+  padding: 0.5rem;
   font-size: 0.6rem;
   line-height: 1rem;
   color: var(--text-tertiary);

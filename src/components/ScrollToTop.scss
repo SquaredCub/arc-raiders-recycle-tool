@@ -1,0 +1,47 @@
+@use "../styles/breakpoints" as *;
+@use "../styles/utilities" as *;
+
+.scroll-to-top {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 2rem;
+  z-index: 100;
+  padding: 0.5rem;
+  border-radius: 50%;
+  border: 1px solid var(--color-primary);
+  background-color: var(--bg-primary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+
+  svg {
+    width: 28px;
+    height: 28px;
+    color: var(--color-primary);
+  }
+
+  @include hover-supported {
+    background-color: var(--color-primary);
+    border-color: var(--color-primary-hover);
+    box-shadow: var(--shadow-sm);
+
+    svg {
+      color: var(--bg-primary);
+    }
+  }
+
+  &--visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  @include mobile {
+    bottom: 1rem;
+    right: 1rem;
+  }
+}

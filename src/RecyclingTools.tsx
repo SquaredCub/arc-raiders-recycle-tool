@@ -89,10 +89,7 @@ const RecyclingTools = () => {
           )}
         </div>
       </section>
-      <section
-        id="tableSection"
-        className={showIntroduction ? "with-introduction" : ""}
-      >
+      <section id="tableSection">
         <ItemsTable
           searchTerm={debouncedSearchTerm}
           filterSettings={filterSettings}
