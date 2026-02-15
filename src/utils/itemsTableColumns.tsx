@@ -38,7 +38,6 @@ export const createItemsTableColumns = (
               imageSrc={imageSrc}
               rarity={item.rarity}
             />
-            <span className="mobile-type">{item.type}</span>
           </>
         );
       },
@@ -62,7 +61,7 @@ export const createItemsTableColumns = (
         }
 
         return (
-          <div className="recycles-container">
+          <div className="recycles-salvages-container">
             {cachedMaterials.map(({ material, quantity, name, image }) => (
               <ItemCell
                 key={material}
@@ -91,7 +90,7 @@ export const createItemsTableColumns = (
         }
 
         return (
-          <div className="recycles-container">
+          <div className="recycles-salvages-container">
             {cachedMaterials.map(({ material, quantity, name, image }) => (
               <ItemCell
                 key={material}

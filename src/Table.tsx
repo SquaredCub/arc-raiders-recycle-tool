@@ -119,13 +119,14 @@ const Table = <T,>({
         {virtualRows.map((virtualRow) => {
           const row = rows[virtualRow.index];
           const isEvenRow = virtualRow.index % 2 === 0;
+          const isFirstRow = virtualRow.index === 0;
           const matchColumnIds = getMatchColumnIds(row);
           return (
             <div
               key={row.id}
               data-index={virtualRow.index}
               ref={rowVirtualizer.measureElement}
-              className={`grid-row${isEvenRow ? " grid-row--even" : " grid-row--odd"}${virtualRow.index === nameMatchBoundaryIndex ? " grid-row--name-match-boundary" : ""}`}
+              className={`grid-row${isEvenRow ? " grid-row--even" : " grid-row--odd"}${virtualRow.index === nameMatchBoundaryIndex ? " grid-row--name-match-boundary" : ""}${isFirstRow ? " grid-row--first" : ""}`}
             >
               {row.getVisibleCells().map((cell) => {
                 const isHighlighted = matchColumnIds.has(cell.column.id);
@@ -134,10 +135,7 @@ const Table = <T,>({
                     key={cell.id}
                     className={`grid-cell grid-cell--${cell.column.id}${isHighlighted ? " grid-cell--search-match" : ""}`}
                   >
-                    {flexRender(
-                      cell.column.columnDef.cell,
-                      cell.getContext(),
-                    )}
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </div>
                 );
               })}

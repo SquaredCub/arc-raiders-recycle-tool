@@ -1,5 +1,7 @@
 @use "./breakpoints" as *;
 
+$mobile-row-margin-bottom: 0.625rem;
+
 // Grid area assignments for cells
 .grid-header-cell.item,
 .grid-cell--item {
@@ -47,107 +49,94 @@ $grid-columns-full: minmax(0, 2.5fr) minmax(0, 3.1fr) minmax(0, 2.5fr)
     height: calc(100svh - 21.5rem);
   }
 }
-
-// Grid header (sticky column headers)
-.grid-header {
-  display: grid;
-  grid-template-areas: "item recycles salvages foundIn neededFor value";
-  grid-template-columns: $grid-columns-full;
-  position: sticky;
-  top: 0;
-  z-index: 10;
-
-  @include mobile {
-    display: none;
-  }
-}
-
-.grid-header-cell {
-  padding: 0.5rem;
-  font-weight: bold;
-  background-color: var(--bg-primary);
-  border: 1px solid var(--border-primary);
-  border-right-width: 0;
-
-  &:last-child {
-    border-right-width: 1px;
-  }
-}
-
-// Grid rows
-.grid-row {
-  display: grid;
-  grid-template-areas: "item recycles salvages foundIn neededFor value";
-  grid-template-columns: $grid-columns-full;
-
-  @include mobile {
-    // grid-template-areas:
-    //   "item"
-    //   "recycles"
-    //   "salvages"
-    //   "value";
-    grid-template-areas: "item recycles salvages value";
-    grid-template-columns: 1fr;
-    background-color: var(--bg-primary);
-    border: 1px solid var(--border-secondary);
-    border-radius: 10px;
-    padding: 1rem 1rem 0.75rem;
-    margin-bottom: 0.625rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-    overflow: hidden;
-
-    @media (prefers-color-scheme: dark) {
-      border-color: var(--border-tertiary);
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+.items-table {
+  .grid-header,
+  .grid-row {
+    display: grid;
+    grid-template-areas: "item recycles salvages foundIn neededFor value";
+    grid-template-columns: $grid-columns-full;
+    @include tablet-and-below {
+      grid-template-areas: "item recycles salvages neededFor value";
+      grid-template-columns:
+        minmax(0, 2.5fr) minmax(0, 3.1fr) minmax(0, 2.5fr)
+        minmax(0, 2.75fr) minmax(0, 1fr);
+    }
+    @include below-800 {
+      grid-template-areas: "item recycles salvages value";
+      grid-template-columns:
+        minmax(0, 2.5fr) minmax(0, 3.1fr) minmax(0, 2.75fr)
+        minmax(0, 1fr);
     }
   }
-}
 
-// Progressive column hiding at intermediate breakpoints
-@include tablet-and-below {
-  .grid-header,
+  // Grid header (sticky column headers)
+  .grid-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+
+    @include mobile {
+      display: none;
+    }
+
+    &-cell {
+      padding: 0.5rem;
+      font-weight: bold;
+      background-color: var(--bg-primary);
+      border: 1px solid var(--border-primary);
+      border-right-width: 0;
+
+      &:last-child {
+        border-right-width: 1px;
+      }
+    }
+  }
   .grid-row {
-    grid-template-areas: "item recycles salvages neededFor value";
-    grid-template-columns:
-      minmax(0, 2.5fr) minmax(0, 3.1fr) minmax(0, 2.5fr)
-      minmax(0, 2.75fr) minmax(0, 1fr);
-  }
-  .grid-header-cell.foundIn,
-  .grid-cell--foundIn {
-    display: none;
-  }
-}
+    &--first {
+      margin-top: 0.5rem;
+    }
+    &--even {
+      background-color: var(--bg-tertiary);
 
-@include below-800 {
-  .grid-header,
-  .grid-row {
-    grid-template-areas: "item recycles salvages value";
-    grid-template-columns:
-      minmax(0, 2.5fr) minmax(0, 3.1fr) minmax(0, 2.75fr)
-      minmax(0, 1fr);
+      @include mobile {
+        background-color: var(--bg-primary);
+      }
+    }
+
+    @include mobile {
+      grid-template-areas:
+        "item recycles value"
+        "item salvages value";
+      grid-template-columns: 1.5fr 2fr 1fr;
+      background-color: var(--bg-primary);
+      border: 1px solid var(--border-secondary);
+      border-radius: 10px;
+      padding: 1rem 1rem 0.75rem;
+
+      margin-bottom: $mobile-row-margin-bottom;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+      overflow: hidden;
+      gap: 1rem;
+
+      @media (prefers-color-scheme: dark) {
+        border-color: var(--border-tertiary);
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+      }
+    }
   }
-  .grid-header-cell.neededFor,
-  .grid-cell--neededFor {
-    display: none;
+
+  // Progressive column hiding at intermediate breakpoints
+  @include tablet-and-below {
+    .grid-header-cell.foundIn,
+    .grid-cell--foundIn {
+      display: none;
+    }
   }
-}
 
-// @include below-700 {
-//   .grid-header,
-//   .grid-row {
-//     grid-template-areas: "item recycles value";
-//     grid-template-columns: minmax(0, 2.5fr) minmax(0, 3.1fr) minmax(0, 1fr);
-//   }
-//   .grid-header-cell.salvages,
-//   .grid-cell--salvages {
-//     display: none;
-//   }
-// }
-
-.grid-row--even {
-  background-color: var(--bg-tertiary);
-
-  @include mobile {
-    background-color: var(--bg-primary);
+  @include below-800 {
+    .grid-header-cell.neededFor,
+    .grid-cell--neededFor {
+      display: none;
+    }
   }
 }
