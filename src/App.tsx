@@ -18,7 +18,7 @@ const App = () => {
       {activePage === "recycling" && <RecyclingTools />}
       {activePage === "crafts" && <ProfitableItems />}
       <ScrollToTop />
-      <div id="update-note">Last updated on 18/02/2026</div>
+      <div id="update-note">Last updated on 20/02/2026</div>
     </>
   );
 };

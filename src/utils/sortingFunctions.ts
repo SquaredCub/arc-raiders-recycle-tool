@@ -108,14 +108,14 @@ const getColumnComparator = (
       };
     case "recycles":
       return (a, b) => {
-        const scoreA = config.materialMatchScores[a.id]?.recycles ?? 0;
-        const scoreB = config.materialMatchScores[b.id]?.recycles ?? 0;
+        const scoreA = config.materialMatchScores[a.id]?.recycles ?? config.sortKeyCache.recycleTotals[a.id] ?? 0;
+        const scoreB = config.materialMatchScores[b.id]?.recycles ?? config.sortKeyCache.recycleTotals[b.id] ?? 0;
         return scoreA - scoreB;
       };
     case "salvages":
       return (a, b) => {
-        const scoreA = config.materialMatchScores[a.id]?.salvages ?? 0;
-        const scoreB = config.materialMatchScores[b.id]?.salvages ?? 0;
+        const scoreA = config.materialMatchScores[a.id]?.salvages ?? config.sortKeyCache.salvageTotals[a.id] ?? 0;
+        const scoreB = config.materialMatchScores[b.id]?.salvages ?? config.sortKeyCache.salvageTotals[b.id] ?? 0;
         return scoreA - scoreB;
       };
     case "foundIn":

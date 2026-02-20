@@ -15,7 +15,6 @@ const columnHelper = createColumnHelper<Item>();
 export const createItemsTableColumns = (
   itemRequirements: ItemRequirementLookup,
   sortedMaterialsCache: Record<string, CachedMaterial[]>,
-  hasActiveSearch: boolean,
   matchedMaterials?: Record<string, Set<string>>,
   matchedSources?: Record<string, Set<string>>,
 ) => {
@@ -73,7 +72,7 @@ export const createItemsTableColumns = (
           </div>
         );
       },
-      enableSorting: hasActiveSearch,
+      enableSorting: true,
       sortDescFirst: true,
     }),
     columnHelper.accessor("salvagesInto", {
@@ -104,7 +103,7 @@ export const createItemsTableColumns = (
           </div>
         );
       },
-      enableSorting: hasActiveSearch,
+      enableSorting: true,
       sortDescFirst: true,
     }),
     columnHelper.accessor("foundIn", {

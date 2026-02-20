@@ -94,6 +94,8 @@ export const createSortedMaterialsCache = (
 export interface SortKeyCache {
   nameSortKeys: Record<string, string>;
   requirementTotals: Record<string, number>;
+  recycleTotals: Record<string, number>;
+  salvageTotals: Record<string, number>;
 }
 
 /**
@@ -107,6 +109,8 @@ export const createSortKeyCache = (
 ): SortKeyCache => {
   const nameSortKeys: Record<string, string> = {};
   const requirementTotals: Record<string, number> = {};
+  const recycleTotals: Record<string, number> = {};
+  const salvageTotals: Record<string, number> = {};
 
   for (const item of items) {
     // Pre-compute name sort key (lowercase for faster comparison)
@@ -114,10 +118,24 @@ export const createSortKeyCache = (
 
     // Pre-compute requirement total
     requirementTotals[item.id] = itemRequirements[item.id]?.totalQuantity ?? 0;
+
+    // Pre-compute recycle/salvage material totals
+    if (item.recyclesInto) {
+      let total = 0;
+      for (const qty of Object.values(item.recyclesInto)) total += qty;
+      recycleTotals[item.id] = total;
+    }
+    if (item.salvagesInto) {
+      let total = 0;
+      for (const qty of Object.values(item.salvagesInto)) total += qty;
+      salvageTotals[item.id] = total;
+    }
   }
 
   return {
     nameSortKeys,
     requirementTotals,
+    recycleTotals,
+    salvageTotals,
   };
 };

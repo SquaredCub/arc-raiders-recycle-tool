@@ -131,6 +131,8 @@ describe("sortItems", () => {
         c: "charlie",
       },
       requirementTotals: {},
+      recycleTotals: {},
+      salvageTotals: {},
     };
     return {
       prioritizeNameMatches: false,
@@ -226,7 +228,9 @@ describe("sortItems", () => {
     const config = makeConfig({
       sortKeyCache: {
         nameSortKeys: { a: "a", b: "b", c: "c" },
-          requirementTotals: { a: 10, b: 5, c: 0 },
+        requirementTotals: { a: 10, b: 5, c: 0 },
+        recycleTotals: {},
+        salvageTotals: {},
       },
     });
     const result = sortItems(
