@@ -1,4 +1,5 @@
 // Main App.scss — imports all style modules in cascade order
+@use "./styles/variables";
 @use "./styles/reset";
 @use "./styles/base";
 @use "./styles/colors";

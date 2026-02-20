@@ -1,4 +1,5 @@
 @use "./breakpoints" as *;
+@use "./variables" as *;
 
 $mobile-row-margin-bottom: 0.625rem;
 
@@ -35,15 +36,15 @@ $grid-columns-full: minmax(0, 2.5fr) minmax(0, 3.1fr) minmax(0, 2.5fr)
 // Table wrapper
 #tableSection {
   .table-wrapper {
-    max-width: 1509px;
+    max-width: $content-max-width;
     margin: 0 auto;
     border-bottom: 1px solid var(--border-primary);
 
     @include mobile {
       max-width: 100%;
       padding-inline: 1rem;
-      border-top: 1px solid rgba(0, 0, 0, 0.4);
-      box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.8);
+      border-top: 1px solid var(--border-table-top);
+      box-shadow: var(--shadow-table-inset);
     }
   }
 }
@@ -70,15 +71,27 @@ $grid-columns-full: minmax(0, 2.5fr) minmax(0, 3.1fr) minmax(0, 2.5fr)
   // Grid header (sticky column headers — top offset accounts for fixed nav)
   .grid-header {
     position: sticky;
-    top: 2.4rem;
-    z-index: 10;
+    top: $nav-height;
+    z-index: $z-table-header;
+
+    &.is-stuck {
+      .grid-header-cell {
+        border-top: 2px solid var(--border-primary);
+        padding-block: 1rem;
+      }
+    }
 
     @include mobile {
       display: none;
     }
 
     &-cell {
+      display: flex;
+      align-items: center;
+      justify-content: center;
       padding: 0.5rem;
+      padding-block: 0.5rem;
+      transition: padding-block 0.3s ease;
       font-weight: bold;
       background-color: var(--bg-primary);
       border: 1px solid var(--border-primary);
@@ -110,17 +123,17 @@ $grid-columns-full: minmax(0, 2.5fr) minmax(0, 3.1fr) minmax(0, 2.5fr)
       grid-template-columns: 1.5fr 2fr 1fr;
       background-color: var(--bg-primary);
       border: 1px solid var(--border-secondary);
-      border-radius: 10px;
+      border-radius: $radius-lg;
       padding: 1rem 1rem 0.75rem;
 
       margin-bottom: $mobile-row-margin-bottom;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+      box-shadow: var(--shadow-card);
       overflow: hidden;
       gap: 1rem;
 
       @media (prefers-color-scheme: dark) {
-        border-color: var(--border-tertiary);
-        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+        border-color: var(--border-primary);
+        box-shadow: var(--shadow-card-dark);
       }
     }
   }

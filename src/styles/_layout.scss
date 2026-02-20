@@ -1,10 +1,10 @@
 @use "./breakpoints" as *;
 @use "./utilities" as *;
+@use "./variables" as *;
 
 // Layout styles for the main app structure
 #root {
   width: 100%;
-  margin-top: 1em;
 
   @include mobile {
     margin-top: 0;
@@ -16,41 +16,83 @@
 h1 {
   text-align: center;
   text-decoration: underline;
-  font-size: 2rem;
+  font-size: $font-2xl;
+  line-height: 1.35;
   margin-bottom: 1rem;
 
   @include mobile {
-    font-size: 1.5rem;
+    font-size: $font-xl;
     margin-bottom: 0.75rem;
   }
 }
 
 #introduction {
-  text-align: center;
-  margin-bottom: 1rem;
+  display: grid;
+  grid-template-rows: 0fr;
+  overflow: hidden;
+  margin-bottom: 0;
+  transition:
+    grid-template-rows 0.3s ease,
+    margin-bottom 0.3s ease;
+
+  > * {
+    overflow: hidden;
+    max-width: $text-max-width;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    background: var(--color-primary-bg);
+    border: 1px solid var(--color-primary-border);
+    border-top: 3px solid var(--color-primary);
+    border-radius: 0 0 $radius-md $radius-md;
+    padding: 0.9rem 1.25rem;
+    color: var(--text-secondary);
+    text-align: left;
+    font-size: $font-sm;
+    line-height: $font-lg;
+  }
+
+  p {
+    margin: 0;
+  }
+
+  strong {
+    color: var(--color-primary);
+  }
+
+  &.visible {
+    grid-template-rows: 1fr;
+    margin-bottom: 1rem;
+  }
 
   @include mobile {
-    font-size: 0.8rem;
     padding: 0 0.5rem;
+
+    > * {
+      font-size: $font-xs;
+      padding: 0.75rem 1rem;
+    }
   }
 }
 
 .profitable-items,
 .recycling-tools {
   margin: 0 auto;
+  padding-top: $page-section-gap;
 }
 
 .recycling-tools table {
   margin: 0 auto;
 }
 #tableSection {
-  z-index: 1;
+  z-index: $z-table-section;
   position: relative;
 }
 
 a {
   color: var(--color-primary);
-  border-radius: 0.5rem;
+  border-radius: $radius-lg;
 
   @include hover-supported {
     color: var(--color-primary-hover);
@@ -60,7 +102,7 @@ a {
 #update-note {
   text-align: center;
   padding: 0.5rem;
-  font-size: 0.6rem;
+  font-size: $font-2xs;
   line-height: 1rem;
   color: var(--text-tertiary);
 }

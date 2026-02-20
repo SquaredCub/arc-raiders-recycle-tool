@@ -40,19 +40,28 @@ const RecyclingTools = () => {
           callback={() => setShowIntroduction((prev) => !prev)}
         />
       </h1>
-      {showIntroduction && (
-        <section id="introduction">
-          <p>Welcome to the Arc Raiders Recycle Tool!</p>
+      <section id="introduction" className={showIntroduction ? "visible" : ""}>
+        <div>
           <p>
-            This is a list of all the items in the game and what they recycle
-            into.
+            Every item in Arc Raiders, laid out with its recycle and salvage
+            outputs so you can figure out what to keep and what to break down
+            without guessing.
           </p>
           <p>
-            Search an item by name to see its recycle results or what to recycle
-            to obtain it.
+            Search by item name, material, bench, project, or upgrade. The
+            table highlights exactly what matched.
           </p>
-        </section>
-      )}
+          <p>
+            Filter by category to cut through the noise, and sort any column to
+            find what you need.
+          </p>
+          <p>
+            The <strong>Needed For</strong> column tracks hideout upgrades,
+            quests, and project requirements so nothing gets recycled by
+            accident.
+          </p>
+        </div>
+      </section>
       <section id="controlsSection">
         <div className="controls-container">
           <SearchInput searchTerm={searchTerm} setSearchTerm={setSearchTerm} />

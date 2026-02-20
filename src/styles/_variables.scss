@@ -1,0 +1,26 @@
+// Layout
+$content-max-width: 1500px;
+$text-max-width: 640px;
+$nav-height: 2.8rem;
+$page-section-gap: 0.5rem;
+
+// Type scale
+$font-2xl: 2rem; // page titles (h1)
+$font-xl: 1.5rem; // page titles mobile, modal h2
+$font-lg: 1.2rem; // modal h3
+$font-base: 1rem; // body text, nav items, buttons
+$font-sm: 0.9rem; // secondary text, item count, margins
+$font-xs: 0.85rem; // descriptions, action buttons
+$font-2xs: 0.7rem; // mobile section labels, update note
+
+// Border radius
+$radius-sm: 4px;
+$radius-md: 6px;
+$radius-lg: 8px;
+
+// Z-index scale
+$z-table-section: 1;
+$z-table-header: 10;
+$z-nav: 50;
+$z-dropdown: 100;
+$z-modal: 1000;

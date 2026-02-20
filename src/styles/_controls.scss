@@ -1,5 +1,6 @@
 @use "./breakpoints" as *;
 @use "./utilities" as *;
+@use "./variables" as *;
 
 // Control panel styles (search, filters, etc.)
 #controlsSection {
@@ -31,7 +32,7 @@
     padding: 0.5rem;
     background-color: transparent;
     border: 1px solid var(--color-primary);
-    border-radius: 4px;
+    border-radius: $radius-sm;
     cursor: pointer;
     transition: all 0.2s;
     height: 100%;
@@ -61,10 +62,10 @@
 
   .item-count {
     color: var(--color-primary-hover);
-    font-size: 0.9rem;
+    font-size: $font-sm;
     padding: 0.25rem 0.5rem;
     border: 1px solid var(--color-primary-border);
-    border-radius: 4px;
+    border-radius: $radius-sm;
     background-color: var(--color-primary-bg);
     white-space: nowrap;
 
@@ -83,7 +84,7 @@
 .search-input {
   width: 300px;
   border: 1px solid var(--color-primary);
-  border-radius: 4px;
+  border-radius: $radius-sm;
   display: flex;
   align-items: center;
 
@@ -102,9 +103,5 @@
   @include mobile {
     flex: 1;
     min-width: 0;
-
-    input {
-      font-size: 16px !important;
-    }
   }
 }

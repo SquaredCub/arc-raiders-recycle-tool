@@ -34,6 +34,7 @@ claude.md
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+.playwright-mcp/
 
 # Project
 src/generated/

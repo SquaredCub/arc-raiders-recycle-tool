@@ -33,7 +33,7 @@ Special thanks to the original authors and contributors for collecting and maint
    npm run dev
    ```
 3. **Open the app:**
-   Visit [http://localhost:5173](http://localhost:5173) in your browser.
+   Visit [http://localhost:5257](http://localhost:5257) in your browser.
 
 ## Project Structure
 

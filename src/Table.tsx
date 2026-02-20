@@ -19,6 +19,7 @@ const Table = <T,>({
 }: TableProps<T>) => {
   const tableWrapperRef = useRef<HTMLDivElement>(null);
   const [scrollMargin, setScrollMargin] = useState(0);
+  const headerRef = useRef<HTMLDivElement | null>(null);
   const rows = table.getRowModel().rows;
 
   // Measure distance from the top of the page to the table wrapper.
@@ -64,19 +65,31 @@ const Table = <T,>({
         : undefined,
   });
 
-  // Reset scroll position when sorting changes
-  const sorting = table.getState().sorting;
+
+  // Sets class on table header when it sticks to the top of the viewport.
+  // Reads the actual CSS `top` value so it stays in sync with _variables.scss automatically.
   useEffect(() => {
-    if (tableWrapperRef.current) {
-      window.scrollTo({
-        top:
-          tableWrapperRef.current.getBoundingClientRect().top +
-          window.scrollY -
-          60,
-        behavior: "instant",
-      });
-    }
-  }, [sorting]);
+    const el = headerRef.current;
+    if (!el) return;
+
+    const stickyTop = parseFloat(getComputedStyle(el).top) || 0;
+
+    const checkSticky = () => {
+      const rect = el.getBoundingClientRect();
+      const isStuck = Math.abs(rect.top - stickyTop) < 1;
+      el.classList.toggle("is-stuck", isStuck);
+    };
+
+    window.addEventListener("scroll", checkSticky, { passive: true });
+    window.addEventListener("resize", checkSticky);
+
+    checkSticky();
+
+    return () => {
+      window.removeEventListener("scroll", checkSticky);
+      window.removeEventListener("resize", checkSticky);
+    };
+  }, []);
 
   const virtualRows = rowVirtualizer.getVirtualItems();
   const totalSize = rowVirtualizer.getTotalSize();
@@ -92,7 +105,7 @@ const Table = <T,>({
   return (
     <div ref={tableWrapperRef} className="table-wrapper">
       <div className={className}>
-        <div className="grid-header">
+        <div className="grid-header" ref={headerRef}>
           {table.getHeaderGroups().map((headerGroup) =>
             headerGroup.headers.map((header) => (
               <div

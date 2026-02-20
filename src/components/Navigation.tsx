@@ -70,6 +70,7 @@ const Navigation = ({ activePage, onNavigate }: NavigationProps) => {
 
   return (
     <nav className="navigation">
+      <div className="navigation__inner">
       <button
         className={`navigation__item ${
           activePage === "recycling" ? "navigation__item--active" : ""
@@ -159,6 +160,7 @@ const Navigation = ({ activePage, onNavigate }: NavigationProps) => {
             ))}
           </div>
         )}
+      </div>
       </div>
     </nav>
   );

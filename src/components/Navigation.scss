@@ -1,5 +1,6 @@
 @use "../styles/breakpoints" as *;
 @use "../styles/utilities" as *;
+@use "../styles/variables" as *;
 
 .navigation {
   position: fixed;
@@ -8,14 +9,25 @@
   background-color: var(--bg-tertiary);
   width: 100%;
   display: flex;
-  flex-direction: row;
-  align-items: center;
-  z-index: 50;
+  justify-content: center;
+  z-index: $z-nav;
+
+  &__inner {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+    max-width: $content-max-width;
+
+    @include mobile {
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+  }
 
   @include mobile {
     position: relative;
-    flex-wrap: wrap;
-    justify-content: center;
+    display: block;
   }
 
   &__item {
@@ -29,7 +41,7 @@
     background-color: var(--bg-tertiary);
     height: 100%;
     padding: 0.7em 1.2em;
-    font-size: 1rem;
+    font-size: $font-base;
     white-space: nowrap;
 
     @include mobile {
@@ -95,10 +107,10 @@
     top: 100%;
     left: 0;
     background: var(--bg-primary);
-    border-radius: 0 0 6px 6px;
+    border-radius: 0 0 $radius-md $radius-md;
     box-shadow: var(--shadow-lg);
     clip-path: inset(0px -20px -20px -20px);
-    z-index: 100;
+    z-index: $z-dropdown;
     padding: 0.2rem 0.2rem;
     display: flex;
     flex-direction: column;
