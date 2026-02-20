@@ -1,6 +1,8 @@
+import type { SortingState } from "@tanstack/react-table";
 import { useCallback, useState } from "react";
 import type { FilterSettings } from "./components/FilterModal";
 import FilterModal from "./components/FilterModal";
+import SortColumnDropdown from "./components/SortColumnDropdown";
 import Tooltip from "./components/Tooltip";
 import { FILTERABLE_ITEM_CATEGORIES } from "./constants/itemCategories";
 import { useDebounce } from "./hooks/useDebounce";
@@ -21,6 +23,10 @@ const RecyclingTools = () => {
     total: number;
   } | null>(null);
 
+  const [sorting, setSorting] = useState<SortingState>([
+    { id: "item", desc: false },
+  ]);
+
   const handleFilteredCountChange = useCallback(
     (filtered: number, total: number) => {
       setItemCount({ filtered, total });
@@ -30,6 +36,10 @@ const RecyclingTools = () => {
 
   const openModal = useCallback(() => setIsFilterModalOpen(true), []);
   const closeModal = useCallback(() => setIsFilterModalOpen(false), []);
+
+  const toggleSortDirection = useCallback(() => {
+    setSorting((prev) => [{ ...prev[0], desc: !prev[0].desc }]);
+  }, []);
 
   return (
     <div className="recycling-tools">
@@ -91,6 +101,19 @@ const RecyclingTools = () => {
               <line x1="17" y1="16" x2="23" y2="16" />
             </svg>
           </button>
+          <SortColumnDropdown
+            sorting={sorting}
+            onSortingChange={setSorting}
+          />
+          <button
+            className="sort-direction-button"
+            onClick={toggleSortDirection}
+            aria-label={sorting[0]?.desc ? "Sort descending" : "Sort ascending"}
+            title={sorting[0]?.desc ? "Sort descending" : "Sort ascending"}
+            type="button"
+          >
+            {sorting[0]?.desc ? "↓" : "↑"}
+          </button>
           {itemCount && (
             <span className="item-count">
               {itemCount.filtered} / {itemCount.total}
@@ -102,6 +125,8 @@ const RecyclingTools = () => {
         <ItemsTable
           searchTerm={debouncedSearchTerm}
           filterSettings={filterSettings}
+          sorting={sorting}
+          onSortingChange={setSorting}
           onFilteredCountChange={handleFilteredCountChange}
         />
       </section>

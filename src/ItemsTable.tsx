@@ -27,16 +27,22 @@ import {
 
 const fallbackData: Item[] = [];
 
+interface ItemsTableProps {
+  searchTerm: string;
+  filterSettings: FilterSettings;
+  sorting: SortingState;
+  onSortingChange: (updater: SortingState | ((prev: SortingState) => SortingState)) => void;
+  onFilteredCountChange?: (filteredCount: number, totalCount: number) => void;
+}
+
 const ItemsTable = React.memo(
   ({
     searchTerm,
     filterSettings,
+    sorting,
+    onSortingChange,
     onFilteredCountChange,
-  }: {
-    searchTerm: string;
-    filterSettings: FilterSettings;
-    onFilteredCountChange?: (filteredCount: number, totalCount: number) => void;
-  }) => {
+  }: ItemsTableProps) => {
     const {
       items,
       quests,
@@ -66,13 +72,6 @@ const ItemsTable = React.memo(
       () => createSortKeyCache(items, benchNameLookup, itemRequirements),
       [items, benchNameLookup, itemRequirements],
     );
-
-    const [sorting, setSorting] = React.useState<SortingState>([
-      {
-        id: "item",
-        desc: false,
-      },
-    ]);
 
     // Run search once and derive relevance index, match types, and filtered data
     const searchResult = useMemo(
@@ -222,7 +221,7 @@ const ItemsTable = React.memo(
       data: sortedData ?? fallbackData,
       getCoreRowModel: getCoreRowModel(),
       manualSorting: true,
-      onSortingChange: setSorting,
+      onSortingChange: onSortingChange,
       enableSortingRemoval: false,
       state: {
         sorting,
@@ -240,10 +239,11 @@ const ItemsTable = React.memo(
   },
   (prevProps, nextProps) => {
     // Custom comparison function for React.memo
-    // Only re-render if searchTerm, filterSettings categories, or callback changes
     return (
       prevProps.searchTerm === nextProps.searchTerm &&
       prevProps.onFilteredCountChange === nextProps.onFilteredCountChange &&
+      prevProps.onSortingChange === nextProps.onSortingChange &&
+      prevProps.sorting === nextProps.sorting &&
       prevProps.filterSettings.prioritizeNameMatches ===
         nextProps.filterSettings.prioritizeNameMatches &&
       areSetsEqual(

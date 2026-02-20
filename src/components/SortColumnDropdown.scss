@@ -1,0 +1,87 @@
+@use "../styles/breakpoints" as *;
+@use "../styles/utilities" as *;
+@use "../styles/variables" as *;
+
+.sort-column-dropdown {
+  position: relative;
+  display: none;
+
+  @include mobile {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__trigger {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+    background-color: transparent;
+    border: 1px solid var(--color-primary);
+    border-radius: $radius-sm;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--text-primary);
+    font-size: $font-sm;
+    gap: 0.5rem;
+  }
+
+  &__label {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__arrow {
+    transition: transform 0.2s;
+    font-size: 0.7rem;
+    flex-shrink: 0;
+
+    &.open {
+      transform: rotate(180deg);
+    }
+  }
+
+  &__menu {
+    position: absolute;
+    top: calc(100% + 0.25rem);
+    left: 0;
+    right: 0;
+    background-color: var(--bg-primary);
+    border: 1px solid var(--color-primary);
+    border-radius: $radius-sm;
+    box-shadow: var(--shadow-primary);
+    z-index: $z-table-header;
+    overflow-y: auto;
+  }
+
+  &__options {
+    padding: 0.25rem;
+  }
+
+  &__option {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 0.5rem 0.75rem;
+    background-color: transparent;
+    border: none;
+    border-radius: $radius-sm;
+    cursor: pointer;
+    color: var(--text-primary);
+    font-size: $font-sm;
+    transition: background-color 0.2s;
+
+    @include hover-supported {
+      background-color: var(--color-primary-bg);
+    }
+
+    &.selected {
+      background-color: var(--color-primary-bg);
+      color: var(--color-primary-hover);
+      font-weight: 600;
+    }
+  }
+}

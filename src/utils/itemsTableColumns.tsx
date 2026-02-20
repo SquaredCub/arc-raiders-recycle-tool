@@ -1,4 +1,5 @@
 import { createColumnHelper } from "@tanstack/react-table";
+import { SORT_COLUMNS } from "../constants/sortColumns";
 import { COINS_IMAGE_URL, getItemImage } from "../data/itemsData";
 import ItemCell from "../ItemCell";
 import { getImageUrl } from "../services/dataService";
@@ -7,6 +8,12 @@ import { DEFAULT_LANGUAGE, isNoResultsItem } from "./functions";
 import type { CachedMaterial } from "./tableCache";
 
 const columnHelper = createColumnHelper<Item>();
+
+const col = (id: string) => {
+  const found = SORT_COLUMNS.find((c) => c.id === id);
+  if (!found) throw new Error(`Unknown sort column: ${id}`);
+  return found;
+};
 
 /**
  * Create table column definitions
@@ -20,8 +27,8 @@ export const createItemsTableColumns = (
 ) => {
   return [
     columnHelper.accessor("name", {
-      id: "item",
-      header: () => <span>Item</span>,
+      id: col("item").id,
+      header: () => <span>{col("item").label}</span>,
       size: 200,
       cell: (info) => {
         const item = info.row.original;
@@ -40,11 +47,11 @@ export const createItemsTableColumns = (
         );
       },
       enableSorting: true,
-      sortDescFirst: false,
+      sortDescFirst: col("item").descFirst,
     }),
     columnHelper.accessor("recyclesInto", {
-      id: "recycles",
-      header: () => <span>Recycles Into</span>,
+      id: col("recycles").id,
+      header: () => <span>{col("recycles").label}</span>,
       size: 250,
       cell: (info) => {
         const item = info.row.original;
@@ -73,11 +80,11 @@ export const createItemsTableColumns = (
         );
       },
       enableSorting: true,
-      sortDescFirst: true,
+      sortDescFirst: col("recycles").descFirst,
     }),
     columnHelper.accessor("salvagesInto", {
-      id: "salvages",
-      header: () => <span>Salvages Into</span>,
+      id: col("salvages").id,
+      header: () => <span>{col("salvages").label}</span>,
       size: 200,
       cell: (info) => {
         const item = info.row.original;
@@ -104,11 +111,11 @@ export const createItemsTableColumns = (
         );
       },
       enableSorting: true,
-      sortDescFirst: true,
+      sortDescFirst: col("salvages").descFirst,
     }),
     columnHelper.accessor("foundIn", {
-      id: "foundIn",
-      header: () => <span>Found In</span>,
+      id: col("foundIn").id,
+      header: () => <span>{col("foundIn").label}</span>,
       size: 180,
       cell: (info) => {
         const item = info.row.original;
@@ -136,11 +143,11 @@ export const createItemsTableColumns = (
         );
       },
       enableSorting: true,
-      sortDescFirst: false,
+      sortDescFirst: col("foundIn").descFirst,
     }),
     columnHelper.accessor("id", {
-      id: "neededFor",
-      header: () => <span>Needed For</span>,
+      id: col("neededFor").id,
+      header: () => <span>{col("neededFor").label}</span>,
       size: 220,
       cell: (info) => {
         const itemId = info.getValue();
@@ -177,10 +184,11 @@ export const createItemsTableColumns = (
         );
       },
       enableSorting: true,
-      sortDescFirst: true,
+      sortDescFirst: col("neededFor").descFirst,
     }),
     columnHelper.accessor("value", {
-      header: () => <span>Value</span>,
+      id: col("value").id,
+      header: () => <span>{col("value").label}</span>,
       size: 80,
       cell: (info) => {
         const item = info.row.original;
@@ -200,7 +208,7 @@ export const createItemsTableColumns = (
         );
       },
       enableSorting: true,
-      sortDescFirst: true,
+      sortDescFirst: col("value").descFirst,
     }),
   ];
 };
