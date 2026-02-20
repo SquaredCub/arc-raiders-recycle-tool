@@ -1,11 +1,22 @@
 import { useRef } from "react";
+import {
+  FOUND_IN_LOCATIONS,
+  ITEM_RARITIES,
+  NEEDED_FOR_SOURCE_TYPES,
+} from "../constants/filterOptions";
 import { FILTERABLE_ITEM_CATEGORIES } from "../constants/itemCategories";
 import { useModalBehavior } from "../hooks/useModalBehavior";
 import "./FilterModal.scss";
 import MultiSelectDropdown from "./MultiSelectDropdown";
+import Toggle from "./Toggle";
 
 export interface FilterSettings {
   includedCategories: Set<string>;
+  includedRarities: Set<string>;
+  onlyRecyclable: boolean;
+  onlySalvageable: boolean;
+  includedLocations: Set<string>;
+  includedSourceTypes: Set<string>;
   prioritizeNameMatches: boolean;
 }
 
@@ -26,29 +37,31 @@ const FilterModal = ({
 
   useModalBehavior({ isOpen, onClose, modalRef });
 
-  const handleCategoryToggle = (category: string) => {
-    // Create new Set for immutable state update (React best practice)
-    const newCategories = new Set(filterSettings.includedCategories);
-    if (newCategories.has(category)) {
-      newCategories.delete(category);
+  // Generic Set toggle handler
+  const handleSetToggle = (
+    key: "includedCategories" | "includedRarities" | "includedLocations" | "includedSourceTypes",
+    value: string,
+  ) => {
+    const newSet = new Set(filterSettings[key]);
+    if (newSet.has(value)) {
+      newSet.delete(value);
     } else {
-      newCategories.add(category);
+      newSet.add(value);
     }
-    onFilterChange({ ...filterSettings, includedCategories: newCategories });
+    onFilterChange({ ...filterSettings, [key]: newSet });
   };
 
-  const handleSelectAll = () => {
-    onFilterChange({
-      ...filterSettings,
-      includedCategories: new Set(FILTERABLE_ITEM_CATEGORIES),
-    });
+  const handleSelectAll = (
+    key: "includedCategories" | "includedRarities" | "includedLocations" | "includedSourceTypes",
+    allOptions: string[],
+  ) => {
+    onFilterChange({ ...filterSettings, [key]: new Set(allOptions) });
   };
 
-  const handleDeselectAll = () => {
-    onFilterChange({
-      ...filterSettings,
-      includedCategories: new Set(),
-    });
+  const handleDeselectAll = (
+    key: "includedCategories" | "includedRarities" | "includedLocations" | "includedSourceTypes",
+  ) => {
+    onFilterChange({ ...filterSettings, [key]: new Set() });
   };
 
   if (!isOpen) return null;
@@ -68,35 +81,77 @@ const FilterModal = ({
         </div>
 
         <div className="filter-modal__content">
-          <div className="filter-category">
+          <div className="filter-section">
             <MultiSelectDropdown
               options={FILTERABLE_ITEM_CATEGORIES}
               selectedOptions={filterSettings.includedCategories}
-              onToggle={handleCategoryToggle}
-              onSelectAll={handleSelectAll}
-              onDeselectAll={handleDeselectAll}
+              onToggle={(v) => handleSetToggle("includedCategories", v)}
+              onSelectAll={() => handleSelectAll("includedCategories", FILTERABLE_ITEM_CATEGORIES)}
+              onDeselectAll={() => handleDeselectAll("includedCategories")}
               label="Item Categories"
             />
           </div>
 
-          <div className="filter-setting">
-            <label className="filter-setting__toggle">
-              <input
-                type="checkbox"
-                checked={filterSettings.prioritizeNameMatches}
-                onChange={(e) =>
-                  onFilterChange({
-                    ...filterSettings,
-                    prioritizeNameMatches: e.target.checked,
-                  })
-                }
-              />
-              <span>Prioritize name matches when sorting</span>
-            </label>
-            <p className="filter-setting__description">
-              When searching, items matching by name appear first regardless of
-              sort column.
-            </p>
+          <div className="filter-section">
+            <MultiSelectDropdown
+              options={ITEM_RARITIES}
+              selectedOptions={filterSettings.includedRarities}
+              onToggle={(v) => handleSetToggle("includedRarities", v)}
+              onSelectAll={() => handleSelectAll("includedRarities", ITEM_RARITIES)}
+              onDeselectAll={() => handleDeselectAll("includedRarities")}
+              label="Rarity"
+            />
+          </div>
+
+          <div className="filter-section">
+            <MultiSelectDropdown
+              options={FOUND_IN_LOCATIONS}
+              selectedOptions={filterSettings.includedLocations}
+              onToggle={(v) => handleSetToggle("includedLocations", v)}
+              onSelectAll={() => handleSelectAll("includedLocations", FOUND_IN_LOCATIONS)}
+              onDeselectAll={() => handleDeselectAll("includedLocations")}
+              label="Found In"
+            />
+          </div>
+
+          <div className="filter-section">
+            <MultiSelectDropdown
+              options={NEEDED_FOR_SOURCE_TYPES}
+              selectedOptions={filterSettings.includedSourceTypes}
+              onToggle={(v) => handleSetToggle("includedSourceTypes", v)}
+              onSelectAll={() => handleSelectAll("includedSourceTypes", NEEDED_FOR_SOURCE_TYPES)}
+              onDeselectAll={() => handleDeselectAll("includedSourceTypes")}
+              label="Needed For"
+            />
+          </div>
+
+          <div className="filter-section filter-section--toggles">
+            <Toggle
+              checked={filterSettings.onlyRecyclable}
+              onChange={(checked) =>
+                onFilterChange({ ...filterSettings, onlyRecyclable: checked })
+              }
+              label="Has Recycle Output"
+              description="Only show items that produce materials when recycled."
+            />
+
+            <Toggle
+              checked={filterSettings.onlySalvageable}
+              onChange={(checked) =>
+                onFilterChange({ ...filterSettings, onlySalvageable: checked })
+              }
+              label="Has Salvage Output"
+              description="Only show items that produce materials when salvaged."
+            />
+
+            <Toggle
+              checked={filterSettings.prioritizeNameMatches}
+              onChange={(checked) =>
+                onFilterChange({ ...filterSettings, prioritizeNameMatches: checked })
+              }
+              label="Prioritize name matches"
+              description="When searching, items matching by name appear first regardless of sort column."
+            />
           </div>
         </div>
       </div>

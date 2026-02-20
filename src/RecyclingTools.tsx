@@ -4,6 +4,11 @@ import type { FilterSettings } from "./components/FilterModal";
 import FilterModal from "./components/FilterModal";
 import SortColumnDropdown from "./components/SortColumnDropdown";
 import Tooltip from "./components/Tooltip";
+import {
+  FOUND_IN_LOCATIONS,
+  ITEM_RARITIES,
+  NEEDED_FOR_SOURCE_TYPES,
+} from "./constants/filterOptions";
 import { FILTERABLE_ITEM_CATEGORIES } from "./constants/itemCategories";
 import { useDebounce } from "./hooks/useDebounce";
 import ItemsTable from "./ItemsTable";
@@ -16,6 +21,11 @@ const RecyclingTools = () => {
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [filterSettings, setFilterSettings] = useState<FilterSettings>({
     includedCategories: new Set(FILTERABLE_ITEM_CATEGORIES),
+    includedRarities: new Set(ITEM_RARITIES),
+    onlyRecyclable: false,
+    onlySalvageable: false,
+    includedLocations: new Set(FOUND_IN_LOCATIONS),
+    includedSourceTypes: new Set(NEEDED_FOR_SOURCE_TYPES),
     prioritizeNameMatches: true,
   });
   const [itemCount, setItemCount] = useState<{

@@ -30,6 +30,8 @@ mkdirSync(OUTPUT_DIR, { recursive: true });
 let totalGenerated = 0;
 
 // Merge directory files into single arrays
+const mergedDirectories = {};
+
 for (const { name, dir } of directories) {
   try {
     const files = readdirSync(dir)
@@ -41,6 +43,8 @@ for (const { name, dir } of directories) {
       return JSON.parse(content);
     });
 
+    mergedDirectories[name] = merged;
+
     const outputPath = join(OUTPUT_DIR, `${name}.json`);
     writeFileSync(outputPath, JSON.stringify(merged));
 
@@ -51,6 +55,28 @@ for (const { name, dir } of directories) {
     console.error(`  ${error.message}`);
     process.exit(1);
   }
+}
+
+// Extract filter options from items data
+if (mergedDirectories.items) {
+  const items = mergedDirectories.items;
+  const rarities = [...new Set(items.map((item) => item.rarity))]
+    .filter(Boolean)
+    .sort();
+  const locations = [
+    ...new Set(
+      items.flatMap((item) => (item.foundIn ? item.foundIn.split(", ") : [])),
+    ),
+  ].sort();
+  locations.push("No Location");
+
+  const filterOptionsPath = join(OUTPUT_DIR, "filterOptions.json");
+  writeFileSync(filterOptionsPath, JSON.stringify({ rarities, locations }));
+
+  console.log(
+    `Generated filterOptions.json (${rarities.length} rarities, ${locations.length} locations)`,
+  );
+  totalGenerated++;
 }
 
 // Copy single files

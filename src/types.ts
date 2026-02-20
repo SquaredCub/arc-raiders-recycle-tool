@@ -67,7 +67,7 @@ export type ItemType =
   | "Trinket";
 
 // Item rarity
-export type ItemRarity = "Common" | "Uncommon" | "Rare" | "Legendary" | string; // Allow for other rarities
+export type ItemRarity = "Common" | "Uncommon" | "Rare" | "Epic" | "Legendary" | string;
 
 // Main item interface
 export interface Item {

@@ -5,6 +5,10 @@ import {
 } from "@tanstack/react-table";
 import React, { useEffect, useMemo } from "react";
 import type { FilterSettings } from "./components/FilterModal";
+import {
+  FOUND_IN_LOCATIONS,
+  NEEDED_FOR_SOURCE_TYPES,
+} from "./constants/filterOptions";
 import { formatMaterialName } from "./data/itemsData";
 import { getItemRequirements } from "./data/requirementsData";
 import { useData } from "./hooks/useData";
@@ -141,7 +145,7 @@ const ItemsTable = React.memo(
       ],
     );
 
-    // Filter data based on search term and category filters
+    // Filter data based on search term and all filter settings
     const filteredData = useMemo(() => {
       let results = hasActiveSearch
         ? items.filter((item) => searchResult.matchTypes[item.id])
@@ -151,6 +155,53 @@ const ItemsTable = React.memo(
       results = results.filter((item) =>
         filterSettings.includedCategories.has(item.type),
       );
+
+      // Filter by rarity
+      results = results.filter((item) =>
+        filterSettings.includedRarities.has(item.rarity),
+      );
+
+      // Filter by recycle output
+      if (filterSettings.onlyRecyclable) {
+        results = results.filter(
+          (item) => item.recyclesInto && Object.keys(item.recyclesInto).length > 0,
+        );
+      }
+
+      // Filter by salvage output
+      if (filterSettings.onlySalvageable) {
+        results = results.filter(
+          (item) => item.salvagesInto && Object.keys(item.salvagesInto).length > 0,
+        );
+      }
+
+      // Filter by found-in location
+      if (filterSettings.includedLocations.size < FOUND_IN_LOCATIONS.length) {
+        results = results.filter((item) => {
+          if (!item.foundIn) return filterSettings.includedLocations.has("No Location");
+          const locations = item.foundIn.split(", ");
+          return locations.some((loc) => filterSettings.includedLocations.has(loc));
+        });
+      }
+
+      // Filter by needed-for source type
+      if (filterSettings.includedSourceTypes.size < NEEDED_FOR_SOURCE_TYPES.length) {
+        results = results.filter((item) => {
+          const req = itemRequirements[item.id];
+          if (!req) return filterSettings.includedSourceTypes.has("Not Needed");
+
+          const sources = req.usedIn.map((u) => u.source);
+          const hasHideout = sources.some((s) => s.includes(" Lvl "));
+          const hasQuest = sources.some((s) => s.startsWith("Quest: "));
+          const hasProject = sources.some((s) => s.includes(" - Step "));
+
+          return (
+            (hasHideout && filterSettings.includedSourceTypes.has("Hideout")) ||
+            (hasQuest && filterSettings.includedSourceTypes.has("Quest")) ||
+            (hasProject && filterSettings.includedSourceTypes.has("Project"))
+          );
+        });
+      }
 
       // If no results found, return a placeholder item
       if (results.length === 0) {
@@ -162,8 +213,14 @@ const ItemsTable = React.memo(
       searchResult,
       searchTerm,
       filterSettings.includedCategories,
+      filterSettings.includedRarities,
+      filterSettings.onlyRecyclable,
+      filterSettings.onlySalvageable,
+      filterSettings.includedLocations,
+      filterSettings.includedSourceTypes,
       hasActiveSearch,
       items,
+      itemRequirements,
     ]);
 
     const isPrioritizing =
@@ -246,9 +303,25 @@ const ItemsTable = React.memo(
       prevProps.sorting === nextProps.sorting &&
       prevProps.filterSettings.prioritizeNameMatches ===
         nextProps.filterSettings.prioritizeNameMatches &&
+      prevProps.filterSettings.onlyRecyclable ===
+        nextProps.filterSettings.onlyRecyclable &&
+      prevProps.filterSettings.onlySalvageable ===
+        nextProps.filterSettings.onlySalvageable &&
       areSetsEqual(
         prevProps.filterSettings.includedCategories,
         nextProps.filterSettings.includedCategories,
+      ) &&
+      areSetsEqual(
+        prevProps.filterSettings.includedRarities,
+        nextProps.filterSettings.includedRarities,
+      ) &&
+      areSetsEqual(
+        prevProps.filterSettings.includedLocations,
+        nextProps.filterSettings.includedLocations,
+      ) &&
+      areSetsEqual(
+        prevProps.filterSettings.includedSourceTypes,
+        nextProps.filterSettings.includedSourceTypes,
       )
     );
   },
