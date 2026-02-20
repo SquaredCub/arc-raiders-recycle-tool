@@ -1,5 +1,5 @@
 export const SORT_COLUMNS = [
-  { id: "item", label: "Item", descFirst: false },
+  { id: "item", label: "Name", descFirst: false },
   { id: "recycles", label: "Recycles Into", descFirst: true },
   { id: "salvages", label: "Salvages Into", descFirst: true },
   { id: "foundIn", label: "Found In", descFirst: false },

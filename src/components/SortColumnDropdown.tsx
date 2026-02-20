@@ -29,7 +29,8 @@ const SortColumnDropdown = ({
       ?.label ?? "Item";
 
   const handleSelect = (columnId: string) => {
-    const column = SORT_COLUMNS_BY_ID[columnId as keyof typeof SORT_COLUMNS_BY_ID];
+    const column =
+      SORT_COLUMNS_BY_ID[columnId as keyof typeof SORT_COLUMNS_BY_ID];
     onSortingChange([{ id: columnId, desc: column.descFirst }]);
     setIsOpen(false);
   };
@@ -43,11 +44,9 @@ const SortColumnDropdown = ({
         aria-label="Sort by column"
       >
         <span className="sort-column-dropdown__label">
-          Sort: {currentLabel}
+          Sort by: {currentLabel}
         </span>
-        <span
-          className={`sort-column-dropdown__arrow ${isOpen ? "open" : ""}`}
-        >
+        <span className={`sort-column-dropdown__arrow ${isOpen ? "open" : ""}`}>
           ▼
         </span>
       </button>

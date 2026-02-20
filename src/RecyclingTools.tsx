@@ -68,8 +68,8 @@ const RecyclingTools = () => {
             without guessing.
           </p>
           <p>
-            Search by item name, material, bench, project, or upgrade. The
-            table highlights exactly what matched.
+            Search by item name, material, bench, project, or upgrade. The table
+            highlights exactly what matched.
           </p>
           <p>
             Filter by category to cut through the noise, and sort any column to
@@ -111,10 +111,7 @@ const RecyclingTools = () => {
               <line x1="17" y1="16" x2="23" y2="16" />
             </svg>
           </button>
-          <SortColumnDropdown
-            sorting={sorting}
-            onSortingChange={setSorting}
-          />
+          <SortColumnDropdown sorting={sorting} onSortingChange={setSorting} />
           <button
             className="sort-direction-button"
             onClick={toggleSortDirection}
@@ -122,7 +119,7 @@ const RecyclingTools = () => {
             title={sorting[0]?.desc ? "Sort descending" : "Sort ascending"}
             type="button"
           >
-            {sorting[0]?.desc ? "↓" : "↑"}
+            {sorting[0]?.desc ? "🔽" : "🔼"}
           </button>
           {itemCount && (
             <span className="item-count">
