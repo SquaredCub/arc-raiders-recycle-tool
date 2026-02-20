@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
 test.beforeEach(async ({ page }) => {
   await page.goto("/");
@@ -7,27 +7,49 @@ test.beforeEach(async ({ page }) => {
 
 test.describe("Table Sorting", () => {
   test("table renders with expected headers", async ({ page }) => {
-    const headers = ["Item", "Recycles Into", "Salvages Into", "Found In", "Needed For", "Value"];
+    const headers = [
+      "Name",
+      "Recycles Into",
+      "Salvages Into",
+      "Found In",
+      "Needed For",
+      "Value",
+    ];
 
     for (const header of headers) {
-      await expect(page.locator(".grid-header").getByText(header, { exact: true })).toBeVisible();
+      await expect(
+        page.locator(".grid-header").getByText(header, { exact: true }),
+      ).toBeVisible();
     }
   });
 
-  test("clicking a header toggles between ascending and descending", async ({ page }) => {
+  test("clicking a header toggles between ascending and descending", async ({
+    page,
+  }) => {
     // "Found In" column: sortDescFirst=false, starts unsorted
-    const foundInHeader = page.locator(".grid-header").getByText("Found In", { exact: true });
+    const foundInHeader = page
+      .locator(".grid-header")
+      .getByText("Found In", { exact: true });
 
     // Initially unsorted — next sort would be ascending
-    await expect(foundInHeader.locator("..")).toHaveAttribute("title", "Sort ascending");
+    await expect(foundInHeader.locator("..")).toHaveAttribute(
+      "title",
+      "Sort ascending",
+    );
 
     // First click — sorted ascending, next would be descending
     await foundInHeader.click();
-    await expect(foundInHeader.locator("..")).toHaveAttribute("title", "Sort descending");
+    await expect(foundInHeader.locator("..")).toHaveAttribute(
+      "title",
+      "Sort descending",
+    );
 
     // Second click — sorted descending, next would be ascending (no removal)
     await foundInHeader.click();
-    await expect(foundInHeader.locator("..")).toHaveAttribute("title", "Sort ascending");
+    await expect(foundInHeader.locator("..")).toHaveAttribute(
+      "title",
+      "Sort ascending",
+    );
   });
 
   test("Item column starts pre-sorted ascending", async ({ page }) => {
