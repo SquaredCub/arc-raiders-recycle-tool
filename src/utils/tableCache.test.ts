@@ -7,13 +7,13 @@ import {
   createSortedMaterialsCache,
   createSortKeyCache,
 } from "./tableCache";
-import type { Item, HideoutBench } from "../types";
+import type { Item, HideoutBench } from "../generated/types";
 import itemsData from "../generated/items.json";
 import hideoutData from "../generated/hideout.json";
 import { getItemRequirements } from "../data/requirementsData";
 import questsData from "../generated/quests.json";
 import projectsData from "../generated/projects.json";
-import type { Quest, Project } from "../types";
+import type { Quest, Project } from "../generated/types";
 
 const items = itemsData as Item[];
 const hideoutBenches = hideoutData as HideoutBench[];

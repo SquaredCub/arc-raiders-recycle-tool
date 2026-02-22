@@ -6,7 +6,7 @@ import {
   getHideoutBenches,
   getProjects,
 } from "../services/dataService";
-import type { Item } from "../types";
+import type { Item } from "../generated/types";
 import { DataContext, type DataContextType } from "./DataContextDefinition";
 
 interface DataProviderProps {
@@ -16,7 +16,7 @@ interface DataProviderProps {
 export const DataProvider = ({ children }: DataProviderProps) => {
   const value: DataContextType = useMemo(() => {
     const items = filterBlacklistedItemCategories(getAllItems()).filter(
-      (item) => item.value > 0,
+      (item) => (item.value ?? 0) > 0,
     ) as Item[];
     const quests = getAllQuests();
     const hideoutBenches = getHideoutBenches();

@@ -1,5 +1,5 @@
 import type { SortingState } from "@tanstack/react-table";
-import type { Item, LocalizedText } from "../types";
+import type { Item, LocalizedText } from "../generated/types";
 import { DEFAULT_LANGUAGE, type SearchMatchType } from "./functions";
 import type { SortKeyCache } from "./tableCache";
 

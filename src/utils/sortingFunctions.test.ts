@@ -7,7 +7,7 @@ import {
   getBenchSortKey,
   sortItems,
 } from "./sortingFunctions";
-import type { Item } from "../types";
+import type { Item } from "../generated/types";
 import type { SortItemsConfig } from "./sortingFunctions";
 import type { SortKeyCache } from "./tableCache";
 

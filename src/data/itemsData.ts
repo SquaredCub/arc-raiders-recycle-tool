@@ -1,6 +1,6 @@
 import { BLACKLISTED_ITEM_CATEGORIES } from "../constants/itemCategories";
 import { getImageUrl } from "../services/dataService";
-import type { Item } from "../types";
+import type { Item } from "../generated/types";
 
 export const COINS_IMAGE_URL = getImageUrl("images/coins.png");
 

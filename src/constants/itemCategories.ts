@@ -1,4 +1,4 @@
-import type { ItemType } from "../types";
+import type { ItemType } from "../generated/types";
 
 // All item categories from ItemType - already sorted alphabetically
 export const ITEM_CATEGORIES: ItemType[] = [

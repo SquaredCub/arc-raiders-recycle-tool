@@ -1,4 +1,4 @@
-import type { Item, ItemRequirementLookup, LocalizedText } from "../types";
+import type { Item, ItemRequirementLookup, LocalizedText } from "../generated/types";
 
 // ============================================================================
 // Constants
@@ -201,7 +201,7 @@ export const createNoResultsItem = (searchTerm: string): Item => {
     name: { en: `No items found matching "${searchTerm}"` },
     description: { en: "" },
     type: "Misc" as const,
-    rarity: "",
+    rarity: "Common" as const,
     value: 0,
     weightKg: 0,
     stackSize: 0,

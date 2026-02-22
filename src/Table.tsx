@@ -1,7 +1,7 @@
 import { flexRender, type Table as TableType } from "@tanstack/react-table";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import { useEffect, useRef, useState } from "react";
-import type { Item } from "./types";
+import type { Item } from "./generated/types";
 import type { SearchMatchType } from "./utils/functions";
 
 type TableProps<T> = {

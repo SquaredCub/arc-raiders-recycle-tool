@@ -10,7 +10,7 @@ import {
   NO_RESULTS_ID,
 } from "./functions";
 import { formatMaterialName } from "../data/itemsData";
-import type { Item } from "../types";
+import type { Item } from "../generated/types";
 import itemsData from "../generated/items.json";
 
 const items = itemsData as Item[];

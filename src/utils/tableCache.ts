@@ -1,4 +1,4 @@
-import type { HideoutBench, Item, ItemRequirementLookup } from "../types";
+import type { HideoutBench, Item, ItemRequirementLookup } from "../generated/types";
 import {
   formatMaterialName,
   getMaterialImage,

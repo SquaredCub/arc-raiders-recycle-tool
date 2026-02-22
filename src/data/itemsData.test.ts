@@ -9,7 +9,7 @@ import {
   getMaterialImage,
 } from "./itemsData";
 import { BLACKLISTED_ITEM_CATEGORIES } from "../constants/itemCategories";
-import type { Item } from "../types";
+import type { Item } from "../generated/types";
 import itemsData from "../generated/items.json";
 
 const items = itemsData as Item[];

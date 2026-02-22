@@ -3,7 +3,7 @@ import { SORT_COLUMNS } from "../constants/sortColumns";
 import { COINS_IMAGE_URL, getItemImage } from "../data/itemsData";
 import ItemCell from "../ItemCell";
 import { getImageUrl } from "../services/dataService";
-import type { Item, ItemRequirementLookup } from "../types";
+import type { Item, ItemRequirementLookup } from "../generated/types";
 import { DEFAULT_LANGUAGE, isNoResultsItem } from "./functions";
 import type { CachedMaterial } from "./tableCache";
 

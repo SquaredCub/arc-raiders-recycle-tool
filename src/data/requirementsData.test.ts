@@ -1,6 +1,6 @@
 import { describe, it, expect } from "@jest/globals";
 import { getItemRequirements } from "./requirementsData";
-import type { HideoutBench, Quest, Project } from "../types";
+import type { HideoutBench, Quest, Project } from "../generated/types";
 import hideoutData from "../generated/hideout.json";
 import questsData from "../generated/quests.json";
 import projectsData from "../generated/projects.json";

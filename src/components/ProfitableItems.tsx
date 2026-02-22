@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { COINS_IMAGE_URL, getItemImage } from "../data/itemsData";
 import { useData } from "../hooks/useData";
 import ItemCell from "../ItemCell";
-import type { Item } from "../types";
+import type { Item } from "../generated/types";
 import { DEFAULT_LANGUAGE } from "../utils/functions";
 import "./ProfitableItems.scss";
 
@@ -41,7 +41,7 @@ const calculateCraftingProfit = (
   const craftQuantity = item.craftQuantity ?? 1;
 
   // Calculate total output value
-  const totalOutputValue = item.value * craftQuantity;
+  const totalOutputValue = (item.value ?? 0) * craftQuantity;
 
   // Calculate total input cost
   let totalInputCost = 0;
@@ -55,7 +55,7 @@ const calculateCraftingProfit = (
       return null;
     }
 
-    const materialTotalValue = material.value * quantity;
+    const materialTotalValue = (material.value ?? 0) * quantity;
     totalInputCost += materialTotalValue;
 
     recipeDetails.push({

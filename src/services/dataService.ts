@@ -2,7 +2,7 @@ import hideoutData from "../generated/hideout.json";
 import itemsData from "../generated/items.json";
 import projectsData from "../generated/projects.json";
 import questsData from "../generated/quests.json";
-import type { HideoutBench, Item, Project, Quest } from "../types";
+import type { HideoutBench, Item, Project, Quest } from "../generated/types";
 
 // Configuration (still used for image URLs)
 const GITHUB_OWNER = import.meta.env.VITE_GITHUB_OWNER || "SquaredCub";

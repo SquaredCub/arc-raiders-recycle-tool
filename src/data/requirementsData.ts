@@ -3,7 +3,7 @@ import type {
   ItemRequirementLookup,
   Project,
   Quest,
-} from "../types";
+} from "../generated/types";
 import { DEFAULT_LANGUAGE } from "../utils/functions";
 
 /**

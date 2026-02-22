@@ -1,5 +1,5 @@
 import { createContext } from "react";
-import type { HideoutBench, Item, Project, Quest } from "../types";
+import type { HideoutBench, Item, Project, Quest } from "../generated/types";
 
 export interface DataContextType {
   items: Item[];

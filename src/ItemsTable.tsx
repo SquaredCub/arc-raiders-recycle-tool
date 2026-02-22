@@ -13,7 +13,7 @@ import { formatMaterialName } from "./data/itemsData";
 import { getItemRequirements } from "./data/requirementsData";
 import { useData } from "./hooks/useData";
 import Table from "./Table";
-import type { Item } from "./types";
+import type { Item } from "./generated/types";
 import {
   createNoResultsItem,
   DEFAULT_LANGUAGE,
