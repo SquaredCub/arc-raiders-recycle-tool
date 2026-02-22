@@ -33,6 +33,7 @@ const directories = [
 // Single files that are already complete and just need to be copied
 const singleFiles = [
   { name: "projects", src: join(DATA_DIR, "projects.json") },
+  { name: "map-events", src: join(DATA_DIR, "map-events/map-events.json") },
 ];
 
 // ============================================================================
@@ -226,11 +227,102 @@ function analyzeStructure(samples, interfaceName) {
 }
 
 /**
+ * Generate TypeScript types for the map-events data structure.
+ * Derives MapEventType interface fields from actual data (required vs optional).
+ */
+function generateMapEventTypes(mapEvents) {
+  if (!mapEvents || !mapEvents.eventTypes || !mapEvents.maps) {
+    return "// Map events data not available";
+  }
+
+  const eventTypeIds = Object.keys(mapEvents.eventTypes).sort();
+  const mapIds = Object.keys(mapEvents.maps).sort();
+  const categories = [...new Set(
+    Object.values(mapEvents.eventTypes).map((e) => e.category)
+  )].filter(Boolean).sort();
+
+  // Collect all language keys from localizations
+  const languages = new Set();
+  Object.values(mapEvents.eventTypes).forEach((e) => {
+    if (e.localizations) Object.keys(e.localizations).forEach((lang) => languages.add(lang));
+  });
+  const sortedLanguages = [...languages].sort();
+
+  // Derive MapEventType interface from actual event type samples
+  const eventTypeSamples = Object.values(mapEvents.eventTypes);
+  const totalSamples = eventTypeSamples.length;
+  const fieldPresence = {};
+  const fieldTypesSeen = {};
+
+  // Override specific fields with their named types instead of inferring from value
+  const typeOverrides = {
+    category: "MapEventCategory",
+    localizations: "MapEventLocalizations",
+  };
+
+  eventTypeSamples.forEach((sample) => {
+    Object.keys(sample).forEach((key) => {
+      const value = sample[key];
+      if (!fieldPresence[key]) {
+        fieldPresence[key] = 0;
+        fieldTypesSeen[key] = new Set();
+      }
+      fieldPresence[key]++;
+      if (value !== null && value !== undefined) {
+        const type = typeOverrides[key] ?? inferType(value, key);
+        if (type !== "undefined") fieldTypesSeen[key].add(type);
+      }
+    });
+  });
+
+  const eventTypeFields = Object.entries(fieldTypesSeen)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([key, types]) => {
+      const optional = fieldPresence[key] === totalSamples ? "" : "?";
+      const typeStr = [...types].join(" | ") || "unknown";
+      return `  ${key}${optional}: ${typeStr};`;
+    });
+
+  return `export type MapEventId =
+${eventTypeIds.map((id, i) => `  | "${id}"${i === eventTypeIds.length - 1 ? ";" : ""}`).join("\n")}
+
+export type MapId =
+${mapIds.map((id, i) => `  | "${id}"${i === mapIds.length - 1 ? ";" : ""}`).join("\n")}
+
+export type MapEventCategory =
+${categories.map((cat, i) => `  | "${cat}"${i === categories.length - 1 ? ";" : ""}`).join("\n")}
+
+export interface MapEventLocalizations {
+  en: string;
+${sortedLanguages.filter((l) => l !== "en").map((l) => `  "${l}"?: string;`).join("\n")}
+}
+
+export interface MapEventType {
+${eventTypeFields.join("\n")}
+}
+
+export interface MapEventScheduleHours {
+  [utcHour: string]: string;
+}
+
+export interface MapEventScheduleMap {
+  major: MapEventScheduleHours;
+  minor: MapEventScheduleHours;
+}
+
+export interface MapEventsData {
+  eventTypes: Record<MapEventId, MapEventType>;
+  maps: Record<MapId, { displayName: string }>;
+  schedule: Record<MapId, MapEventScheduleMap>;
+}`;
+}
+
+/**
  * Generate TypeScript type definitions from the actual data structure
  * Extracts enums, analyzes interfaces, and writes types.ts file
  */
 function generateTypes(data) {
-  const { items = [], quests = [], hideout = [], projects = [] } = data;
+  const { items = [], quests = [], hideout = [], projects = [], "map-events": mapEvents = null } = data;
 
   // Extract all unique item types from items data
   const itemTypes = [...new Set(items.map((item) => item.type))].filter(Boolean).sort();
@@ -366,13 +458,20 @@ export interface ItemRequirementLookup {
     usedIn: ItemUsage[];
   };
 }
+
+// ============================================================================
+// Map Events Types
+// ============================================================================
+
+${generateMapEventTypes(mapEvents)}
 `;
 
   const typesPath = join(OUTPUT_DIR, "types.ts");
   writeFileSync(typesPath, typeDefinitions);
 
+  const mapEventCount = mapEvents ? Object.keys(mapEvents.eventTypes || {}).length : 0;
   console.log(
-    `✓ Generated types.ts (${itemTypes.length} item types, ${rarities.length} rarities, ${sortedLanguages.length} languages)`,
+    `✓ Generated types.ts (${itemTypes.length} item types, ${rarities.length} rarities, ${sortedLanguages.length} languages, ${mapEventCount} map event types)`,
   );
   totalGenerated++;
 }

@@ -3,7 +3,7 @@ import { useModalBehavior } from "../hooks/useModalBehavior";
 import ExternalLinkIcon from "./ExternalLinkIcon";
 import "./Navigation.scss";
 
-export type NavigationPage = "recycling" | "crafts";
+export type NavigationPage = "recycling" | "crafts" | "map-events";
 
 interface NavigationProps {
   activePage: NavigationPage;
@@ -86,6 +86,14 @@ const Navigation = ({ activePage, onNavigate }: NavigationProps) => {
         onClick={() => onNavigate("crafts")}
       >
         Profitable Crafts
+      </button>
+      <button
+        className={`navigation__item ${
+          activePage === "map-events" ? "navigation__item--active" : ""
+        }`}
+        onClick={() => onNavigate("map-events")}
+      >
+        Map Events
       </button>
       {/* External Links Dropdown */}
       <div className="navigation__dropdown" ref={modalRef}>

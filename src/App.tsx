@@ -1,5 +1,6 @@
 import { useState } from "react";
 import "./App.scss";
+import MapEventsPage from "./components/MapEventsPage";
 import Navigation, { type NavigationPage } from "./components/Navigation";
 import ProfitableItems from "./components/ProfitableItems";
 import ScrollToTop from "./components/ScrollToTop";
@@ -17,6 +18,7 @@ const App = () => {
       <Navigation activePage={activePage} onNavigate={onNavigate} />
       {activePage === "recycling" && <RecyclingTools />}
       {activePage === "crafts" && <ProfitableItems />}
+      {activePage === "map-events" && <MapEventsPage />}
       <ScrollToTop />
       <div id="update-note">Last updated on 20/02/2026</div>
     </>
