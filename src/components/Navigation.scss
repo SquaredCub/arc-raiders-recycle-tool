@@ -18,16 +18,17 @@
     align-items: center;
     width: 100%;
     max-width: $content-max-width;
-
-    @include mobile {
-      flex-wrap: wrap;
-      justify-content: center;
-    }
   }
 
-  @include mobile {
+  @include tablet-and-below {
     position: relative;
     display: block;
+  }
+
+  &__desktop-only {
+    @include tablet-and-below {
+      display: none !important;
+    }
   }
 
   &__item {
@@ -44,12 +45,6 @@
     font-size: $font-base;
     white-space: nowrap;
 
-    @include mobile {
-      padding: 0.5em 0.8em;
-      flex: 1 1 auto;
-      min-width: 0;
-    }
-
     @include hover-supported {
       background-color: var(--bg-secondary);
       color: var(--text-primary);
@@ -65,11 +60,6 @@
     position: relative;
     display: flex;
     align-items: center;
-
-    @include mobile {
-      flex: 1 1 100%;
-      width: 100%;
-    }
   }
 
   &__dropdown-toggle {
@@ -91,11 +81,6 @@
       padding-top: 0.3rem;
     }
 
-    @include mobile {
-      width: 100%;
-      padding: 0.5em 0.8em;
-    }
-
     @include hover-supported {
       background-color: var(--bg-secondary);
       color: var(--text-primary);
@@ -115,12 +100,6 @@
     display: flex;
     flex-direction: column;
     gap: 0.2rem;
-
-    @include mobile {
-      width: 100%;
-      left: 0;
-      right: 0;
-    }
   }
 
   &__dropdown-divider {
@@ -132,6 +111,7 @@
 
   &__language-picker {
     margin-left: auto;
+    margin-right: 0.5rem;
     background-color: var(--bg-tertiary);
     color: var(--text-secondary);
     border: 1px solid var(--text-secondary);
@@ -141,15 +121,20 @@
     cursor: pointer;
     flex-shrink: 0;
 
-    @include mobile {
-      margin-left: 0;
-      flex: 0 0 auto;
-      padding: 0.4em 0.6em;
-    }
-
     &:focus-visible {
       outline: 2px solid var(--color-primary-active);
       outline-offset: 2px;
+    }
+
+    &--hamburger {
+      width: 100%;
+      margin: 0;
+      padding: 0.5em 1em;
+      font-size: 16px;
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      border: 1px solid color-mix(in srgb, var(--text-primary) 20%, transparent);
+      border-radius: $radius-sm;
     }
   }
 
@@ -169,5 +154,93 @@
       background: var(--bg-secondary);
       color: var(--text-primary);
     }
+  }
+
+  // Mobile hamburger menu
+  &__hamburger {
+    display: none;
+
+    @include tablet-and-below {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      position: relative;
+    }
+  }
+
+  &__hamburger-title {
+    font-size: $font-base;
+    font-weight: 600;
+    color: var(--text-primary);
+    padding-left: 0.8em;
+  }
+
+  &__hamburger-toggle {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 0.6em 0.8em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    @include hover-supported {
+      color: var(--text-primary);
+    }
+  }
+
+  &__hamburger-panel {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--bg-primary);
+    box-shadow: var(--shadow-lg);
+    clip-path: inset(0px -20px -20px -20px);
+    z-index: $z-dropdown;
+    padding: 0.3rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    animation: hamburger-slide-in 0.15s ease-out;
+  }
+
+  &__hamburger-page {
+    width: 100%;
+    text-align: left;
+    padding: 0.6em 1em;
+    background: none;
+    border: none;
+    border-left: 3px solid transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: $font-base;
+    transition:
+      background 0.2s,
+      color 0.2s;
+
+    @include hover-supported {
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+    }
+
+    &--active {
+      color: var(--text-primary);
+      border-left-color: var(--color-primary-active);
+      background: var(--bg-secondary);
+    }
+  }
+}
+
+@keyframes hamburger-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import { describe, it, expect } from "@jest/globals";
 import { existsSync, readdirSync, readFileSync } from "fs";
 import { join } from "path";

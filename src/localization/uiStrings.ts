@@ -7,6 +7,7 @@ export type UIStringKey =
   | "nav.profitableCrafts"
   | "nav.mapEvents"
   | "nav.externalLinks"
+  | "nav.menu"
   // RecyclingTools page
   | "recycling.title"
   | "recycling.intro.p1"
@@ -230,6 +231,28 @@ export const UI_STRINGS: Record<
     uk: "Зовнішні посилання",
     "zh-CN": "外部链接",
     "zh-TW": "外部連結",
+  },
+  "nav.menu": {
+    en: "Menu",
+    da: "Menu",
+    de: "Menü",
+    es: "Menú",
+    fr: "Menu",
+    he: "תפריט",
+    hr: "Izbornik",
+    it: "Menu",
+    ja: "メニュー",
+    "ko-KR": "메뉴",
+    no: "Meny",
+    pl: "Menu",
+    pt: "Menu",
+    "pt-BR": "Menu",
+    ru: "Меню",
+    sr: "Мени",
+    tr: "Menü",
+    uk: "Меню",
+    "zh-CN": "菜单",
+    "zh-TW": "選單",
   },
 
   // RecyclingTools page

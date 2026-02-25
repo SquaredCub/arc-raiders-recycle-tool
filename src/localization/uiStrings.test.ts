@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import { describe, it, expect } from "@jest/globals";
 import { UI_STRINGS, type UIStringKey } from "./uiStrings";
 import { SUPPORTED_LANGUAGES } from "./languageUtils";

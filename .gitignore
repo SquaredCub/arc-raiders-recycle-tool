@@ -40,3 +40,6 @@ claude.md
 # Project
 src/generated/
 src/generated/*
+
+# TypeScript build info
+*.tsbuildinfo

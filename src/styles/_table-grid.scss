@@ -74,6 +74,10 @@ $grid-columns-full: minmax(0, 2.5fr) minmax(0, 3.1fr) minmax(0, 2.5fr)
     top: $nav-height;
     z-index: $z-table-header;
 
+    @include tablet-and-below {
+      top: 0;
+    }
+
     &.is-stuck {
       .grid-header-cell {
         border-top: 2px solid var(--border-primary);
