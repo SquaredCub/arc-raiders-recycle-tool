@@ -1,5 +1,10 @@
 import { useRef, useState } from "react";
+import { useLanguage } from "../hooks/useLanguage";
 import { useModalBehavior } from "../hooks/useModalBehavior";
+import {
+  SUPPORTED_LANGUAGES,
+  type LanguageCode,
+} from "../localization/languageUtils";
 import ExternalLinkIcon from "./ExternalLinkIcon";
 import "./Navigation.scss";
 
@@ -58,6 +63,7 @@ const myLinks: ExternalLink[] = [
 ];
 
 const Navigation = ({ activePage, onNavigate }: NavigationProps) => {
+  const { language, setLanguage, translateUI } = useLanguage();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const modalRef = useRef<HTMLDivElement>(null);
 
@@ -77,7 +83,7 @@ const Navigation = ({ activePage, onNavigate }: NavigationProps) => {
         }`}
         onClick={() => onNavigate("recycling")}
       >
-        Recycling Tool
+        {translateUI("nav.recyclingTool")}
       </button>
       <button
         className={`navigation__item ${
@@ -85,7 +91,7 @@ const Navigation = ({ activePage, onNavigate }: NavigationProps) => {
         }`}
         onClick={() => onNavigate("crafts")}
       >
-        Profitable Crafts
+        {translateUI("nav.profitableCrafts")}
       </button>
       <button
         className={`navigation__item ${
@@ -93,7 +99,7 @@ const Navigation = ({ activePage, onNavigate }: NavigationProps) => {
         }`}
         onClick={() => onNavigate("map-events")}
       >
-        Map Events
+        {translateUI("nav.mapEvents")}
       </button>
       {/* External Links Dropdown */}
       <div className="navigation__dropdown" ref={modalRef}>
@@ -101,10 +107,10 @@ const Navigation = ({ activePage, onNavigate }: NavigationProps) => {
           className="navigation__item navigation__dropdown-toggle"
           onClick={() => setDropdownOpen((open) => !open)}
           aria-expanded={dropdownOpen}
-          aria-label="External Links"
+          aria-label={translateUI("nav.externalLinks")}
         >
           <ExternalLinkIcon className="invert-in-light" />
-          <span>External Links</span>
+          <span>{translateUI("nav.externalLinks")}</span>
           <svg
             width="16"
             height="16"
@@ -169,6 +175,18 @@ const Navigation = ({ activePage, onNavigate }: NavigationProps) => {
           </div>
         )}
       </div>
+      <select
+        className="navigation__language-picker"
+        value={language}
+        onChange={(e) => setLanguage(e.target.value as LanguageCode)}
+        aria-label="Language"
+      >
+        {SUPPORTED_LANGUAGES.map(({ code, label }) => (
+          <option key={code} value={code}>
+            {label}
+          </option>
+        ))}
+      </select>
       </div>
     </nav>
   );

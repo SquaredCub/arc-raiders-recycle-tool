@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useLanguage } from "../hooks/useLanguage";
 import "./ErrorMessage.scss";
 
 interface ErrorMessageProps {
@@ -28,6 +29,7 @@ const ErrorMessage = ({
   errorDetails,
   onRetry,
 }: ErrorMessageProps) => {
+  const { translateUI } = useLanguage();
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
@@ -54,16 +56,16 @@ const ErrorMessage = ({
   return (
     <div className="error-container">
       <div className="error-icon">!</div>
-      <h2>Error Loading Data</h2>
+      <h2>{translateUI("error.title")}</h2>
       <p>{message}</p>
       <div className="error-actions">
         {onRetry && (
           <button onClick={onRetry} className="retry-button">
-            Retry
+            {translateUI("error.retry")}
           </button>
         )}
         <button onClick={handleCopy} className="copy-error-button">
-          {copied ? "Copied!" : "Copy Error Details"}
+          {copied ? translateUI("error.copied") : translateUI("error.copyDetails")}
         </button>
       </div>
     </div>

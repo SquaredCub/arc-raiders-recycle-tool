@@ -11,10 +11,12 @@ import {
 } from "./constants/filterOptions";
 import { FILTERABLE_ITEM_CATEGORIES } from "./constants/itemCategories";
 import { useDebounce } from "./hooks/useDebounce";
+import { useLanguage } from "./hooks/useLanguage";
 import ItemsTable from "./ItemsTable";
 import SearchInput from "./SearchInput";
 
 const RecyclingTools = () => {
+  const { translateUI } = useLanguage();
   const [searchTerm, setSearchTerm] = useState("");
   const [showIntroduction, setShowIntroduction] = useState(false);
   const debouncedSearchTerm = useDebounce(searchTerm);
@@ -54,7 +56,7 @@ const RecyclingTools = () => {
   return (
     <div className="recycling-tools">
       <h1>
-        Recycling Tool{" "}
+        {translateUI("recycling.title")}{" "}
         <Tooltip
           active={showIntroduction}
           callback={() => setShowIntroduction((prev) => !prev)}
@@ -62,24 +64,10 @@ const RecyclingTools = () => {
       </h1>
       <section id="introduction" className={showIntroduction ? "visible" : ""}>
         <div>
-          <p>
-            Every item in Arc Raiders, laid out with its recycle and salvage
-            outputs so you can figure out what to keep and what to break down
-            without guessing.
-          </p>
-          <p>
-            Search by item name, material, bench, project, or upgrade. The table
-            highlights exactly what matched.
-          </p>
-          <p>
-            Filter by category to cut through the noise, and sort any column to
-            find what you need.
-          </p>
-          <p>
-            The <strong>Needed For</strong> column tracks hideout upgrades,
-            quests, and project requirements so nothing gets recycled by
-            accident.
-          </p>
+          <p>{translateUI("recycling.intro.p1")}</p>
+          <p>{translateUI("recycling.intro.p2")}</p>
+          <p>{translateUI("recycling.intro.p3")}</p>
+          <p>{translateUI("recycling.intro.p4")}</p>
         </div>
       </section>
       <section id="controlsSection">
@@ -88,8 +76,8 @@ const RecyclingTools = () => {
           <button
             className="filter-button"
             onClick={openModal}
-            aria-label="Filter settings"
-            title="Filter settings"
+            aria-label={translateUI("recycling.filterSettings")}
+            title={translateUI("recycling.filterSettings")}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -115,8 +103,16 @@ const RecyclingTools = () => {
           <button
             className="sort-direction-button"
             onClick={toggleSortDirection}
-            aria-label={sorting[0]?.desc ? "Sort descending" : "Sort ascending"}
-            title={sorting[0]?.desc ? "Sort descending" : "Sort ascending"}
+            aria-label={
+              sorting[0]?.desc
+                ? translateUI("sort.descending")
+                : translateUI("sort.ascending")
+            }
+            title={
+              sorting[0]?.desc
+                ? translateUI("sort.descending")
+                : translateUI("sort.ascending")
+            }
             type="button"
           >
             {sorting[0]?.desc ? "🔽" : "🔼"}

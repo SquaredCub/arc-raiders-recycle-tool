@@ -1,5 +1,5 @@
 import { describe, it, expect } from "@jest/globals";
-import { getItemRequirements } from "./requirementsData";
+import { getItemRequirements, type RequirementTemplates } from "./requirementsData";
 import type { HideoutBench, Quest, Project } from "../generated/types";
 import hideoutData from "../generated/hideout.json";
 import questsData from "../generated/quests.json";
@@ -10,7 +10,7 @@ const quests = questsData as Quest[];
 const projects = projectsData as Project[];
 
 describe("getItemRequirements", () => {
-  const requirements = getItemRequirements(hideoutBenches, quests, projects);
+  const requirements = getItemRequirements(hideoutBenches, quests, projects, "en");
 
   it("returns a non-empty result from real data", () => {
     expect(Object.keys(requirements).length).toBeGreaterThan(0);
@@ -20,6 +20,29 @@ describe("getItemRequirements", () => {
     for (const [, data] of Object.entries(requirements)) {
       expect(data.totalQuantity).toBeGreaterThan(0);
       expect(data.usedIn.length).toBeGreaterThan(0);
+    }
+  });
+
+  it("every usedIn entry has a valid sourceType", () => {
+    const validTypes = new Set(["hideout", "quest", "project"]);
+    for (const [, data] of Object.entries(requirements)) {
+      for (const usage of data.usedIn) {
+        expect(validTypes.has(usage.sourceType)).toBe(true);
+      }
+    }
+  });
+
+  it("sourceType matches source string format", () => {
+    for (const [, data] of Object.entries(requirements)) {
+      for (const usage of data.usedIn) {
+        if (usage.sourceType === "hideout") {
+          expect(usage.source).toMatch(/.+ Lvl \d+/);
+        } else if (usage.sourceType === "quest") {
+          expect(usage.source).toMatch(/^Quest: .+/);
+        } else if (usage.sourceType === "project") {
+          expect(usage.source).toMatch(/.+ - Step \d+/);
+        }
+      }
     }
   });
 
@@ -85,7 +108,40 @@ describe("getItemRequirements", () => {
   });
 
   it("returns empty object for empty inputs", () => {
-    const result = getItemRequirements([], [], []);
+    const result = getItemRequirements([], [], [], "en");
     expect(result).toEqual({});
+  });
+
+  it("uses custom templates when provided", () => {
+    const customTemplates: RequirementTemplates = {
+      lvl: "Niv.",
+      quest: "Quête :",
+      step: "Étape",
+    };
+    const customReqs = getItemRequirements(hideoutBenches, quests, projects, "en", customTemplates);
+
+    const hideoutSources = Object.values(customReqs).flatMap((data) =>
+      data.usedIn.filter((u) => u.sourceType === "hideout")
+    );
+    expect(hideoutSources.length).toBeGreaterThan(0);
+    for (const usage of hideoutSources) {
+      expect(usage.source).toMatch(/Niv\. \d+/);
+    }
+
+    const questSources = Object.values(customReqs).flatMap((data) =>
+      data.usedIn.filter((u) => u.sourceType === "quest")
+    );
+    expect(questSources.length).toBeGreaterThan(0);
+    for (const usage of questSources) {
+      expect(usage.source).toMatch(/^Quête : .+/);
+    }
+
+    const projectSources = Object.values(customReqs).flatMap((data) =>
+      data.usedIn.filter((u) => u.sourceType === "project")
+    );
+    expect(projectSources.length).toBeGreaterThan(0);
+    for (const usage of projectSources) {
+      expect(usage.source).toMatch(/Étape \d+/);
+    }
   });
 });

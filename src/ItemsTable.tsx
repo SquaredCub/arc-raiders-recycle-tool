@@ -10,13 +10,13 @@ import {
   NEEDED_FOR_SOURCE_TYPES,
 } from "./constants/filterOptions";
 import { formatMaterialName } from "./data/itemsData";
-import { getItemRequirements } from "./data/requirementsData";
+import { getItemRequirements, type RequirementTemplates } from "./data/requirementsData";
 import { useData } from "./hooks/useData";
+import { useLanguage } from "./hooks/useLanguage";
 import Table from "./Table";
 import type { Item } from "./generated/types";
 import {
   createNoResultsItem,
-  DEFAULT_LANGUAGE,
   filterItemsBySearch,
   isNoResultsItem,
   type SearchMatchType,
@@ -53,28 +53,39 @@ const ItemsTable = React.memo(
       hideoutBenches,
       projects,
     } = useData();
+    const { language, translateUI } = useLanguage();
+
+    // Translated requirement templates
+    const requirementTemplates: RequirementTemplates = useMemo(
+      () => ({
+        lvl: translateUI("requirement.lvl"),
+        quest: translateUI("requirement.quest"),
+        step: translateUI("requirement.step"),
+      }),
+      [translateUI],
+    );
 
     // Compute item requirements from the data
     const itemRequirements = useMemo(
-      () => getItemRequirements(hideoutBenches, quests, projects),
-      [hideoutBenches, quests, projects],
+      () => getItemRequirements(hideoutBenches, quests, projects, language, requirementTemplates),
+      [hideoutBenches, quests, projects, language, requirementTemplates],
     );
 
     // Create lookup maps for performance optimization
     const benchNameLookup = useMemo(
-      () => createBenchNameLookup(hideoutBenches),
-      [hideoutBenches],
+      () => createBenchNameLookup(hideoutBenches, language, translateUI("general.fieldCrafting")),
+      [hideoutBenches, language, translateUI],
     );
 
     const sortedMaterialsCache = useMemo(
-      () => createSortedMaterialsCache(items),
-      [items],
+      () => createSortedMaterialsCache(items, language),
+      [items, language],
     );
 
     // Pre-compute sort keys for performance optimization
     const sortKeyCache = useMemo(
-      () => createSortKeyCache(items, benchNameLookup, itemRequirements),
-      [items, benchNameLookup, itemRequirements],
+      () => createSortKeyCache(items, benchNameLookup, itemRequirements, language),
+      [items, benchNameLookup, itemRequirements, language],
     );
 
     // Run search once and derive relevance index, match types, and filtered data
@@ -84,10 +95,10 @@ const ItemsTable = React.memo(
           items,
           searchTerm,
           formatMaterialName,
-          DEFAULT_LANGUAGE,
+          language,
           itemRequirements,
         ),
-      [itemRequirements, items, searchTerm],
+      [itemRequirements, items, searchTerm, language],
     );
 
     const hasActiveSearch = searchTerm.trim().length > 0;
@@ -136,12 +147,16 @@ const ItemsTable = React.memo(
           sortedMaterialsCache,
           searchResult.matchedMaterials,
           searchResult.matchedSources,
+          language,
+          translateUI,
         ),
       [
         itemRequirements,
         sortedMaterialsCache,
         searchResult.matchedMaterials,
         searchResult.matchedSources,
+        language,
+        translateUI,
       ],
     );
 
@@ -190,10 +205,9 @@ const ItemsTable = React.memo(
           const req = itemRequirements[item.id];
           if (!req) return filterSettings.includedSourceTypes.has("Not Needed");
 
-          const sources = req.usedIn.map((u) => u.source);
-          const hasHideout = sources.some((s) => s.includes(" Lvl "));
-          const hasQuest = sources.some((s) => s.startsWith("Quest: "));
-          const hasProject = sources.some((s) => s.includes(" - Step "));
+          const hasHideout = req.usedIn.some((u) => u.sourceType === "hideout");
+          const hasQuest = req.usedIn.some((u) => u.sourceType === "quest");
+          const hasProject = req.usedIn.some((u) => u.sourceType === "project");
 
           return (
             (hasHideout && filterSettings.includedSourceTypes.has("Hideout")) ||
@@ -205,7 +219,7 @@ const ItemsTable = React.memo(
 
       // If no results found, return a placeholder item
       if (results.length === 0) {
-        return [createNoResultsItem(searchTerm)];
+        return [createNoResultsItem(searchTerm, `${translateUI("general.noResults")} "${searchTerm}"`)];
       }
 
       return results;
@@ -221,6 +235,7 @@ const ItemsTable = React.memo(
       hasActiveSearch,
       items,
       itemRequirements,
+      translateUI,
     ]);
 
     const isPrioritizing =

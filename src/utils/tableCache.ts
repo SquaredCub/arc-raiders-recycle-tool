@@ -1,9 +1,13 @@
-import type { HideoutBench, Item, ItemRequirementLookup } from "../generated/types";
+import type { HideoutBench, Item } from "../generated/types";
+import type { EnrichedItemRequirementLookup } from "../data/requirementsData";
 import {
   formatMaterialName,
   getMaterialImage,
 } from "../data/itemsData";
-import { DEFAULT_LANGUAGE } from "./functions";
+import {
+  getLocalizedText,
+  type LanguageCode,
+} from "../localization/languageUtils";
 import { sortMaterialsByName, getItemSortName } from "./sortingFunctions";
 
 // Cached material data structure
@@ -15,6 +19,21 @@ export interface CachedMaterial {
 }
 
 /**
+ * Get the localized name for a material, falling back to formatMaterialName
+ */
+const getMaterialLocalizedName = (
+  materialId: string,
+  itemLookup: Map<string, Item>,
+  language: LanguageCode,
+): string => {
+  const item = itemLookup.get(materialId);
+  if (item) {
+    return getLocalizedText(item.name, language);
+  }
+  return formatMaterialName(materialId);
+};
+
+/**
  * Cache sorted material entries for a given materials record
  */
 const cacheMaterialEntries = (
@@ -23,16 +42,18 @@ const cacheMaterialEntries = (
   itemId: string,
   itemLookup: Map<string, Item>,
   cache: Record<string, CachedMaterial[]>,
+  language: LanguageCode,
 ) => {
   if (Object.keys(materials).length > 0) {
+    const getName = (id: string) => getMaterialLocalizedName(id, itemLookup, language);
     const sortedEntries = sortMaterialsByName(
       Object.entries(materials),
-      formatMaterialName,
+      getName,
     );
     cache[`${prefix}_${itemId}`] = sortedEntries.map(([material, quantity]) => ({
       material,
       quantity,
-      name: formatMaterialName(material),
+      name: getName(material),
       image: getMaterialImage(material, itemLookup),
     }));
   }
@@ -43,13 +64,15 @@ const cacheMaterialEntries = (
  * Includes special case handling for "in_raid" -> "Field Crafting"
  */
 export const createBenchNameLookup = (
-  hideoutBenches: HideoutBench[]
+  hideoutBenches: HideoutBench[],
+  language: LanguageCode,
+  fieldCraftingLabel = "Field Crafting",
 ): Record<string, string> => {
   const lookup: Record<string, string> = {
-    in_raid: "Field Crafting", // Handle special case
+    in_raid: fieldCraftingLabel, // Handle special case — not in game data
   };
   for (const bench of hideoutBenches) {
-    lookup[bench.id] = bench.name[DEFAULT_LANGUAGE] || bench.id;
+    lookup[bench.id] = getLocalizedText(bench.name, language) || bench.id;
   }
   return lookup;
 };
@@ -59,7 +82,8 @@ export const createBenchNameLookup = (
  * Creates a cache mapping itemId to sorted material data with pre-computed names and images
  */
 export const createSortedMaterialsCache = (
-  items: Item[]
+  items: Item[],
+  language: LanguageCode,
 ): Record<string, CachedMaterial[]> => {
   const cache: Record<string, CachedMaterial[]> = {};
 
@@ -71,13 +95,13 @@ export const createSortedMaterialsCache = (
 
   for (const item of items) {
     if (item.recyclesInto) {
-      cacheMaterialEntries(item.recyclesInto, "recycle", item.id, itemLookup, cache);
+      cacheMaterialEntries(item.recyclesInto, "recycle", item.id, itemLookup, cache, language);
     }
     if (item.salvagesInto) {
-      cacheMaterialEntries(item.salvagesInto, "salvage", item.id, itemLookup, cache);
+      cacheMaterialEntries(item.salvagesInto, "salvage", item.id, itemLookup, cache, language);
     }
     if (item.recipe) {
-      cacheMaterialEntries(item.recipe, "recipe", item.id, itemLookup, cache);
+      cacheMaterialEntries(item.recipe, "recipe", item.id, itemLookup, cache, language);
     }
   }
 
@@ -105,7 +129,8 @@ export interface SortKeyCache {
 export const createSortKeyCache = (
   items: Item[],
   _benchNameLookup: Record<string, string>,
-  itemRequirements: ItemRequirementLookup
+  itemRequirements: EnrichedItemRequirementLookup,
+  language: LanguageCode,
 ): SortKeyCache => {
   const nameSortKeys: Record<string, string> = {};
   const requirementTotals: Record<string, number> = {};
@@ -114,7 +139,7 @@ export const createSortKeyCache = (
 
   for (const item of items) {
     // Pre-compute name sort key (lowercase for faster comparison)
-    nameSortKeys[item.id] = getItemSortName(item, DEFAULT_LANGUAGE).toLowerCase();
+    nameSortKeys[item.id] = getItemSortName(item, language).toLowerCase();
 
     // Pre-compute requirement total
     requirementTotals[item.id] = itemRequirements[item.id]?.totalQuantity ?? 0;

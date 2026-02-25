@@ -22,25 +22,30 @@ const projects = projectsData as Project[];
 
 describe("createBenchNameLookup", () => {
   it("maps all bench IDs to English names", () => {
-    const lookup = createBenchNameLookup(hideoutBenches);
+    const lookup = createBenchNameLookup(hideoutBenches, "en");
     for (const bench of hideoutBenches) {
       expect(lookup[bench.id]).toBe(bench.name.en);
     }
   });
 
   it("always includes in_raid → Field Crafting", () => {
-    const lookup = createBenchNameLookup(hideoutBenches);
+    const lookup = createBenchNameLookup(hideoutBenches, "en");
     expect(lookup["in_raid"]).toBe("Field Crafting");
   });
 
   it("includes in_raid even with empty input", () => {
-    const lookup = createBenchNameLookup([]);
+    const lookup = createBenchNameLookup([], "en");
     expect(lookup["in_raid"]).toBe("Field Crafting");
+  });
+
+  it("uses custom fieldCraftingLabel when provided", () => {
+    const lookup = createBenchNameLookup(hideoutBenches, "en", "Fertigung im Feld");
+    expect(lookup["in_raid"]).toBe("Fertigung im Feld");
   });
 });
 
 describe("createSortedMaterialsCache", () => {
-  const cache = createSortedMaterialsCache(items);
+  const cache = createSortedMaterialsCache(items, "en");
 
   it("creates recycle_ prefixed entries for items with recyclesInto", () => {
     const itemsWithRecycle = items.filter(
@@ -99,9 +104,9 @@ describe("createSortedMaterialsCache", () => {
 });
 
 describe("createSortKeyCache", () => {
-  const benchLookup = createBenchNameLookup(hideoutBenches);
-  const requirements = getItemRequirements(hideoutBenches, quests, projects);
-  const sortKeyCache = createSortKeyCache(items, benchLookup, requirements);
+  const benchLookup = createBenchNameLookup(hideoutBenches, "en");
+  const requirements = getItemRequirements(hideoutBenches, quests, projects, "en");
+  const sortKeyCache = createSortKeyCache(items, benchLookup, requirements, "en");
 
   it("populates nameSortKeys as lowercase strings", () => {
     for (const item of items) {

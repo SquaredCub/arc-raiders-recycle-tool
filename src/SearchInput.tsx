@@ -1,4 +1,5 @@
 import { memo, useState } from "react";
+import { useLanguage } from "./hooks/useLanguage";
 
 const SearchInput = memo(({
   searchTerm,
@@ -7,6 +8,7 @@ const SearchInput = memo(({
   searchTerm: string;
   setSearchTerm: (term: string) => void;
 }) => {
+  const { translateUI } = useLanguage();
   const [isFocused, setIsFocused] = useState(false);
 
   return (
@@ -15,7 +17,7 @@ const SearchInput = memo(({
     >
       <input
         type="text"
-        placeholder="Search items..."
+        placeholder={translateUI("search.placeholder")}
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
         onFocus={() => setIsFocused(true)}

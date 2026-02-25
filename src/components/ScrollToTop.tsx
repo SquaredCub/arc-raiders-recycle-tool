@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
+import { useLanguage } from "../hooks/useLanguage";
 import "./ScrollToTop.scss";
 
 const ScrollToTop = () => {
+  const { translateUI } = useLanguage();
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -20,8 +22,8 @@ const ScrollToTop = () => {
     <button
       className={`scroll-to-top${visible ? " scroll-to-top--visible" : ""}`}
       onClick={handleClick}
-      aria-label="Scroll to top"
-      title="Scroll to top"
+      aria-label={translateUI("general.scrollToTop")}
+      title={translateUI("general.scrollToTop")}
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"

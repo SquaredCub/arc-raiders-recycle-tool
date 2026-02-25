@@ -1,9 +1,10 @@
 import { useMemo } from "react";
 import { COINS_IMAGE_URL, getItemImage } from "../data/itemsData";
 import { useData } from "../hooks/useData";
+import { useLanguage } from "../hooks/useLanguage";
 import ItemCell from "../ItemCell";
 import type { Item } from "../generated/types";
-import { DEFAULT_LANGUAGE } from "../utils/functions";
+import { getLocalizedText } from "../localization/languageUtils";
 import "./ProfitableItems.scss";
 
 interface CraftingProfit {
@@ -82,6 +83,7 @@ const calculateCraftingProfit = (
 
 const ProfitableItems = () => {
   const { items } = useData();
+  const { language, translateUI } = useLanguage();
 
   // Create a map for quick lookup
   const itemsMap = useMemo(() => {
@@ -111,16 +113,16 @@ const ProfitableItems = () => {
   if (profitableItems.length === 0) {
     return (
       <div className="profitable-items">
-        <p className="no-results">No profitable crafting recipes found.</p>
+        <p className="no-results">{translateUI("crafts.noResults")}</p>
       </div>
     );
   }
 
   return (
     <div className="profitable-items">
-      <h1>Profitable Crafting Recipes</h1>
+      <h1>{translateUI("crafts.title")}</h1>
       <p className="description">
-        Items worth crafting for profit based on material costs vs output value
+        {translateUI("crafts.description")}
       </p>
 
       <div className="profitable-list">
@@ -133,11 +135,11 @@ const ProfitableItems = () => {
               <div className="profitable-card__header">
                 <ItemCell
                   id={item.id}
-                  name={item.name[DEFAULT_LANGUAGE] || item.name.en}
+                  name={getLocalizedText(item.name, language)}
                   imageSrc={imageSrc}
                 />
                 <div className="profitable-card__profit">
-                  <span className="profit-label">Profit:</span>
+                  <span className="profit-label">{translateUI("crafts.profit")}</span>
                   <div className="profit-value">
                     <span className="profit-amount">
                       +{profitData.profit.toLocaleString()}
@@ -149,17 +151,17 @@ const ProfitableItems = () => {
                     />
                   </div>
                   <span className="profit-margin">
-                    ({profitData.profitMargin.toFixed(1)}% margin)
+                    ({profitData.profitMargin.toFixed(1)}% {translateUI("crafts.margin")})
                   </span>
                 </div>
               </div>
 
               <div className="profitable-card__details">
                 <div className="craft-output">
-                  <h4>Output</h4>
+                  <h4>{translateUI("crafts.output")}</h4>
                   <div className="output-info">
                     <span>
-                      {profitData.craftQuantity}x {item.name[DEFAULT_LANGUAGE]}
+                      {profitData.craftQuantity}x {getLocalizedText(item.name, language)}
                     </span>
                     <div className="value-display">
                       <span>
@@ -175,7 +177,7 @@ const ProfitableItems = () => {
                 </div>
 
                 <div className="craft-recipe">
-                  <h4>Recipe Materials</h4>
+                  <h4>{translateUI("crafts.recipeMaterials")}</h4>
                   <div className="recipe-list">
                     {profitData.recipe.map((ingredient) => {
                       const ingredientImage = getItemImage(ingredient.item);
@@ -183,10 +185,7 @@ const ProfitableItems = () => {
                         <div key={ingredient.item.id} className="recipe-item">
                           <ItemCell
                             id={ingredient.item.id}
-                            name={`${ingredient.quantity}x ${
-                              ingredient.item.name[DEFAULT_LANGUAGE] ||
-                              ingredient.item.name.en
-                            }`}
+                            name={`${ingredient.quantity}x ${getLocalizedText(ingredient.item.name, language)}`}
                             imageSrc={ingredientImage}
                           />
                           <div className="ingredient-cost">
@@ -204,7 +203,7 @@ const ProfitableItems = () => {
                     })}
                   </div>
                   <div className="total-cost">
-                    <span>Total Cost:</span>
+                    <span>{translateUI("crafts.totalCost")}</span>
                     <div className="value-display">
                       <span>{profitData.totalInputCost.toLocaleString()}</span>
                       <img
@@ -223,8 +222,10 @@ const ProfitableItems = () => {
 
       <div className="profitable-summary">
         <p>
-          Found <strong>{profitableItems.length}</strong> profitable crafting{" "}
-          {profitableItems.length === 1 ? "recipe" : "recipes"}
+          {translateUI("crafts.found")} <strong>{profitableItems.length}</strong>{" "}
+          {profitableItems.length === 1
+            ? translateUI("crafts.foundRecipe")
+            : translateUI("crafts.foundRecipes")}
         </p>
       </div>
     </div>

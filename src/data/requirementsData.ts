@@ -1,26 +1,56 @@
 import type {
   HideoutBench,
-  ItemRequirementLookup,
+  ItemUsage,
   Project,
   Quest,
 } from "../generated/types";
-import { DEFAULT_LANGUAGE } from "../utils/functions";
+import {
+  getLocalizedText,
+  type LanguageCode,
+} from "../localization/languageUtils";
+
+export type SourceType = "hideout" | "quest" | "project";
+
+export interface RequirementTemplates {
+  lvl: string;
+  quest: string;
+  step: string;
+}
+
+const DEFAULT_TEMPLATES: RequirementTemplates = {
+  lvl: "Lvl",
+  quest: "Quest:",
+  step: "Step",
+};
+
+export interface EnrichedItemUsage extends ItemUsage {
+  sourceType: SourceType;
+}
+
+export interface EnrichedItemRequirementLookup {
+  [itemId: string]: {
+    totalQuantity: number;
+    usedIn: EnrichedItemUsage[];
+  };
+}
 
 /**
  * Build lookup map from hideout bench requirements
  */
 const buildHideoutLookup = (
   hideoutBenches: HideoutBench[],
-): ItemRequirementLookup => {
-  const lookup: ItemRequirementLookup = {};
+  language: LanguageCode,
+  templates: RequirementTemplates,
+): EnrichedItemRequirementLookup => {
+  const lookup: EnrichedItemRequirementLookup = {};
 
   for (const bench of hideoutBenches) {
-    const benchName = bench.name[DEFAULT_LANGUAGE] ?? bench.id;
+    const benchName = getLocalizedText(bench.name, language) || bench.id;
 
     for (const level of bench.levels) {
       for (const requirement of level.requirementItemIds) {
         const { itemId, quantity } = requirement;
-        const source = `${benchName} Lvl ${level.level}`;
+        const source = `${benchName} ${templates.lvl} ${level.level}`;
 
         if (!lookup[itemId]) {
           lookup[itemId] = {
@@ -30,7 +60,7 @@ const buildHideoutLookup = (
         }
 
         lookup[itemId].totalQuantity += quantity;
-        lookup[itemId].usedIn.push({ source, quantity });
+        lookup[itemId].usedIn.push({ source, quantity, sourceType: "hideout" });
       }
     }
   }
@@ -41,17 +71,21 @@ const buildHideoutLookup = (
 /**
  * Build lookup map from quest requirements
  */
-const buildQuestLookup = (quests: Quest[]): ItemRequirementLookup => {
-  const lookup: ItemRequirementLookup = {};
+const buildQuestLookup = (
+  quests: Quest[],
+  language: LanguageCode,
+  templates: RequirementTemplates,
+): EnrichedItemRequirementLookup => {
+  const lookup: EnrichedItemRequirementLookup = {};
 
   for (const quest of quests) {
     if (!quest.requiredItemIds) continue;
 
-    const questName = quest.name[DEFAULT_LANGUAGE] ?? quest.id;
+    const questName = getLocalizedText(quest.name, language) || quest.id;
 
     for (const requirement of quest.requiredItemIds) {
       const { itemId, quantity } = requirement;
-      const source = `Quest: ${questName}`;
+      const source = `${templates.quest} ${questName}`;
 
       if (!lookup[itemId]) {
         lookup[itemId] = {
@@ -61,7 +95,7 @@ const buildQuestLookup = (quests: Quest[]): ItemRequirementLookup => {
       }
 
       lookup[itemId].totalQuantity += quantity;
-      lookup[itemId].usedIn.push({ source, quantity });
+      lookup[itemId].usedIn.push({ source, quantity, sourceType: "quest" });
     }
   }
 
@@ -71,27 +105,34 @@ const buildQuestLookup = (quests: Quest[]): ItemRequirementLookup => {
 /**
  * Build lookup map from project requirements
  */
-const buildProjectLookup = (projects: Project[]): ItemRequirementLookup => {
-  const lookup: ItemRequirementLookup = {};
+const buildProjectLookup = (
+  projects: Project[],
+  language: LanguageCode,
+  templates: RequirementTemplates,
+): EnrichedItemRequirementLookup => {
+  const lookup: EnrichedItemRequirementLookup = {};
 
   for (const project of projects) {
-    const projectName = project.name[DEFAULT_LANGUAGE] ?? "";
+    // Always use English name for filtering out excluded projects
+    const projectNameEn = project.name.en ?? "";
 
     // Filter out Season 1 projects & Flickering Flames event
     if (
-      projectName.includes("Season 1") ||
-      projectName.includes("Season 3") ||
-      projectName.includes("Flickering Flames")
+      projectNameEn.includes("Season 1") ||
+      projectNameEn.includes("Season 3") ||
+      projectNameEn.includes("Flickering Flames")
     ) {
       continue;
     }
+
+    const projectName = getLocalizedText(project.name, language) || projectNameEn;
 
     for (let i = 0; i < project.phases.length; i++) {
       const phase = project.phases[i];
 
       for (const requirement of phase.requirementItemIds) {
         const { itemId, quantity } = requirement;
-        const source = `${projectName} - Step ${i + 1}`;
+        const source = `${projectName} - ${templates.step} ${i + 1}`;
 
         if (!lookup[itemId]) {
           lookup[itemId] = {
@@ -101,7 +142,7 @@ const buildProjectLookup = (projects: Project[]): ItemRequirementLookup => {
         }
 
         lookup[itemId].totalQuantity += quantity;
-        lookup[itemId].usedIn.push({ source, quantity });
+        lookup[itemId].usedIn.push({ source, quantity, sourceType: "project" });
       }
     }
   }
@@ -113,9 +154,9 @@ const buildProjectLookup = (projects: Project[]): ItemRequirementLookup => {
  * Merge multiple lookup maps into a single aggregated map
  */
 const mergeLookups = (
-  ...lookups: ItemRequirementLookup[]
-): ItemRequirementLookup => {
-  const merged: ItemRequirementLookup = {};
+  ...lookups: EnrichedItemRequirementLookup[]
+): EnrichedItemRequirementLookup => {
+  const merged: EnrichedItemRequirementLookup = {};
 
   for (const lookup of lookups) {
     for (const [itemId, data] of Object.entries(lookup)) {
@@ -142,10 +183,12 @@ export const getItemRequirements = (
   hideoutBenches: HideoutBench[],
   quests: Quest[],
   projects: Project[],
-): ItemRequirementLookup => {
-  const hideoutLookup = buildHideoutLookup(hideoutBenches);
-  const questLookup = buildQuestLookup(quests);
-  const projectLookup = buildProjectLookup(projects);
+  language: LanguageCode,
+  templates: RequirementTemplates = DEFAULT_TEMPLATES,
+): EnrichedItemRequirementLookup => {
+  const hideoutLookup = buildHideoutLookup(hideoutBenches, language, templates);
+  const questLookup = buildQuestLookup(quests, language, templates);
+  const projectLookup = buildProjectLookup(projects, language, templates);
 
   return mergeLookups(hideoutLookup, questLookup, projectLookup);
 };

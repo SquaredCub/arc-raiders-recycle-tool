@@ -4,10 +4,13 @@ import MapEventsPage from "./components/MapEventsPage";
 import Navigation, { type NavigationPage } from "./components/Navigation";
 import ProfitableItems from "./components/ProfitableItems";
 import ScrollToTop from "./components/ScrollToTop";
+import { LanguageProvider } from "./contexts/LanguageContext";
+import { useLanguage } from "./hooks/useLanguage";
 import RecyclingTools from "./RecyclingTools";
 
-const App = () => {
+const AppContent = () => {
   const [activePage, setActivePage] = useState<NavigationPage>("recycling");
+  const { translateUI } = useLanguage();
 
   const onNavigate = (page: NavigationPage) => {
     setActivePage(page);
@@ -20,9 +23,15 @@ const App = () => {
       {activePage === "crafts" && <ProfitableItems />}
       {activePage === "map-events" && <MapEventsPage />}
       <ScrollToTop />
-      <div id="update-note">Last updated on 25/02/2026</div>
+      <div id="update-note">{translateUI("general.lastUpdated")} 25/02/2026</div>
     </>
   );
 };
+
+const App = () => (
+  <LanguageProvider>
+    <AppContent />
+  </LanguageProvider>
+);
 
 export default App;

@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { useLanguage } from "../hooks/useLanguage";
 import { useModalBehavior } from "../hooks/useModalBehavior";
 import "./MultiSelectDropdown.scss";
 
@@ -9,6 +10,7 @@ interface MultiSelectDropdownProps {
   onSelectAll: () => void;
   onDeselectAll: () => void;
   label: string;
+  translateOption?: (option: string) => string;
 }
 
 const MultiSelectDropdown = ({
@@ -18,7 +20,9 @@ const MultiSelectDropdown = ({
   onSelectAll,
   onDeselectAll,
   label,
+  translateOption,
 }: MultiSelectDropdownProps) => {
+  const { translateUI } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -58,14 +62,14 @@ const MultiSelectDropdown = ({
               onClick={onSelectAll}
               type="button"
             >
-              Select All
+              {translateUI("filter.selectAll")}
             </button>
             <button
               className="multi-select-dropdown__action-button"
               onClick={onDeselectAll}
               type="button"
             >
-              Deselect All
+              {translateUI("filter.deselectAll")}
             </button>
           </div>
           <div className="multi-select-dropdown__options">
@@ -76,7 +80,7 @@ const MultiSelectDropdown = ({
                   checked={selectedOptions.has(option)}
                   onChange={() => onToggle(option)}
                 />
-                <span>{option}</span>
+                <span>{translateOption ? translateOption(option) : option}</span>
               </label>
             ))}
           </div>

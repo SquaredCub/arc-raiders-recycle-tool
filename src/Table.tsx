@@ -2,6 +2,7 @@ import { flexRender, type Table as TableType } from "@tanstack/react-table";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import { useEffect, useRef, useState } from "react";
 import type { Item } from "./generated/types";
+import { useLanguage } from "./hooks/useLanguage";
 import type { SearchMatchType } from "./utils/functions";
 
 type TableProps<T> = {
@@ -17,6 +18,7 @@ const Table = <T,>({
   searchMatchTypes,
   nameMatchBoundaryIndex = -1,
 }: TableProps<T>) => {
+  const { translateUI } = useLanguage();
   const tableWrapperRef = useRef<HTMLDivElement>(null);
   const [scrollMargin, setScrollMargin] = useState(0);
   const headerRef = useRef<HTMLDivElement | null>(null);
@@ -127,10 +129,10 @@ const Table = <T,>({
                     title={
                       header.column.getCanSort()
                         ? header.column.getNextSortingOrder() === "asc"
-                          ? "Sort ascending"
+                          ? translateUI("sort.ascending")
                           : header.column.getNextSortingOrder() === "desc"
-                            ? "Sort descending"
-                            : "Clear sort"
+                            ? translateUI("sort.descending")
+                            : translateUI("sort.clearSort")
                         : undefined
                     }
                   >

@@ -1,10 +1,16 @@
 import { createColumnHelper } from "@tanstack/react-table";
 import { SORT_COLUMNS } from "../constants/sortColumns";
 import { COINS_IMAGE_URL, getItemImage } from "../data/itemsData";
+import type { EnrichedItemRequirementLookup } from "../data/requirementsData";
 import ItemCell from "../ItemCell";
 import { getImageUrl } from "../services/dataService";
-import type { Item, ItemRequirementLookup } from "../generated/types";
-import { DEFAULT_LANGUAGE, isNoResultsItem } from "./functions";
+import type { Item } from "../generated/types";
+import {
+  getLocalizedText,
+  type LanguageCode,
+} from "../localization/languageUtils";
+import type { UIStringKey } from "../localization/uiStrings";
+import { isNoResultsItem } from "./functions";
 import type { CachedMaterial } from "./tableCache";
 
 const columnHelper = createColumnHelper<Item>();
@@ -20,27 +26,30 @@ const col = (id: string) => {
  * Extracted to separate file for better organization and maintainability
  */
 export const createItemsTableColumns = (
-  itemRequirements: ItemRequirementLookup,
+  itemRequirements: EnrichedItemRequirementLookup,
   sortedMaterialsCache: Record<string, CachedMaterial[]>,
   matchedMaterials?: Record<string, Set<string>>,
   matchedSources?: Record<string, Set<string>>,
+  language?: LanguageCode,
+  translateUI?: (key: UIStringKey) => string,
 ) => {
+  const label = (key: UIStringKey) => translateUI?.(key) ?? key;
   return [
     columnHelper.accessor("name", {
       id: col("item").id,
-      header: () => <span>{col("item").label}</span>,
+      header: () => <span>{label(col("item").label)}</span>,
       size: 200,
       cell: (info) => {
         const item = info.row.original;
         // Handle "no results" placeholder
         if (isNoResultsItem(item.id)) {
-          return <span>{item.name[DEFAULT_LANGUAGE]}</span>;
+          return <span>{item.name.en}</span>;
         }
         const imageSrc = getItemImage(item);
         return (
           <ItemCell
             id={item.id}
-            name={item.name[DEFAULT_LANGUAGE] || item.name.en}
+            name={language ? getLocalizedText(item.name, language) : item.name.en}
             imageSrc={imageSrc}
             rarity={item.rarity}
           />
@@ -51,7 +60,7 @@ export const createItemsTableColumns = (
     }),
     columnHelper.accessor("recyclesInto", {
       id: col("recycles").id,
-      header: () => <span>{col("recycles").label}</span>,
+      header: () => <span>{label(col("recycles").label)}</span>,
       size: 250,
       cell: (info) => {
         const item = info.row.original;
@@ -84,7 +93,7 @@ export const createItemsTableColumns = (
     }),
     columnHelper.accessor("salvagesInto", {
       id: col("salvages").id,
-      header: () => <span>{col("salvages").label}</span>,
+      header: () => <span>{label(col("salvages").label)}</span>,
       size: 200,
       cell: (info) => {
         const item = info.row.original;
@@ -115,7 +124,7 @@ export const createItemsTableColumns = (
     }),
     columnHelper.accessor("foundIn", {
       id: col("foundIn").id,
-      header: () => <span>{col("foundIn").label}</span>,
+      header: () => <span>{label(col("foundIn").label)}</span>,
       size: 180,
       cell: (info) => {
         const item = info.row.original;
@@ -132,10 +141,14 @@ export const createItemsTableColumns = (
             {sources.map((source) => {
               const iconName = source.toLowerCase().replace(" ", "_");
               const iconUrl = getImageUrl(`images/found_in/${iconName}.svg`);
+              const locationKey = `location.${source.toLowerCase().replace(/ /g, "")}` as import("../localization/uiStrings").UIStringKey;
+              const displayName = translateUI ? translateUI(locationKey) : source;
+              // Fall back to raw source if translateUI returned the key itself
+              const translatedName = displayName === locationKey ? source : displayName;
               return (
                 <div key={source} className="found-in-item">
                   <img src={iconUrl} alt={source} className="found-in-icon" />
-                  <span>{source}</span>
+                  <span>{translatedName}</span>
                 </div>
               );
             })}
@@ -147,7 +160,7 @@ export const createItemsTableColumns = (
     }),
     columnHelper.accessor("id", {
       id: col("neededFor").id,
-      header: () => <span>{col("neededFor").label}</span>,
+      header: () => <span>{label(col("neededFor").label)}</span>,
       size: 220,
       cell: (info) => {
         const itemId = info.getValue();
@@ -164,7 +177,7 @@ export const createItemsTableColumns = (
         return (
           <div className="needed-for-container">
             <div className="needed-for-total">
-              Total: {requirements.totalQuantity}
+              {label("general.total")} {requirements.totalQuantity}
             </div>
             <div className="needed-for-list">
               {requirements.usedIn.map((usage, index) => (
@@ -188,7 +201,7 @@ export const createItemsTableColumns = (
     }),
     columnHelper.accessor("value", {
       id: col("value").id,
-      header: () => <span>{col("value").label}</span>,
+      header: () => <span>{label(col("value").label)}</span>,
       size: 80,
       cell: (info) => {
         const item = info.row.original;

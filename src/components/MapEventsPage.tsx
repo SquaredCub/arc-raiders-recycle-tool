@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import mapEventsJson from "../generated/map-events.json";
 import type { MapEventsData } from "../generated/types";
+import { useLanguage } from "../hooks/useLanguage";
 import {
   formatCountdown,
   formatLocalHour,
@@ -58,7 +59,8 @@ const ScheduleCard = ({
   eventType,
   occurrences,
   now,
-}: EventTypeSchedule & { now: Date }) => {
+  translateUI,
+}: EventTypeSchedule & { now: Date; translateUI: (key: import("../localization/uiStrings").UIStringKey) => string }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [showGradient, setShowGradient] = useState(false);
 
@@ -109,8 +111,8 @@ const ScheduleCard = ({
                 </span>
                 <span className="schedule-occurrence__countdown">
                   {occ.isActive
-                    ? `Ends in ${formatCountdown(getEndsAtHour(occ.hour), now)}`
-                    : `in ${formatCountdown(occ.hour, now)}`}
+                    ? `${translateUI("events.endsIn")} ${formatCountdown(getEndsAtHour(occ.hour), now)}`
+                    : `${translateUI("events.in")} ${formatCountdown(occ.hour, now)}`}
                 </span>
               </div>
             </div>
@@ -122,6 +124,7 @@ const ScheduleCard = ({
 };
 
 const MapEventsPage = () => {
+  const { translateUI } = useLanguage();
   const [now, setNow] = useState(() => new Date());
 
   useEffect(() => {
@@ -147,13 +150,13 @@ const MapEventsPage = () => {
         <section className="map-events-section">
           <h2 className="map-events-section__title">
             <span className="pulse-dot" aria-hidden="true" />
-            Active Now
+            {translateUI("events.activeNow")}
             <span className="map-events-section__subtitle">
               {formatLocalHour(nowUtcHour)} · {tzLabel}
             </span>
           </h2>
           {activeEvents.length === 0 ? (
-            <p className="map-events-empty">No events started this hour.</p>
+            <p className="map-events-empty">{translateUI("events.noActiveEvents")}</p>
           ) : (
             <div className="event-cards">
               {activeEvents.map((event) => (
@@ -161,7 +164,7 @@ const MapEventsPage = () => {
                   key={`${event.mapId}-${event.category}`}
                   event={event}
                   countdown={formatCountdown(event.endsAtHour, now)}
-                  countdownLabel="Ends in"
+                  countdownLabel={translateUI("events.endsIn")}
                 />
               ))}
             </div>
@@ -182,7 +185,7 @@ const MapEventsPage = () => {
               <circle cx="12" cy="12" r="10" />
               <polyline points="12 6 12 12 16 14" />
             </svg>
-            Upcoming Next
+            {translateUI("events.upcomingNext")}
             {nextHour !== null && (
               <span className="map-events-section__subtitle">
                 {formatLocalHour(nextHour)} · {tzLabel}
@@ -190,7 +193,7 @@ const MapEventsPage = () => {
             )}
           </h2>
           {upcomingEvents.length === 0 ? (
-            <p className="map-events-empty">No upcoming events found.</p>
+            <p className="map-events-empty">{translateUI("events.noUpcomingEvents")}</p>
           ) : (
             <div className="event-cards">
               {upcomingEvents.map((event) => (
@@ -200,7 +203,7 @@ const MapEventsPage = () => {
                   countdown={
                     nextHour !== null ? formatCountdown(nextHour, now) : "—"
                   }
-                  countdownLabel="Starts in"
+                  countdownLabel={translateUI("events.startsIn")}
                 />
               ))}
             </div>
@@ -210,9 +213,9 @@ const MapEventsPage = () => {
 
       {/* Next 24 Hours */}
       <section className="map-events-section map-events-section--schedule">
-        <h2 className="map-events-section__title">Next 24 Hours</h2>
+        <h2 className="map-events-section__title">{translateUI("events.next24Hours")}</h2>
         {schedule.length === 0 ? (
-          <p className="map-events-empty">No events scheduled.</p>
+          <p className="map-events-empty">{translateUI("events.noScheduledEvents")}</p>
         ) : (
           <div className="schedule-grid">
             {schedule.map(({ eventId, eventType, occurrences }) => (
@@ -222,6 +225,7 @@ const MapEventsPage = () => {
                 eventType={eventType}
                 occurrences={occurrences}
                 now={now}
+                translateUI={translateUI}
               />
             ))}
           </div>

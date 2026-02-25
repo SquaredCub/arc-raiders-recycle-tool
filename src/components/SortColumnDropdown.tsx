@@ -1,6 +1,7 @@
 import type { SortingState } from "@tanstack/react-table";
 import { useRef, useState } from "react";
 import { SORT_COLUMNS, SORT_COLUMNS_BY_ID } from "../constants/sortColumns";
+import { useLanguage } from "../hooks/useLanguage";
 import { useModalBehavior } from "../hooks/useModalBehavior";
 import "./SortColumnDropdown.scss";
 
@@ -13,6 +14,7 @@ const SortColumnDropdown = ({
   sorting,
   onSortingChange,
 }: SortColumnDropdownProps) => {
+  const { translateUI } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -24,9 +26,11 @@ const SortColumnDropdown = ({
   });
 
   const currentColumnId = sorting[0]?.id ?? "item";
-  const currentLabel =
-    SORT_COLUMNS_BY_ID[currentColumnId as keyof typeof SORT_COLUMNS_BY_ID]
-      ?.label ?? "Item";
+  const currentColumn =
+    SORT_COLUMNS_BY_ID[currentColumnId as keyof typeof SORT_COLUMNS_BY_ID];
+  const currentLabel = currentColumn
+    ? translateUI(currentColumn.label)
+    : translateUI("sort.name");
 
   const handleSelect = (columnId: string) => {
     const column =
@@ -41,10 +45,10 @@ const SortColumnDropdown = ({
         className="sort-column-dropdown__trigger"
         onClick={() => setIsOpen(!isOpen)}
         type="button"
-        aria-label="Sort by column"
+        aria-label={translateUI("sort.sortByColumn")}
       >
         <span className="sort-column-dropdown__label">
-          Sort by: {currentLabel}
+          {translateUI("sort.sortBy")} {currentLabel}
         </span>
         <span className={`sort-column-dropdown__arrow ${isOpen ? "open" : ""}`}>
           ▼
@@ -63,7 +67,7 @@ const SortColumnDropdown = ({
                 onClick={() => handleSelect(column.id)}
                 type="button"
               >
-                {column.label}
+                {translateUI(column.label)}
               </button>
             ))}
           </div>

@@ -195,10 +195,10 @@ export const filterItemsBySearch = (
 /**
  * Create a "no results" placeholder item
  */
-export const createNoResultsItem = (searchTerm: string): Item => {
+export const createNoResultsItem = (searchTerm: string, noResultsText?: string): Item => {
   return {
     id: NO_RESULTS_ID,
-    name: { en: `No items found matching "${searchTerm}"` },
+    name: { en: noResultsText ?? `No items found matching "${searchTerm}"` },
     description: { en: "" },
     type: "Misc" as const,
     rarity: "Common" as const,
