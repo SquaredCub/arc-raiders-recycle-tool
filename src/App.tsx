@@ -20,7 +20,7 @@ const App = () => {
       {activePage === "crafts" && <ProfitableItems />}
       {activePage === "map-events" && <MapEventsPage />}
       <ScrollToTop />
-      <div id="update-note">Last updated on 22/02/2026</div>
+      <div id="update-note">Last updated on 25/02/2026</div>
     </>
   );
 };

@@ -80,6 +80,7 @@ const buildProjectLookup = (projects: Project[]): ItemRequirementLookup => {
     // Filter out Season 1 projects & Flickering Flames event
     if (
       projectName.includes("Season 1") ||
+      projectName.includes("Season 3") ||
       projectName.includes("Flickering Flames")
     ) {
       continue;
