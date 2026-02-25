@@ -393,6 +393,10 @@ export interface MaterialCosts {
 export type ItemType =
 ${itemTypes.map((type, i) => `  | "${type}"${i === itemTypes.length - 1 ? ";" : ""}`).join("\n")}
 
+export const ITEM_TYPES: ItemType[] = [
+${itemTypes.map((type) => `  "${type}",`).join("\n")}
+];
+
 export type ItemRarity =
 ${rarities.map((rarity, i) => `  | "${rarity}"${i === rarities.length - 1 ? ";" : ""}`).join("\n")}
 
