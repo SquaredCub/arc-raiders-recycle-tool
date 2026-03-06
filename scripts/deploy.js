@@ -16,8 +16,8 @@ const updateLastUpdatedDate = () => {
   const year = now.getFullYear();
   const date = `${day}/${month}/${year}`;
   const updated = content.replace(
-    /Last updated on \d{2}\/\d{2}\/\d{4}/,
-    `Last updated on ${date}`
+    /("general\.lastUpdated"\)}\s*)\d{2}\/\d{2}\/\d{4}/,
+    `$1${date}`
   );
   writeFileSync(appFile, updated, "utf-8");
   console.log(`${GREEN}Updated last updated date to ${date}.${NC}`);
