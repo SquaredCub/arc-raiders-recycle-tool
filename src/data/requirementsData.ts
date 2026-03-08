@@ -116,16 +116,12 @@ const buildProjectLookup = (
     // Always use English name for filtering out excluded projects
     const projectNameEn = project.name.en ?? "";
 
-    // Filter out Season 1 projects & Flickering Flames event
-    if (
-      projectNameEn.includes("Season 1") ||
-      projectNameEn.includes("Season 3") ||
-      projectNameEn.includes("Flickering Flames")
-    ) {
+    if (projectNameEn.includes("Flickering Flames")) {
       continue;
     }
 
-    const projectName = getLocalizedText(project.name, language) || projectNameEn;
+    const projectName =
+      getLocalizedText(project.name, language) || projectNameEn;
 
     for (let i = 0; i < project.phases.length; i++) {
       const phase = project.phases[i];

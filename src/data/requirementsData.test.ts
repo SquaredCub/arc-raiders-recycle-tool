@@ -1,16 +1,24 @@
-import { describe, it, expect } from "@jest/globals";
-import { getItemRequirements, type RequirementTemplates } from "./requirementsData";
-import type { HideoutBench, Quest, Project } from "../generated/types";
+import { describe, expect, it } from "@jest/globals";
 import hideoutData from "../generated/hideout.json";
-import questsData from "../generated/quests.json";
 import projectsData from "../generated/projects.json";
+import questsData from "../generated/quests.json";
+import type { HideoutBench, Project, Quest } from "../generated/types";
+import {
+  getItemRequirements,
+  type RequirementTemplates,
+} from "./requirementsData";
 
 const hideoutBenches = hideoutData as HideoutBench[];
 const quests = questsData as Quest[];
 const projects = projectsData as Project[];
 
 describe("getItemRequirements", () => {
-  const requirements = getItemRequirements(hideoutBenches, quests, projects, "en");
+  const requirements = getItemRequirements(
+    hideoutBenches,
+    quests,
+    projects,
+    "en",
+  );
 
   it("returns a non-empty result from real data", () => {
     expect(Object.keys(requirements).length).toBeGreaterThan(0);
@@ -48,7 +56,7 @@ describe("getItemRequirements", () => {
 
   it("hideout sources follow 'BenchName Lvl N' format", () => {
     const hideoutSources = Object.values(requirements).flatMap((data) =>
-      data.usedIn.filter((u) => u.source.includes("Lvl"))
+      data.usedIn.filter((u) => u.source.includes("Lvl")),
     );
     expect(hideoutSources.length).toBeGreaterThan(0);
     for (const usage of hideoutSources) {
@@ -58,7 +66,7 @@ describe("getItemRequirements", () => {
 
   it("quest sources follow 'Quest: QuestName' format", () => {
     const questSources = Object.values(requirements).flatMap((data) =>
-      data.usedIn.filter((u) => u.source.startsWith("Quest:"))
+      data.usedIn.filter((u) => u.source.startsWith("Quest:")),
     );
     expect(questSources.length).toBeGreaterThan(0);
     for (const usage of questSources) {
@@ -68,7 +76,7 @@ describe("getItemRequirements", () => {
 
   it("project sources follow 'ProjectName - Step N' format", () => {
     const projectSources = Object.values(requirements).flatMap((data) =>
-      data.usedIn.filter((u) => u.source.includes("Step"))
+      data.usedIn.filter((u) => u.source.includes("Step")),
     );
     expect(projectSources.length).toBeGreaterThan(0);
     for (const usage of projectSources) {
@@ -76,20 +84,12 @@ describe("getItemRequirements", () => {
     }
   });
 
-  it("filters out Season 1 projects", () => {
-    const allSources = Object.values(requirements).flatMap((data) =>
-      data.usedIn.map((u) => u.source)
-    );
-    const season1Sources = allSources.filter((s) => s.includes("Season 1"));
-    expect(season1Sources).toHaveLength(0);
-  });
-
   it("filters out Flickering Flames projects", () => {
     const allSources = Object.values(requirements).flatMap((data) =>
-      data.usedIn.map((u) => u.source)
+      data.usedIn.map((u) => u.source),
     );
     const flickeringSources = allSources.filter((s) =>
-      s.includes("Flickering Flames")
+      s.includes("Flickering Flames"),
     );
     expect(flickeringSources).toHaveLength(0);
   });
@@ -97,7 +97,7 @@ describe("getItemRequirements", () => {
   it("correctly merges items used in multiple sources", () => {
     // Find an item used in multiple sources
     const multiSourceItem = Object.entries(requirements).find(
-      ([, data]) => data.usedIn.length > 1
+      ([, data]) => data.usedIn.length > 1,
     );
     expect(multiSourceItem).toBeDefined();
     if (multiSourceItem) {
@@ -118,10 +118,16 @@ describe("getItemRequirements", () => {
       quest: "Quête :",
       step: "Étape",
     };
-    const customReqs = getItemRequirements(hideoutBenches, quests, projects, "en", customTemplates);
+    const customReqs = getItemRequirements(
+      hideoutBenches,
+      quests,
+      projects,
+      "en",
+      customTemplates,
+    );
 
     const hideoutSources = Object.values(customReqs).flatMap((data) =>
-      data.usedIn.filter((u) => u.sourceType === "hideout")
+      data.usedIn.filter((u) => u.sourceType === "hideout"),
     );
     expect(hideoutSources.length).toBeGreaterThan(0);
     for (const usage of hideoutSources) {
@@ -129,7 +135,7 @@ describe("getItemRequirements", () => {
     }
 
     const questSources = Object.values(customReqs).flatMap((data) =>
-      data.usedIn.filter((u) => u.sourceType === "quest")
+      data.usedIn.filter((u) => u.sourceType === "quest"),
     );
     expect(questSources.length).toBeGreaterThan(0);
     for (const usage of questSources) {
@@ -137,7 +143,7 @@ describe("getItemRequirements", () => {
     }
 
     const projectSources = Object.values(customReqs).flatMap((data) =>
-      data.usedIn.filter((u) => u.sourceType === "project")
+      data.usedIn.filter((u) => u.sourceType === "project"),
     );
     expect(projectSources.length).toBeGreaterThan(0);
     for (const usage of projectSources) {
