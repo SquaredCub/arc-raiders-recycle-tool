@@ -32,6 +32,7 @@ export const createItemsTableColumns = (
   matchedSources?: Record<string, Set<string>>,
   language?: LanguageCode,
   translateUI?: (key: UIStringKey) => string,
+  onSearchTermChange?: (term: string) => void,
 ) => {
   const label = (key: UIStringKey) => translateUI?.(key) ?? key;
   return [
@@ -180,18 +181,30 @@ export const createItemsTableColumns = (
               {label("general.total")} {requirements.totalQuantity}
             </div>
             <div className="needed-for-list">
-              {requirements.usedIn.map((usage, index) => (
-                <div
-                  key={index}
-                  className={
-                    matchedSources?.[itemId]?.has(usage.source)
-                      ? "needed-for-source--highlighted"
-                      : undefined
-                  }
-                >
-                  • {usage.source} ({usage.quantity})
-                </div>
-              ))}
+              {requirements.usedIn.map((usage, index) => {
+                const isHighlighted = matchedSources?.[itemId]?.has(usage.source);
+                const isClickable = usage.sourceType === "project" && onSearchTermChange;
+
+                const className = [
+                  isHighlighted && "needed-for-source--highlighted",
+                  isClickable && "needed-for-source--clickable",
+                ].filter(Boolean).join(" ") || undefined;
+
+                return isClickable ? (
+                  <button
+                    key={index}
+                    type="button"
+                    className={className}
+                    onClick={() => onSearchTermChange(usage.source)}
+                  >
+                    • {usage.source} ({usage.quantity})
+                  </button>
+                ) : (
+                  <div key={index} className={className}>
+                    • {usage.source} ({usage.quantity})
+                  </div>
+                );
+              })}
             </div>
           </div>
         );

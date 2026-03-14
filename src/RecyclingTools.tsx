@@ -131,6 +131,7 @@ const RecyclingTools = () => {
           sorting={sorting}
           onSortingChange={setSorting}
           onFilteredCountChange={handleFilteredCountChange}
+          onSearchTermChange={setSearchTerm}
         />
       </section>
       <FilterModal

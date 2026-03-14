@@ -37,6 +37,7 @@ interface ItemsTableProps {
   sorting: SortingState;
   onSortingChange: (updater: SortingState | ((prev: SortingState) => SortingState)) => void;
   onFilteredCountChange?: (filteredCount: number, totalCount: number) => void;
+  onSearchTermChange?: (term: string) => void;
 }
 
 const ItemsTable = React.memo(
@@ -46,6 +47,7 @@ const ItemsTable = React.memo(
     sorting,
     onSortingChange,
     onFilteredCountChange,
+    onSearchTermChange,
   }: ItemsTableProps) => {
     const {
       items,
@@ -149,6 +151,7 @@ const ItemsTable = React.memo(
           searchResult.matchedSources,
           language,
           translateUI,
+          onSearchTermChange,
         ),
       [
         itemRequirements,
@@ -157,6 +160,7 @@ const ItemsTable = React.memo(
         searchResult.matchedSources,
         language,
         translateUI,
+        onSearchTermChange,
       ],
     );
 
@@ -314,6 +318,7 @@ const ItemsTable = React.memo(
     return (
       prevProps.searchTerm === nextProps.searchTerm &&
       prevProps.onFilteredCountChange === nextProps.onFilteredCountChange &&
+      prevProps.onSearchTermChange === nextProps.onSearchTermChange &&
       prevProps.onSortingChange === nextProps.onSortingChange &&
       prevProps.sorting === nextProps.sorting &&
       prevProps.filterSettings.prioritizeNameMatches ===
