@@ -77,17 +77,43 @@ export const createItemsTableColumns = (
           return <span>-</span>;
         }
 
+        const isClickable = !!onSearchTermChange;
         const itemMatched = matchedMaterials?.[item.id];
+
+        const className = isClickable ? "recycles-into--clickable" : undefined;
+
         return (
           <div className="recycles-salvages-container">
-            {cachedMaterials.map(({ material, quantity, name, image }) => (
-              <ItemCell
-                key={material}
-                name={`${quantity} x ${name}`}
-                imageSrc={image}
-                highlighted={itemMatched?.has(material)}
-              />
-            ))}
+            {cachedMaterials.map(
+              ({ material, quantity, name, image }, index) => (
+                <>
+                  {isClickable ? (
+                    <button
+                      key={index}
+                      type="button"
+                      className={className}
+                      onClick={() => onSearchTermChange(name)}
+                    >
+                      <ItemCell
+                        key={material}
+                        name={`${quantity} x ${name}`}
+                        imageSrc={image}
+                        highlighted={itemMatched?.has(material)}
+                      />
+                    </button>
+                  ) : (
+                    <div key={index} className={className}>
+                      <ItemCell
+                        key={material}
+                        name={`${quantity} x ${name}`}
+                        imageSrc={image}
+                        highlighted={itemMatched?.has(material)}
+                      />
+                    </div>
+                  )}
+                </>
+              ),
+            )}
           </div>
         );
       },
@@ -108,17 +134,46 @@ export const createItemsTableColumns = (
           return <span>-</span>;
         }
 
+        const isClickable = !!onSearchTermChange;
         const itemMatched = matchedMaterials?.[item.id];
+
+        const className =
+          [isClickable && "salvages-into--clickable"]
+            .filter(Boolean)
+            .join(" ") || undefined;
+
         return (
           <div className="recycles-salvages-container">
-            {cachedMaterials.map(({ material, quantity, name, image }) => (
-              <ItemCell
-                key={material}
-                name={`${quantity} x ${name}`}
-                imageSrc={image}
-                highlighted={itemMatched?.has(material)}
-              />
-            ))}
+            {cachedMaterials.map(
+              ({ material, quantity, name, image }, index) => (
+                <>
+                  {isClickable ? (
+                    <button
+                      key={index}
+                      type="button"
+                      className={className}
+                      onClick={() => onSearchTermChange(name)}
+                    >
+                      <ItemCell
+                        key={material}
+                        name={`${quantity} x ${name}`}
+                        imageSrc={image}
+                        highlighted={itemMatched?.has(material)}
+                      />
+                    </button>
+                  ) : (
+                    <div key={index} className={className}>
+                      <ItemCell
+                        key={material}
+                        name={`${quantity} x ${name}`}
+                        imageSrc={image}
+                        highlighted={itemMatched?.has(material)}
+                      />
+                    </div>
+                  )}
+                </>
+              ),
+            )}
           </div>
         );
       },
@@ -152,6 +207,7 @@ export const createItemsTableColumns = (
               // Fall back to raw source if translateUI returned the key itself
               const translatedName =
                 displayName === locationKey ? source : displayName;
+
               return (
                 <div key={source} className="found-in-item">
                   <img src={iconUrl} alt={source} className="found-in-icon" />
