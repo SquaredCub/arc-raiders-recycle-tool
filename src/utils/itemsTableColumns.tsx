@@ -2,14 +2,14 @@ import { createColumnHelper } from "@tanstack/react-table";
 import { SORT_COLUMNS } from "../constants/sortColumns";
 import { COINS_IMAGE_URL, getItemImage } from "../data/itemsData";
 import type { EnrichedItemRequirementLookup } from "../data/requirementsData";
-import ItemCell from "../ItemCell";
-import { getImageUrl } from "../services/dataService";
 import type { Item } from "../generated/types";
+import ItemCell from "../ItemCell";
 import {
   getLocalizedText,
   type LanguageCode,
 } from "../localization/languageUtils";
 import type { UIStringKey } from "../localization/uiStrings";
+import { getImageUrl } from "../services/dataService";
 import { isNoResultsItem } from "./functions";
 import type { CachedMaterial } from "./tableCache";
 
@@ -50,7 +50,9 @@ export const createItemsTableColumns = (
         return (
           <ItemCell
             id={item.id}
-            name={language ? getLocalizedText(item.name, language) : item.name.en}
+            name={
+              language ? getLocalizedText(item.name, language) : item.name.en
+            }
             imageSrc={imageSrc}
             rarity={item.rarity}
           />
@@ -142,10 +144,14 @@ export const createItemsTableColumns = (
             {sources.map((source) => {
               const iconName = source.toLowerCase().replace(" ", "_");
               const iconUrl = getImageUrl(`images/found_in/${iconName}.svg`);
-              const locationKey = `location.${source.toLowerCase().replace(/ /g, "")}` as import("../localization/uiStrings").UIStringKey;
-              const displayName = translateUI ? translateUI(locationKey) : source;
+              const locationKey =
+                `location.${source.toLowerCase().replace(/ /g, "")}` as import("../localization/uiStrings").UIStringKey;
+              const displayName = translateUI
+                ? translateUI(locationKey)
+                : source;
               // Fall back to raw source if translateUI returned the key itself
-              const translatedName = displayName === locationKey ? source : displayName;
+              const translatedName =
+                displayName === locationKey ? source : displayName;
               return (
                 <div key={source} className="found-in-item">
                   <img src={iconUrl} alt={source} className="found-in-icon" />
@@ -182,13 +188,18 @@ export const createItemsTableColumns = (
             </div>
             <div className="needed-for-list">
               {requirements.usedIn.map((usage, index) => {
-                const isHighlighted = matchedSources?.[itemId]?.has(usage.source);
-                const isClickable = usage.sourceType === "project" && onSearchTermChange;
+                const isHighlighted = matchedSources?.[itemId]?.has(
+                  usage.source,
+                );
+                const isClickable = !!onSearchTermChange;
 
-                const className = [
-                  isHighlighted && "needed-for-source--highlighted",
-                  isClickable && "needed-for-source--clickable",
-                ].filter(Boolean).join(" ") || undefined;
+                const className =
+                  [
+                    isHighlighted && "needed-for-source--highlighted",
+                    isClickable && "needed-for-source--clickable",
+                  ]
+                    .filter(Boolean)
+                    .join(" ") || undefined;
 
                 return isClickable ? (
                   <button
