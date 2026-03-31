@@ -73,7 +73,7 @@ if (failures.length === 0) {
   console.log(`${GREEN}All tests passed. Proceeding with deploy.${NC}`);
   console.log("");
   updateLastUpdatedDate();
-  if (!run("npm run build && npx gh-pages -d dist")) {
+  if (!run("npm run build && npx gh-pages -d dist --no-history")) {
     process.exit(1);
   }
 } else {
@@ -89,7 +89,7 @@ if (failures.length === 0) {
     console.log("");
     console.log("Deploying despite test failures...");
     updateLastUpdatedDate();
-    if (!run("npm run build && npx gh-pages -d dist")) {
+    if (!run("npm run build && npx gh-pages -d dist --no-history")) {
       process.exit(1);
     }
   } else {

@@ -16,7 +16,7 @@ const allKeys = Object.keys(UI_STRINGS) as UIStringKey[];
 
 describe("UI_STRINGS", () => {
   it("has at least 110 string keys", () => {
-    expect(allKeys.length).toBeGreaterThanOrEqual(110);
+    expect(allKeys.length).toBeGreaterThanOrEqual(98);
   });
 
   it("every key has an English translation", () => {
@@ -34,7 +34,7 @@ describe("UI_STRINGS", () => {
 
   it("covers all expected key prefixes", () => {
     const prefixes = [
-      "nav.", "recycling.", "search.", "filter.", "sort.", "crafts.",
+      "nav.", "recycling.", "search.", "filter.", "sort.",
       "events.", "general.", "source.", "tooltip.", "error.", "loading.",
       "category.", "rarity.", "location.", "requirement.",
     ];

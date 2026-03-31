@@ -8,7 +8,7 @@ import {
 import ExternalLinkIcon from "./ExternalLinkIcon";
 import "./Navigation.scss";
 
-export type NavigationPage = "recycling" | "crafts" | "map-events";
+export type NavigationPage = "recycling" | "map-events";
 
 interface NavigationProps {
   activePage: NavigationPage;
@@ -86,9 +86,8 @@ const ExternalLinkList = ({ links }: { links: ExternalLink[] }) => (
   </>
 );
 
-const pageItems: { page: NavigationPage; key: "nav.recyclingTool" | "nav.profitableCrafts" | "nav.mapEvents" }[] = [
+const pageItems: { page: NavigationPage; key: "nav.recyclingTool" | "nav.mapEvents" }[] = [
   { page: "recycling", key: "nav.recyclingTool" },
-  { page: "crafts", key: "nav.profitableCrafts" },
   { page: "map-events", key: "nav.mapEvents" },
 ];
 

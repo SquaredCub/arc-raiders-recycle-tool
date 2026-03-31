@@ -20,18 +20,12 @@ test.describe("Navigation & Page Switching", () => {
     await expect(page.getByRole("heading", { name: "Recycling Tool" })).toBeVisible();
   });
 
-  test("switches to Profitable Crafts page", async ({ page }) => {
-    await page.getByRole("button", { name: "Profitable Crafts" }).click();
-
-    await expect(page.getByRole("heading", { name: "Profitable Crafting Recipes" })).toBeVisible();
-    await expect(page.getByRole("button", { name: "Profitable Crafts" })).toHaveClass(/navigation__item--active/);
+  test("switches to Map Events page and back", async ({ page }) => {
+    await page.getByRole("button", { name: "Map Events" }).click();
+    await expect(page.getByRole("button", { name: "Map Events" })).toHaveClass(/navigation__item--active/);
     await expect(page.getByRole("button", { name: "Recycling Tool" })).not.toHaveClass(/navigation__item--active/);
-  });
 
-  test("switches back to Recycling Tool page", async ({ page }) => {
-    await page.getByRole("button", { name: "Profitable Crafts" }).click();
     await page.getByRole("button", { name: "Recycling Tool" }).click();
-
     await expect(page.getByRole("heading", { name: "Recycling Tool" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Recycling Tool" })).toHaveClass(/navigation__item--active/);
   });
@@ -84,9 +78,8 @@ test.describe("Navigation — tablet", () => {
     const panel = page.locator(".navigation__hamburger-panel");
     await expect(panel).toBeVisible();
 
-    await panel.getByRole("button", { name: "Profitable Crafts" }).click();
+    await panel.getByRole("button", { name: "Map Events" }).click();
     await expect(panel).not.toBeVisible();
-    await expect(page.getByRole("heading", { name: "Profitable Crafting Recipes" })).toBeVisible();
   });
 });
 
@@ -118,17 +111,15 @@ test.describe("Navigation — mobile", () => {
     const recycling = panel.getByRole("button", { name: "Recycling Tool" });
     await expect(recycling).toBeVisible();
     await expect(recycling).toHaveClass(/navigation__hamburger-page--active/);
-    await expect(panel.getByRole("button", { name: "Profitable Crafts" })).toBeVisible();
     await expect(panel.getByRole("button", { name: "Map Events" })).toBeVisible();
   });
 
   test("page navigation works and closes panel", async ({ page }) => {
     await page.getByLabel("Menu").click();
     const panel = page.locator(".navigation__hamburger-panel");
-    await panel.getByRole("button", { name: "Profitable Crafts" }).click();
+    await panel.getByRole("button", { name: "Map Events" }).click();
 
     await expect(panel).not.toBeVisible();
-    await expect(page.getByRole("heading", { name: "Profitable Crafting Recipes" })).toBeVisible();
   });
 
   test("hamburger has language picker", async ({ page }) => {
