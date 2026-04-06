@@ -76,6 +76,8 @@ if (failures.length === 0) {
   if (!run("npm run build && npx gh-pages -d dist --no-history")) {
     process.exit(1);
   }
+  console.log("");
+  run("node scripts/check-missing-images.js");
 } else {
   console.log(`${RED}=========================================${NC}`);
   console.log(`${RED}  WARNING: Test failures detected${NC}`);
@@ -92,6 +94,8 @@ if (failures.length === 0) {
     if (!run("npm run build && npx gh-pages -d dist --no-history")) {
       process.exit(1);
     }
+    console.log("");
+    run("node scripts/check-missing-images.js");
   } else {
     console.log("Deploy aborted.");
     process.exit(1);
