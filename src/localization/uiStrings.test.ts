@@ -1,24 +1,20 @@
 /// <reference types="node" />
-import { describe, it, expect } from "@jest/globals";
-import { UI_STRINGS, type UIStringKey } from "./uiStrings";
-import { SUPPORTED_LANGUAGES } from "./languageUtils";
-import { ITEM_TYPES } from "../generated/types";
-import { ITEM_RARITIES, FOUND_IN_LOCATIONS } from "../constants/filterOptions";
-import { SORT_COLUMNS } from "../constants/sortColumns";
+import { describe, expect, it } from "@jest/globals";
 import fs from "fs";
 import path from "path";
+import { FOUND_IN_LOCATIONS, ITEM_RARITIES } from "../constants/filterOptions";
+import { SORT_COLUMNS } from "../constants/sortColumns";
+import { ITEM_TYPES } from "../generated/types";
+import { SUPPORTED_LANGUAGES } from "./languageUtils";
+import { UI_STRINGS, type UIStringKey } from "./uiStrings";
 
-const NON_ENGLISH_CODES = SUPPORTED_LANGUAGES
-  .filter((l) => l.code !== "en")
-  .map((l) => l.code);
+const NON_ENGLISH_CODES = SUPPORTED_LANGUAGES.filter(
+  (l) => l.code !== "en",
+).map((l) => l.code);
 
 const allKeys = Object.keys(UI_STRINGS) as UIStringKey[];
 
 describe("UI_STRINGS", () => {
-  it("has at least 110 string keys", () => {
-    expect(allKeys.length).toBeGreaterThanOrEqual(98);
-  });
-
   it("every key has an English translation", () => {
     for (const key of allKeys) {
       const entry = UI_STRINGS[key];
@@ -34,9 +30,20 @@ describe("UI_STRINGS", () => {
 
   it("covers all expected key prefixes", () => {
     const prefixes = [
-      "nav.", "recycling.", "search.", "filter.", "sort.",
-      "events.", "general.", "source.", "tooltip.", "error.", "loading.",
-      "category.", "rarity.", "location.", "requirement.",
+      "nav.",
+      "recycling.",
+      "search.",
+      "filter.",
+      "sort.",
+      "general.",
+      "source.",
+      "tooltip.",
+      "error.",
+      "loading.",
+      "category.",
+      "rarity.",
+      "location.",
+      "requirement.",
     ];
     for (const prefix of prefixes) {
       const matching = allKeys.filter((k) => k.startsWith(prefix));
@@ -112,7 +119,8 @@ const collectSourceFiles = (dir: string): string[] => {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     const fullPath = path.join(dir, entry.name);
     if (entry.isDirectory()) {
-      if (["generated", "__mocks__", "node_modules"].includes(entry.name)) continue;
+      if (["generated", "__mocks__", "node_modules"].includes(entry.name))
+        continue;
       results.push(...collectSourceFiles(fullPath));
     } else if (/\.tsx?$/.test(entry.name) && !entry.name.includes(".test.")) {
       results.push(fullPath);

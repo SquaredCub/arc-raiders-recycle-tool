@@ -1,6 +1,5 @@
 import { useState } from "react";
 import "./App.scss";
-import MapEventsPage from "./components/MapEventsPage";
 import Navigation, { type NavigationPage } from "./components/Navigation";
 import ScrollToTop from "./components/ScrollToTop";
 import { LanguageProvider } from "./contexts/LanguageContext";
@@ -19,9 +18,10 @@ const AppContent = () => {
     <>
       <Navigation activePage={activePage} onNavigate={onNavigate} />
       {activePage === "recycling" && <RecyclingTools />}
-      {activePage === "map-events" && <MapEventsPage />}
       <ScrollToTop />
-      <div id="update-note">{translateUI("general.lastUpdated")} 06/04/2026</div>
+      <div id="update-note">
+        {translateUI("general.lastUpdated")} 20/04/2026
+      </div>
     </>
   );
 };

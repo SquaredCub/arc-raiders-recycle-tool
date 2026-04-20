@@ -8,7 +8,7 @@ import {
 import ExternalLinkIcon from "./ExternalLinkIcon";
 import "./Navigation.scss";
 
-export type NavigationPage = "recycling" | "map-events";
+export type NavigationPage = "recycling";
 
 interface NavigationProps {
   activePage: NavigationPage;
@@ -36,9 +36,9 @@ const communityLinks: ExternalLink[] = [
     icon: "https://wheelofnames.com/images/logo-dark-background-38.png",
   },
   {
-    label: "Damage Calculator",
-    href: "https://arcdamagecalculator.tiiny.site/",
-    icon: "https://arcdamagecalculator.tiiny.site/favicon.ico",
+    label: "Map Conditions",
+    href: "https://arcraiders.com/map-conditions/",
+    icon: "https://arcraiders.com/favicon.ico",
     size: 20,
   },
   {
@@ -86,10 +86,10 @@ const ExternalLinkList = ({ links }: { links: ExternalLink[] }) => (
   </>
 );
 
-const pageItems: { page: NavigationPage; key: "nav.recyclingTool" | "nav.mapEvents" }[] = [
-  { page: "recycling", key: "nav.recyclingTool" },
-  { page: "map-events", key: "nav.mapEvents" },
-];
+const pageItems: {
+  page: NavigationPage;
+  key: "nav.recyclingTool";
+}[] = [{ page: "recycling", key: "nav.recyclingTool" }];
 
 const Navigation = ({ activePage, onNavigate }: NavigationProps) => {
   const { language, setLanguage, translateUI } = useLanguage();
@@ -132,7 +132,10 @@ const Navigation = ({ activePage, onNavigate }: NavigationProps) => {
             {translateUI(key)}
           </button>
         ))}
-        <div className="navigation__dropdown navigation__desktop-only" ref={modalRef}>
+        <div
+          className="navigation__dropdown navigation__desktop-only"
+          ref={modalRef}
+        >
           <button
             className="navigation__item navigation__dropdown-toggle"
             onClick={() => setDropdownOpen((open) => !open)}
@@ -193,11 +196,21 @@ const Navigation = ({ activePage, onNavigate }: NavigationProps) => {
           >
             {hamburgerOpen ? (
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                <path d="M6 6l12 12M6 18L18 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                <path
+                  d="M6 6l12 12M6 18L18 6"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
               </svg>
             ) : (
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                <path
+                  d="M4 6h16M4 12h16M4 18h16"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
               </svg>
             )}
           </button>
@@ -207,7 +220,9 @@ const Navigation = ({ activePage, onNavigate }: NavigationProps) => {
                 <button
                   key={page}
                   className={`navigation__hamburger-page ${
-                    activePage === page ? "navigation__hamburger-page--active" : ""
+                    activePage === page
+                      ? "navigation__hamburger-page--active"
+                      : ""
                   }`}
                   onClick={() => handleMobileNavigate(page)}
                 >

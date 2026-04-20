@@ -1,11 +1,14 @@
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
 const expectedLinks = [
   { name: "Maps", href: "https://arcraidersmaps.app/" },
   { name: "Map Selector", href: "https://wheelofnames.com/stu-fhg" },
-  { name: "Damage Calculator", href: "https://arcdamagecalculator.tiiny.site/" },
+  { name: "Map Conditions", href: "https://arcraiders.com/map-conditions/" },
   { name: "Tracker", href: "https://arctracker.io/" },
-  { name: "Github Repository", href: "https://github.com/SquaredCub/arc-raiders-recycle-tool" },
+  {
+    name: "Github Repository",
+    href: "https://github.com/SquaredCub/arc-raiders-recycle-tool",
+  },
   { name: "Donate", href: "https://paypal.me/SquaredCub" },
 ];
 
@@ -17,20 +20,14 @@ test.describe("Navigation & Page Switching", () => {
   test("loads with Recycling Tool page active by default", async ({ page }) => {
     const recyclingBtn = page.getByRole("button", { name: "Recycling Tool" });
     await expect(recyclingBtn).toHaveClass(/navigation__item--active/);
-    await expect(page.getByRole("heading", { name: "Recycling Tool" })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Recycling Tool" }),
+    ).toBeVisible();
   });
 
-  test("switches to Map Events page and back", async ({ page }) => {
-    await page.getByRole("button", { name: "Map Events" }).click();
-    await expect(page.getByRole("button", { name: "Map Events" })).toHaveClass(/navigation__item--active/);
-    await expect(page.getByRole("button", { name: "Recycling Tool" })).not.toHaveClass(/navigation__item--active/);
-
-    await page.getByRole("button", { name: "Recycling Tool" }).click();
-    await expect(page.getByRole("heading", { name: "Recycling Tool" })).toBeVisible();
-    await expect(page.getByRole("button", { name: "Recycling Tool" })).toHaveClass(/navigation__item--active/);
-  });
-
-  test("External Links dropdown opens and closes on click", async ({ page }) => {
+  test("External Links dropdown opens and closes on click", async ({
+    page,
+  }) => {
     const toggle = page.getByLabel("External Links");
     await toggle.click();
     await expect(page.locator(".navigation__dropdown-menu")).toBeVisible();
@@ -39,7 +36,9 @@ test.describe("Navigation & Page Switching", () => {
     await expect(page.locator(".navigation__dropdown-menu")).not.toBeVisible();
   });
 
-  test("External Links dropdown contains all 6 links with correct hrefs", async ({ page }) => {
+  test("External Links dropdown contains all 6 links with correct hrefs", async ({
+    page,
+  }) => {
     await page.getByLabel("External Links").click();
     const menu = page.locator(".navigation__dropdown-menu");
 
@@ -73,12 +72,12 @@ test.describe("Navigation — tablet", () => {
     await expect(page.getByLabel("External Links")).not.toBeVisible();
   });
 
-  test("hamburger opens and navigates", async ({ page }) => {
+  test("hamburger opens and closes", async ({ page }) => {
     await page.getByLabel("Menu").click();
     const panel = page.locator(".navigation__hamburger-panel");
     await expect(panel).toBeVisible();
 
-    await panel.getByRole("button", { name: "Map Events" }).click();
+    await page.getByLabel("Menu").click();
     await expect(panel).not.toBeVisible();
   });
 });
@@ -100,7 +99,9 @@ test.describe("Navigation — mobile", () => {
   });
 
   test("app title is visible in nav bar", async ({ page }) => {
-    await expect(page.locator(".navigation__hamburger-title")).toHaveText("SquaredTools");
+    await expect(page.locator(".navigation__hamburger-title")).toHaveText(
+      "SquaredTools",
+    );
   });
 
   test("hamburger opens panel with page links", async ({ page }) => {
@@ -111,13 +112,15 @@ test.describe("Navigation — mobile", () => {
     const recycling = panel.getByRole("button", { name: "Recycling Tool" });
     await expect(recycling).toBeVisible();
     await expect(recycling).toHaveClass(/navigation__hamburger-page--active/);
-    await expect(panel.getByRole("button", { name: "Map Events" })).toBeVisible();
+    await expect(
+      panel.getByRole("button", { name: "Recycling Tool" }),
+    ).toBeVisible();
   });
 
   test("page navigation works and closes panel", async ({ page }) => {
     await page.getByLabel("Menu").click();
     const panel = page.locator(".navigation__hamburger-panel");
-    await panel.getByRole("button", { name: "Map Events" }).click();
+    await panel.getByRole("button", { name: "Recycling Tool" }).click();
 
     await expect(panel).not.toBeVisible();
   });
@@ -146,7 +149,9 @@ test.describe("Navigation — mobile", () => {
     await expect(page.locator(".navigation__hamburger-panel")).toBeVisible();
 
     await hamburger.click();
-    await expect(page.locator(".navigation__hamburger-panel")).not.toBeVisible();
+    await expect(
+      page.locator(".navigation__hamburger-panel"),
+    ).not.toBeVisible();
   });
 
   test("pressing Escape closes hamburger panel", async ({ page }) => {
@@ -154,6 +159,8 @@ test.describe("Navigation — mobile", () => {
     await expect(page.locator(".navigation__hamburger-panel")).toBeVisible();
 
     await page.keyboard.press("Escape");
-    await expect(page.locator(".navigation__hamburger-panel")).not.toBeVisible();
+    await expect(
+      page.locator(".navigation__hamburger-panel"),
+    ).not.toBeVisible();
   });
 });

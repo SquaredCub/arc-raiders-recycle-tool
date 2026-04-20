@@ -1,5 +1,5 @@
 /// <reference types="node" />
-import { describe, it, expect } from "@jest/globals";
+import { describe, expect, it } from "@jest/globals";
 import { existsSync, readdirSync, readFileSync } from "fs";
 import { join } from "path";
 
@@ -7,7 +7,7 @@ const DATA_DIR = join(__dirname, "../arcraiders-data");
 
 // Must match the configuration in scripts/generate-files-from-data.js
 const mergeDirectories = ["items", "quests", "hideout"];
-const singleFiles = ["projects.json", "map-events/map-events.json"];
+const singleFiles = ["projects.json"];
 
 describe("source data files for generation", () => {
   it("arcraiders-data directory exists", () => {
