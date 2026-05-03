@@ -1,14 +1,14 @@
-import { describe, it, expect } from "@jest/globals";
+import { describe, expect, it } from "bun:test";
+import type { Item } from "../generated/types";
+import type { SortItemsConfig } from "./sortingFunctions";
 import {
   compareStrings,
   compareStringsEmptyLast,
-  sortMaterialsByName,
-  getItemSortName,
   getBenchSortKey,
+  getItemSortName,
   sortItems,
+  sortMaterialsByName,
 } from "./sortingFunctions";
-import type { Item } from "../generated/types";
-import type { SortItemsConfig } from "./sortingFunctions";
 import type { SortKeyCache } from "./tableCache";
 
 describe("compareStrings", () => {
@@ -96,7 +96,11 @@ describe("getItemSortName", () => {
 
 describe("getBenchSortKey", () => {
   const getBenchName = (id: string) =>
-    id === "workbench" ? "Workbench" : id === "med_station" ? "Med Station" : id;
+    id === "workbench"
+      ? "Workbench"
+      : id === "med_station"
+        ? "Med Station"
+        : id;
 
   it("returns empty string for undefined", () => {
     expect(getBenchSortKey(undefined, getBenchName)).toBe("");
@@ -108,7 +112,7 @@ describe("getBenchSortKey", () => {
 
   it("joins array bench names with comma", () => {
     expect(getBenchSortKey(["workbench", "med_station"], getBenchName)).toBe(
-      "Workbench, Med Station"
+      "Workbench, Med Station",
     );
   });
 });
@@ -122,7 +126,7 @@ describe("sortItems", () => {
     }) as Item;
 
   const makeConfig = (
-    overrides?: Partial<SortItemsConfig>
+    overrides?: Partial<SortItemsConfig>,
   ): SortItemsConfig => {
     const defaultCache: SortKeyCache = {
       nameSortKeys: {
@@ -158,7 +162,7 @@ describe("sortItems", () => {
     const result = sortItems(
       testItems,
       [{ id: "item", desc: false }],
-      makeConfig()
+      makeConfig(),
     );
     expect(result.map((i) => i.id)).toEqual(["a", "b", "c"]);
   });
@@ -167,7 +171,7 @@ describe("sortItems", () => {
     const result = sortItems(
       testItems,
       [{ id: "item", desc: true }],
-      makeConfig()
+      makeConfig(),
     );
     expect(result.map((i) => i.id)).toEqual(["c", "b", "a"]);
   });
@@ -176,7 +180,7 @@ describe("sortItems", () => {
     const result = sortItems(
       testItems,
       [{ id: "value", desc: false }],
-      makeConfig()
+      makeConfig(),
     );
     expect(result.map((i) => i.id)).toEqual(["c", "b", "a"]);
   });
@@ -185,7 +189,7 @@ describe("sortItems", () => {
     const result = sortItems(
       testItems,
       [{ id: "value", desc: true }],
-      makeConfig()
+      makeConfig(),
     );
     expect(result.map((i) => i.id)).toEqual(["a", "b", "c"]);
   });
@@ -199,11 +203,7 @@ describe("sortItems", () => {
       },
     });
     // a and c are name matches, b is not
-    const result = sortItems(
-      testItems,
-      [{ id: "item", desc: false }],
-      config
-    );
+    const result = sortItems(testItems, [{ id: "item", desc: false }], config);
     // Name matches first (a, c), then others (b)
     expect(result.map((i) => i.id)).toEqual(["a", "c", "b"]);
   });
@@ -217,7 +217,7 @@ describe("sortItems", () => {
     const result = sortItems(
       items,
       [{ id: "foundIn", desc: false }],
-      makeConfig()
+      makeConfig(),
     );
     expect(result[0].id).toBe("y"); // ARC
     expect(result[1].id).toBe("z"); // Cave
@@ -236,7 +236,7 @@ describe("sortItems", () => {
     const result = sortItems(
       testItems,
       [{ id: "neededFor", desc: false }],
-      config
+      config,
     );
     expect(result.map((i) => i.id)).toEqual(["c", "b", "a"]);
   });
