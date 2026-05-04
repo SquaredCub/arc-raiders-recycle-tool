@@ -63,7 +63,9 @@ export const getItemSortName = (
   item: Item,
   language: keyof LocalizedText = DEFAULT_LANGUAGE,
 ): string => {
-  return item.name[language] || item.name.en || "";
+  const raw = item.name[language] || item.name.en || "";
+  // Remove all double quotes from the name for sorting (e.g., ship model names)
+  return raw.replace(/"/g, "");
 };
 
 /**
