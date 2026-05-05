@@ -50,6 +50,7 @@ export const createItemsTableColumns = (
         return (
           <ItemCell
             id={item.id}
+            item={item}
             name={
               language ? getLocalizedText(item.name, language) : item.name.en
             }

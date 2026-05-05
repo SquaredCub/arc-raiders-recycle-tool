@@ -4,7 +4,6 @@ import { formatMaterialName } from "../data/itemsData";
 import itemsData from "../generated/items.json";
 import type { Item } from "../generated/types";
 import {
-  capitalizeItemId,
   createNoResultsItem,
   filterItemsBySearch,
   isNoResultsItem,
@@ -12,43 +11,6 @@ import {
 } from "./functions";
 
 const items = itemsData as Item[];
-
-describe("capitalizeItemId", () => {
-  it("returns null for undefined", () => {
-    expect(capitalizeItemId(undefined)).toBeNull();
-  });
-
-  it("returns null for empty string", () => {
-    expect(capitalizeItemId("")).toBeNull();
-  });
-
-  it("capitalizes simple single word", () => {
-    expect(capitalizeItemId("bandage")).toBe("Bandage");
-  });
-
-  it("capitalizes multi-word ids", () => {
-    expect(capitalizeItemId("plastic_parts")).toBe("Plastic_Parts");
-  });
-
-  it("strips Roman numeral suffix for gun variants (2-word)", () => {
-    expect(capitalizeItemId("osprey_i")).toBe("Osprey");
-    expect(capitalizeItemId("osprey_iii")).toBe("Osprey");
-  });
-
-  it("keeps Roman numerals for non-gun items (3+ words)", () => {
-    expect(capitalizeItemId("heavy_armor_ii")).toBe("Heavy_Armor_II");
-  });
-
-  it("formats augment mk pattern", () => {
-    expect(capitalizeItemId("combat_mk3_aggressive")).toBe(
-      "Combat_Mk._3_(Aggressive)",
-    );
-  });
-
-  it("keeps ARC as uppercase acronym", () => {
-    expect(capitalizeItemId("arc_drone")).toBe("ARC_Drone");
-  });
-});
 
 describe("filterItemsBySearch", () => {
   it("returns all items with empty matchTypes for empty search", () => {
