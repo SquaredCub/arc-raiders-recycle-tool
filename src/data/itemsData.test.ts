@@ -1,16 +1,14 @@
-import { jest, describe, it, expect } from "@jest/globals";
+import { describe, expect, it } from "bun:test";
 
-jest.mock("../services/dataService");
-
+import { BLACKLISTED_ITEM_CATEGORIES } from "../constants/itemCategories";
+import itemsData from "../generated/items.json";
+import type { Item } from "../generated/types";
 import {
-  formatMaterialName,
   filterBlacklistedItemCategories,
+  formatMaterialName,
   getItemImage,
   getMaterialImage,
 } from "./itemsData";
-import { BLACKLISTED_ITEM_CATEGORIES } from "../constants/itemCategories";
-import type { Item } from "../generated/types";
-import itemsData from "../generated/items.json";
 
 const items = itemsData as Item[];
 const itemLookup = new Map(items.map((item) => [item.id, item]));

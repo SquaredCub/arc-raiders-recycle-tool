@@ -1,55 +1,49 @@
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
+// ============================================================================
+// Check Missing Images (Bun Optimized)
+// ============================================================================
+import { join } from "node:path";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const rootDir = path.resolve(__dirname, "..");
+// Bun provides import.meta.dir natively
+const ROOT_DIR = join(import.meta.dir, "..");
+const ITEMS_PATH = join(ROOT_DIR, "src/generated/items.json");
+const IMAGES_FOLDER = join(ROOT_DIR, "src/arcraiders-data/images/items");
 
-// Read the items JSON file
-const itemsRaw = fs.readFileSync(
-  path.join(rootDir, "src/generated/items.json"),
-  "utf-8",
-);
-const items = JSON.parse(itemsRaw);
+// Read and parse items
+const items = await Bun.file(ITEMS_PATH).json();
 
-// Blacklisted categories from itemCategories.ts
+// Configuration
 const BLACKLISTED_CATEGORIES = ["Key", "Blueprint"];
 
 // Helper function to get image for an item
 function getItemImage(item) {
   if (item.imageFilename) {
-    const urlFilename = item.imageFilename.split("/").pop();
-    return urlFilename;
+    return item.imageFilename.split("/").pop();
   }
-  if (item.id) {
-    return `${item.id}.png`;
-  }
-  return undefined;
+  return item.id ? `${item.id}.png` : undefined;
 }
 
-// Get all items, filter out blacklisted categories
-let filteredItems = items.filter(
-  (item) => !BLACKLISTED_CATEGORIES.includes(item.type),
-);
+// Filtering logic (Merged into one pass for performance)
+const filteredItems = items.filter((item) => {
+  const isValidType = !BLACKLISTED_CATEGORIES.includes(item.type);
+  const isNotCoins = item.id !== "coins";
+  const hasValue = (item.value ?? 0) > 0;
+  return isValidType && isNotCoins && hasValue;
+});
 
-// Filter out coins (special case)
-filteredItems = filteredItems.filter((item) => item.id !== "coins");
-
-// Filter out items with no value (same as DataContext.tsx)
-filteredItems = filteredItems.filter((item) => (item.value ?? 0) > 0);
-
-// Check if images exist in the local folder
-const imagesFolder = path.join(rootDir, "src/arcraiders-data/images/items");
 const missingImages = [];
 
+console.log(`\n🔍 Checking ${filteredItems.length} items for assets...`);
+
+// Audit the images
 for (const item of filteredItems) {
   const imageFilename = getItemImage(item);
+
   if (imageFilename) {
-    const fullPath = path.join(imagesFolder, imageFilename);
-    if (!fs.existsSync(fullPath)) {
+    const file = Bun.file(join(IMAGES_FOLDER, imageFilename));
+
+    // Bun's exists() is high-performance and returns a Promise
+    if (!(await file.exists())) {
       missingImages.push({
-        id: item.id,
-        type: item.type,
         name: item.name.en,
         expectedFilename: imageFilename,
       });
@@ -58,14 +52,20 @@ for (const item of filteredItems) {
 }
 
 // Output results
-console.log(`\nChecked ${filteredItems.length} items\n`);
+const RED = "\x1b[31m";
+const GREEN = "\x1b[32m";
+const BOLD = "\x1b[1m";
+const NC = "\x1b[0m";
 
 if (missingImages.length === 0) {
-  console.log("No missing images found.");
+  console.log(`${GREEN}✅ No missing images found.${NC}\n`);
 } else {
-  console.log(`Found ${missingImages.length} missing image(s):\n`);
+  console.log(
+    `${RED}${BOLD}Found ${missingImages.length} missing image(s):${NC}\n`,
+  );
 
   for (const item of missingImages) {
-    console.log(`  ${item.name} (${item.expectedFilename})`);
+    console.log(`  - ${item.name} (${item.expectedFilename})`);
   }
+  console.log();
 }

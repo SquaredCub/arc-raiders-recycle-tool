@@ -1,12 +1,12 @@
-import { describe, it, expect, beforeEach } from "@jest/globals";
-import {
-  resolveLanguageCode,
-  getLocalizedText,
-  detectInitialLanguage,
-  SUPPORTED_LANGUAGES,
-  STORAGE_KEY,
-} from "./languageUtils";
+import { beforeEach, describe, expect, it } from "bun:test";
 import type { LocalizedText } from "../generated/types";
+import {
+  detectInitialLanguage,
+  getLocalizedText,
+  resolveLanguageCode,
+  STORAGE_KEY,
+  SUPPORTED_LANGUAGES,
+} from "./languageUtils";
 
 describe("resolveLanguageCode", () => {
   it("returns exact match for supported language", () => {
@@ -85,8 +85,12 @@ describe("detectInitialLanguage", () => {
     Object.defineProperty(globalThis, "localStorage", {
       value: {
         getItem: (key: string) => mockStorage[key] ?? null,
-        setItem: (key: string, value: string) => { mockStorage[key] = value; },
-        clear: () => { for (const key of Object.keys(mockStorage)) delete mockStorage[key]; },
+        setItem: (key: string, value: string) => {
+          mockStorage[key] = value;
+        },
+        clear: () => {
+          for (const key of Object.keys(mockStorage)) delete mockStorage[key];
+        },
       },
       writable: true,
       configurable: true,
@@ -129,7 +133,9 @@ describe("detectInitialLanguage", () => {
 
 describe("SUPPORTED_LANGUAGES", () => {
   it("does not include legacy kr code", () => {
-    expect(SUPPORTED_LANGUAGES.find((l) => l.code === "kr" as never)).toBeUndefined();
+    expect(
+      SUPPORTED_LANGUAGES.find((l) => l.code === ("kr" as never)),
+    ).toBeUndefined();
   });
 
   it("includes ko-KR for Korean", () => {

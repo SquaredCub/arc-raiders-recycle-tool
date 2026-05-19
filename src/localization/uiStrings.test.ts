@@ -1,7 +1,6 @@
-/// <reference types="node" />
-import { describe, expect, it } from "@jest/globals";
-import fs from "fs";
-import path from "path";
+import { describe, expect, it } from "bun:test";
+import { readdirSync } from "node:fs";
+import { join, relative } from "node:path";
 import { FOUND_IN_LOCATIONS, ITEM_RARITIES } from "../constants/filterOptions";
 import { SORT_COLUMNS } from "../constants/sortColumns";
 import { ITEM_TYPES } from "../generated/types";
@@ -85,41 +84,47 @@ describe("UI_STRINGS", () => {
 describe("UI_STRINGS completeness — data-driven keys", () => {
   it("has a category.* key for every item type", () => {
     for (const type of ITEM_TYPES) {
-      const key = `category.${type.toLowerCase().replace(/ /g, "")}`;
+      const key =
+        `category.${type.toLowerCase().replace(/ /g, "")}` as UIStringKey;
       expect(allKeys).toContain(key);
     }
   });
 
   it("has a rarity.* key for every item rarity", () => {
     for (const rarity of ITEM_RARITIES) {
-      const key = `rarity.${rarity.toLowerCase()}`;
+      const key = `rarity.${rarity.toLowerCase()}` as UIStringKey;
       expect(allKeys).toContain(key);
     }
   });
 
   it("has a location.* key for every found-in location", () => {
     for (const location of FOUND_IN_LOCATIONS) {
-      const key = `location.${location.toLowerCase().replace(/ /g, "")}`;
+      const key =
+        `location.${location.toLowerCase().replace(/ /g, "")}` as UIStringKey;
       expect(allKeys).toContain(key);
     }
   });
 
   it("has a sort.* key for every sort column label", () => {
     for (const col of SORT_COLUMNS) {
-      expect(allKeys).toContain(col.label);
+      expect(allKeys).toContain(col.label as UIStringKey);
     }
   });
 });
 
 // ── Completeness: source code coverage ─────────────────────────────────
 
-/** Recursively collect .ts/.tsx source files, skipping generated/test/mock dirs. */
+/** Bun-optimized recursive collector */
 const collectSourceFiles = (dir: string): string[] => {
   const results: string[] = [];
-  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-    const fullPath = path.join(dir, entry.name);
+  const entries = readdirSync(dir, { withFileTypes: true });
+
+  for (const entry of entries) {
+    const fullPath = join(dir, entry.name);
     if (entry.isDirectory()) {
-      if (["generated", "__mocks__", "node_modules"].includes(entry.name))
+      if (
+        ["generated", "__mocks__", "node_modules", "dist"].includes(entry.name)
+      )
         continue;
       results.push(...collectSourceFiles(fullPath));
     } else if (/\.tsx?$/.test(entry.name) && !entry.name.includes(".test.")) {
@@ -131,19 +136,20 @@ const collectSourceFiles = (dir: string): string[] => {
 
 describe("UI_STRINGS completeness — source code", () => {
   const keySet = new Set<string>(allKeys);
-  const srcDir = path.resolve(__dirname, "..");
+  const srcDir = join(import.meta.dir, "..");
   const sourceFiles = collectSourceFiles(srcDir);
 
-  it("has an entry for every static translateUI() key used in source files", () => {
+  it("has an entry for every static translateUI() key used in source files", async () => {
     const pattern = /translateUI\(\s*["']([^"']+)["']\s*\)/g;
     const missing: string[] = [];
 
     for (const file of sourceFiles) {
-      const content = fs.readFileSync(file, "utf-8");
+      // Bun.file is faster than fs.readFileSync
+      const content = await Bun.file(file).text();
       let match;
       while ((match = pattern.exec(content)) !== null) {
         if (!keySet.has(match[1])) {
-          const rel = path.relative(srcDir, file).replace(/\\/g, "/");
+          const rel = relative(srcDir, file).replace(/\\/g, "/");
           missing.push(`"${match[1]}" in ${rel}`);
         }
       }
@@ -152,17 +158,16 @@ describe("UI_STRINGS completeness — source code", () => {
     expect(missing).toEqual([]);
   });
 
-  it("has an entry for every UIStringKey cast in source files", () => {
-    // Catches patterns like `"source.hideout" as UIStringKey` and `"sort.name" as UIStringKey`
+  it("has an entry for every UIStringKey cast in source files", async () => {
     const pattern = /["']([^"']+)["']\s+as\s+UIStringKey/g;
     const missing: string[] = [];
 
     for (const file of sourceFiles) {
-      const content = fs.readFileSync(file, "utf-8");
+      const content = await Bun.file(file).text();
       let match;
       while ((match = pattern.exec(content)) !== null) {
         if (!keySet.has(match[1])) {
-          const rel = path.relative(srcDir, file).replace(/\\/g, "/");
+          const rel = relative(srcDir, file).replace(/\\/g, "/");
           missing.push(`"${match[1]}" in ${rel}`);
         }
       }

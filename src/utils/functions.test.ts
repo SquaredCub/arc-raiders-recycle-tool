@@ -1,56 +1,16 @@
-import { jest, describe, it, expect } from "@jest/globals";
+import { describe, expect, it } from "bun:test";
 
-jest.mock("../services/dataService");
-
+import { formatMaterialName } from "../data/itemsData";
+import itemsData from "../generated/items.json";
+import type { Item } from "../generated/types";
 import {
-  capitalizeItemId,
-  filterItemsBySearch,
   createNoResultsItem,
+  filterItemsBySearch,
   isNoResultsItem,
   NO_RESULTS_ID,
 } from "./functions";
-import { formatMaterialName } from "../data/itemsData";
-import type { Item } from "../generated/types";
-import itemsData from "../generated/items.json";
 
 const items = itemsData as Item[];
-
-describe("capitalizeItemId", () => {
-  it("returns null for undefined", () => {
-    expect(capitalizeItemId(undefined)).toBeNull();
-  });
-
-  it("returns null for empty string", () => {
-    expect(capitalizeItemId("")).toBeNull();
-  });
-
-  it("capitalizes simple single word", () => {
-    expect(capitalizeItemId("bandage")).toBe("Bandage");
-  });
-
-  it("capitalizes multi-word ids", () => {
-    expect(capitalizeItemId("plastic_parts")).toBe("Plastic_Parts");
-  });
-
-  it("strips Roman numeral suffix for gun variants (2-word)", () => {
-    expect(capitalizeItemId("osprey_i")).toBe("Osprey");
-    expect(capitalizeItemId("osprey_iii")).toBe("Osprey");
-  });
-
-  it("keeps Roman numerals for non-gun items (3+ words)", () => {
-    expect(capitalizeItemId("heavy_armor_ii")).toBe("Heavy_Armor_II");
-  });
-
-  it("formats augment mk pattern", () => {
-    expect(capitalizeItemId("combat_mk3_aggressive")).toBe(
-      "Combat_Mk._3_(Aggressive)"
-    );
-  });
-
-  it("keeps ARC as uppercase acronym", () => {
-    expect(capitalizeItemId("arc_drone")).toBe("ARC_Drone");
-  });
-});
 
 describe("filterItemsBySearch", () => {
   it("returns all items with empty matchTypes for empty search", () => {
@@ -93,14 +53,14 @@ describe("filterItemsBySearch", () => {
     const result = filterItemsBySearch(
       items,
       "Metal Parts",
-      formatMaterialName
+      formatMaterialName,
     );
     const itemWithRecycle = result.items.find(
       (i) =>
         i.recyclesInto &&
-        Object.keys(i.recyclesInto).some(
-          (m) => formatMaterialName(m).toLowerCase().includes("metal parts")
-        )
+        Object.keys(i.recyclesInto).some((m) =>
+          formatMaterialName(m).toLowerCase().includes("metal parts"),
+        ),
     );
     expect(itemWithRecycle).toBeDefined();
     expect(result.matchTypes[itemWithRecycle!.id].has("recycles")).toBe(true);
@@ -110,21 +70,23 @@ describe("filterItemsBySearch", () => {
     const result = filterItemsBySearch(
       items,
       "Metal Parts",
-      formatMaterialName
+      formatMaterialName,
     );
     // Find an item that recycles into metal_parts
     const itemWithRecycle = result.items.find(
       (i) =>
-        i.recyclesInto &&
-        Object.keys(i.recyclesInto).includes("metal_parts")
+        i.recyclesInto && Object.keys(i.recyclesInto).includes("metal_parts"),
     );
     expect(itemWithRecycle).toBeDefined();
     const matched = result.matchedMaterials[itemWithRecycle!.id];
     expect(matched).toBeDefined();
     expect(matched.has("metal_parts")).toBe(true);
     // Non-matching materials should NOT be in the set
-    const nonMatchingMaterials = Object.keys(itemWithRecycle!.recyclesInto!)
-      .filter((m) => !formatMaterialName(m).toLowerCase().includes("metal parts"));
+    const nonMatchingMaterials = Object.keys(
+      itemWithRecycle!.recyclesInto!,
+    ).filter(
+      (m) => !formatMaterialName(m).toLowerCase().includes("metal parts"),
+    );
     for (const m of nonMatchingMaterials) {
       expect(matched.has(m)).toBe(false);
     }
@@ -154,7 +116,7 @@ describe("filterItemsBySearch", () => {
       "Test Bench",
       formatMaterialName,
       "en",
-      mockRequirements
+      mockRequirements,
     );
     const bandage = result.items.find((i) => i.id === "bandage");
     expect(bandage).toBeDefined();
@@ -170,13 +132,11 @@ describe("filterItemsBySearch", () => {
     const result = filterItemsBySearch(items, "Plastic", formatMaterialName);
     // Should include items with "Plastic" in name (tagged as "item")
     const nameMatches = result.items.filter((i) =>
-      result.matchTypes[i.id]?.has("item")
+      result.matchTypes[i.id]?.has("item"),
     );
     // Should include items that only match via materials (no "item" tag)
     const materialOnlyMatches = result.items.filter(
-      (i) =>
-        result.matchTypes[i.id] &&
-        !result.matchTypes[i.id].has("item")
+      (i) => result.matchTypes[i.id] && !result.matchTypes[i.id].has("item"),
     );
     expect(nameMatches.length).toBeGreaterThan(0);
     expect(materialOnlyMatches.length).toBeGreaterThan(0);

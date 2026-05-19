@@ -1,19 +1,16 @@
-import { jest, describe, it, expect } from "@jest/globals";
+import { describe, expect, it } from "bun:test";
 
-jest.mock("../services/dataService");
-
+import { getItemRequirements } from "../data/requirementsData";
+import hideoutData from "../generated/hideout.json";
+import itemsData from "../generated/items.json";
+import projectsData from "../generated/projects.json";
+import questsData from "../generated/quests.json";
+import type { HideoutBench, Item, Project, Quest } from "../generated/types";
 import {
   createBenchNameLookup,
   createSortedMaterialsCache,
   createSortKeyCache,
 } from "./tableCache";
-import type { Item, HideoutBench } from "../generated/types";
-import itemsData from "../generated/items.json";
-import hideoutData from "../generated/hideout.json";
-import { getItemRequirements } from "../data/requirementsData";
-import questsData from "../generated/quests.json";
-import projectsData from "../generated/projects.json";
-import type { Quest, Project } from "../generated/types";
 
 const items = itemsData as Item[];
 const hideoutBenches = hideoutData as HideoutBench[];
@@ -39,7 +36,11 @@ describe("createBenchNameLookup", () => {
   });
 
   it("uses custom fieldCraftingLabel when provided", () => {
-    const lookup = createBenchNameLookup(hideoutBenches, "en", "Fertigung im Feld");
+    const lookup = createBenchNameLookup(
+      hideoutBenches,
+      "en",
+      "Fertigung im Feld",
+    );
     expect(lookup["in_raid"]).toBe("Fertigung im Feld");
   });
 });
@@ -49,7 +50,7 @@ describe("createSortedMaterialsCache", () => {
 
   it("creates recycle_ prefixed entries for items with recyclesInto", () => {
     const itemsWithRecycle = items.filter(
-      (i) => i.recyclesInto && Object.keys(i.recyclesInto).length > 0
+      (i) => i.recyclesInto && Object.keys(i.recyclesInto).length > 0,
     );
     expect(itemsWithRecycle.length).toBeGreaterThan(0);
     for (const item of itemsWithRecycle) {
@@ -59,7 +60,7 @@ describe("createSortedMaterialsCache", () => {
 
   it("creates salvage_ prefixed entries for items with salvagesInto", () => {
     const itemsWithSalvage = items.filter(
-      (i) => i.salvagesInto && Object.keys(i.salvagesInto).length > 0
+      (i) => i.salvagesInto && Object.keys(i.salvagesInto).length > 0,
     );
     expect(itemsWithSalvage.length).toBeGreaterThan(0);
     for (const item of itemsWithSalvage) {
@@ -69,7 +70,7 @@ describe("createSortedMaterialsCache", () => {
 
   it("creates recipe_ prefixed entries for items with recipe", () => {
     const itemsWithRecipe = items.filter(
-      (i) => i.recipe && Object.keys(i.recipe).length > 0
+      (i) => i.recipe && Object.keys(i.recipe).length > 0,
     );
     expect(itemsWithRecipe.length).toBeGreaterThan(0);
     for (const item of itemsWithRecipe) {
@@ -95,7 +96,7 @@ describe("createSortedMaterialsCache", () => {
       if (entries.length > 1) {
         for (let i = 0; i < entries.length - 1; i++) {
           expect(
-            entries[i].name.localeCompare(entries[i + 1].name)
+            entries[i].name.localeCompare(entries[i + 1].name),
           ).toBeLessThanOrEqual(0);
         }
       }
@@ -105,8 +106,18 @@ describe("createSortedMaterialsCache", () => {
 
 describe("createSortKeyCache", () => {
   const benchLookup = createBenchNameLookup(hideoutBenches, "en");
-  const requirements = getItemRequirements(hideoutBenches, quests, projects, "en");
-  const sortKeyCache = createSortKeyCache(items, benchLookup, requirements, "en");
+  const requirements = getItemRequirements(
+    hideoutBenches,
+    quests,
+    projects,
+    "en",
+  );
+  const sortKeyCache = createSortKeyCache(
+    items,
+    benchLookup,
+    requirements,
+    "en",
+  );
 
   it("populates nameSortKeys as lowercase strings", () => {
     for (const item of items) {

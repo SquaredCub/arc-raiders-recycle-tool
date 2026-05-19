@@ -1,4 +1,4 @@
-import { describe, expect, it } from "@jest/globals";
+import { describe, expect, it } from "bun:test";
 import hideoutData from "../generated/hideout.json";
 import projectsData from "../generated/projects.json";
 import questsData from "../generated/quests.json";
