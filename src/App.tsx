@@ -20,7 +20,7 @@ const AppContent = () => {
       {activePage === "recycling" && <RecyclingTools />}
       <ScrollToTop />
       <div id="update-note">
-        {translateUI("general.lastUpdated")} 05/05/2026
+        {translateUI("general.lastUpdated")} 19/05/2026
       </div>
     </>
   );
