@@ -45,3 +45,6 @@ src/generated/*
 *.tsbuildinfo
 
 dist
+
+# Generated image-compare page (rebuild with: bun run images:compare:build)
+image-tools/compare-sources/
