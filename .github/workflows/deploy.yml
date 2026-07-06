@@ -1,0 +1,50 @@
+name: Build and deploy
+
+on:
+  repository_dispatch:
+    types: [data-updated] # fired by arcraiders-data's sync-upstream workflow
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: write # gh-pages branch push
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # src/arcraiders-data is gitignored locally (nested clone of the data
+      # fork); in CI it has to be checked out explicitly to the same path.
+      - name: Check out data fork
+        uses: actions/checkout@v4
+        with:
+          repository: SquaredCub/arcraiders-data
+          path: src/arcraiders-data
+
+      - uses: oven-sh/setup-bun@v2
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Install Playwright browser
+        run: bun x playwright install --with-deps chromium
+
+      # tsc and unit tests run before `bun run build` in deploy.js, so the
+      # data-generated sources must exist before the pipeline starts.
+      - name: Generate files from data
+        run: bun run generate
+
+      - name: Git identity for gh-pages push
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Test, build, deploy
+        run: bun scripts/deploy.js --ci

@@ -14,6 +14,9 @@ const logStep = (msg) =>
 const logSuccess = (msg) => console.log(`${GREEN}  ✓ ${NC}${DIM}${msg}${NC}`);
 const logError = (msg) => console.log(`${RED}  ✗ ${NC}${BOLD}${msg}${NC}`);
 
+// --ci: non-interactive mode — test failures block the deploy, no override prompt
+const CI = process.argv.includes("--ci");
+
 const updateLastUpdatedDate = () => {
   const appFile = "src/App.tsx";
   const content = readFileSync(appFile, "utf-8");
@@ -103,6 +106,11 @@ if (failures.length === 0) {
 } else {
   console.log(`\n${RED}${BOLD}PRE-DEPLOYMENT FAILED${NC}`);
   failures.forEach((f) => console.log(`  ${RED}•${NC} ${f}`));
+
+  if (CI) {
+    console.log(`\n${DIM}Deployment cancelled (--ci: no override).${NC}`);
+    process.exit(1);
+  }
 
   const answer = await ask("Ignore failures and deploy anyway? (y/N): ");
   if (answer.toLowerCase() === "y") {
