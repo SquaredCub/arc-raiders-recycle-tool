@@ -46,5 +46,11 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
+      # gh-pages clones the repo into its own cache dir and pushes from there,
+      # which bypasses the credentials actions/checkout injects into the
+      # workspace's git config — so the token must live in the origin URL.
+      - name: Authenticate origin for gh-pages
+        run: git remote set-url origin "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
+
       - name: Test, build, deploy
         run: bun scripts/deploy.js --ci

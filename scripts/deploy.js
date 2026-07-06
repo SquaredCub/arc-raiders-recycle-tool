@@ -96,6 +96,9 @@ const performDeploy = async () => {
     await $`bun scripts/check-missing-images.js`;
   } catch (err) {
     console.error(`\n${RED}${BOLD}FATAL ERROR during deployment${NC}`);
+    if (err.stdout?.length) console.error(err.stdout.toString());
+    if (err.stderr?.length) console.error(err.stderr.toString());
+    else if (!err.stdout?.length) console.error(err);
     process.exit(1);
   }
 };
