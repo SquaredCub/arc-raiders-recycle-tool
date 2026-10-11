@@ -128,6 +128,7 @@ export const createNoResultsItem = (
     stackSize: 0,
     imageFilename: "",
     updatedAt: "",
+    addedIn: "",
   };
 };
 

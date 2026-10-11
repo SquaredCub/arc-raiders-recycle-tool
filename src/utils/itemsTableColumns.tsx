@@ -211,7 +211,15 @@ export const createItemsTableColumns = (
 
               return (
                 <div key={source} className="found-in-item">
-                  <img src={iconUrl} alt={source} className="found-in-icon" />
+                  <img
+                    src={iconUrl}
+                    alt={source}
+                    className="found-in-icon"
+                    // Locations without an icon (e.g. new ones) show text only
+                    onError={(event) => {
+                      event.currentTarget.style.display = "none";
+                    }}
+                  />
                   <span>{translatedName}</span>
                 </div>
               );

@@ -5,17 +5,13 @@
   "homepage": "https://SquaredCub.github.io/arc-raiders-recycle-tool",
   "type": "module",
   "scripts": {
-    "predev": "bun scripts/generate-files-from-data.js",
     "dev": "bun x vite",
-    "prebuild": "bun scripts/generate-files-from-data.js",
     "build": "bun x tsc && bun x vite build",
     "deploy": "bun scripts/deploy.js",
     "deploy:quick": "bun run build && bun x gh-pages -d dist --no-history",
     "generate": "bun scripts/generate-files-from-data.js",
-    "images:compare": "bun image-tools/build-source-compare.js && bun image-tools/serve-compare.js",
-    "images:compare:build": "bun image-tools/build-source-compare.js",
-    "images:compare:serve": "bun image-tools/serve-compare.js",
-    "images:fetch-missing": "bun image-tools/fetch-missing-images.js",
+    "update-data": "bun scripts/fetch-arctracker.js && bun scripts/generate-files-from-data.js && bun scripts/fetch-images.js",
+    "find-crafts": "bun scripts/find-profitable-crafts.js",
     "test": "bun test src",
     "test:e2e": "bun x playwright test --project=chromium",
     "test:all": "bun test src && bun x playwright test --project=chromium"
@@ -40,7 +36,6 @@
     "eslint-plugin-react-refresh": "^0.4.24",
     "gh-pages": "^6.3.0",
     "globals": "^16.5.0",
-    "pngjs": "^7.0.0",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.46.4",
     "vite": "^7.2.4"

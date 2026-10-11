@@ -5,7 +5,7 @@ export const FOUND_IN_LOCATIONS: string[] = filterOptions.locations;
 
 // Static — source type detection is pattern-based, not data-derived
 export const NEEDED_FOR_SOURCE_TYPES: string[] = [
-  "Hideout",
+  "Outpost",
   "Quest",
   "Project",
   "Not Needed",

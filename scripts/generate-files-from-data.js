@@ -5,25 +5,24 @@
 // Optimized for Bun v1.3.13+
 // ============================================================================
 
-import { mkdirSync, readdirSync } from "node:fs";
+import { mkdirSync } from "node:fs";
 import { join } from "node:path";
 
 // Bun provides import.meta.dir natively
-const DATA_DIR = join(import.meta.dir, "../src/arcraiders-data");
+// Raw API responses saved by scripts/fetch-arctracker.js
+const DATA_DIR = join(import.meta.dir, "../src/arctracker-data");
 const OUTPUT_DIR = join(import.meta.dir, "../src/generated");
 
 // ============================================================================
 // Configuration
 // ============================================================================
 
-const directories = [
-  { name: "items", dir: join(DATA_DIR, "items") },
-  { name: "quests", dir: join(DATA_DIR, "quests") },
-  { name: "hideout", dir: join(DATA_DIR, "hideout") },
-];
-
-const singleFiles = [
-  { name: "projects", src: join(DATA_DIR, "projects.json") },
+// Each API response wraps its entries: items as an array, the rest keyed by id
+const sources = [
+  { name: "items", entries: (data) => data.items },
+  { name: "quests", entries: (data) => Object.values(data.quests) },
+  { name: "hideout", entries: (data) => Object.values(data.hideoutModules) },
+  { name: "projects", entries: (data) => Object.values(data.projects) },
 ];
 
 // ============================================================================
@@ -37,16 +36,12 @@ const mergedDirectories = {};
 
 console.log("🔨 Generating files from ARC Raiders data using Bun...\n");
 
-// Step 1: Merge directory files into single arrays
-for (const { name, dir } of directories) {
+// Step 1: Unwrap each API response into a sorted array
+for (const { name, entries } of sources) {
+  const src = join(DATA_DIR, `${name}.json`);
   try {
-    const filenames = readdirSync(dir)
-      .filter((file) => file.endsWith(".json"))
-      .sort();
-
-    // Parallel reading: Bun.file().json() is much faster than fs.readFileSync
-    const merged = await Promise.all(
-      filenames.map((file) => Bun.file(join(dir, file)).json()),
+    const merged = entries(await Bun.file(src).json()).sort((a, b) =>
+      a.id.localeCompare(b.id),
     );
 
     mergedDirectories[name] = merged;
@@ -54,11 +49,11 @@ for (const { name, dir } of directories) {
     const outputPath = join(OUTPUT_DIR, `${name}.json`);
     await Bun.write(outputPath, JSON.stringify(merged));
 
-    console.log(`✓ Generated ${name}.json (${filenames.length} files merged)`);
+    console.log(`✓ Generated ${name}.json (${merged.length} entries)`);
     totalGenerated++;
   } catch (error) {
-    console.error(`✗ Failed to process directory "${name}" at: ${dir}`);
-    console.error(`  ${error.message}`);
+    console.error(`✗ Failed to process "${name}" from: ${src}`);
+    console.error(`  ${error.message} (run: bun run fetch-data)`);
     process.exit(1);
   }
 }
@@ -85,27 +80,7 @@ if (mergedDirectories.items) {
   totalGenerated++;
 }
 
-// Step 3: Copy single files
-for (const { name, src } of singleFiles) {
-  try {
-    const file = Bun.file(src);
-    const data = await file.json();
-    mergedDirectories[name] = data;
-
-    const outputPath = join(OUTPUT_DIR, `${name}.json`);
-    // Bun.write can stream a File object directly to a path (zero-copy copy)
-    await Bun.write(outputPath, file);
-
-    console.log(`✓ Copied ${name}.json`);
-    totalGenerated++;
-  } catch (error) {
-    console.error(`✗ Failed to copy "${name}" from: ${src}`);
-    console.error(`  ${error.message}`);
-    process.exit(1);
-  }
-}
-
-// Step 4: Generate TypeScript types
+// Step 3: Generate TypeScript types
 console.log("\n📝 Generating TypeScript types...");
 await generateTypes(mergedDirectories);
 
@@ -233,7 +208,6 @@ async function generateTypes(data) {
     .flatMap((p) => p.requirementCategories);
 
   const typeDefinitions = `// Auto-generated TypeScript types from game data
-// Generated on: ${new Date().toISOString()}
 
 export interface LocalizedText {
   en: string;

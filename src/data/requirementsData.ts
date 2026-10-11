@@ -15,12 +15,14 @@ export interface RequirementTemplates {
   lvl: string;
   quest: string;
   step: string;
+  expedition: string;
 }
 
 const DEFAULT_TEMPLATES: RequirementTemplates = {
   lvl: "Lvl",
   quest: "Quest:",
   step: "Step",
+  expedition: "Expedition",
 };
 
 export interface EnrichedItemUsage extends ItemUsage {
@@ -105,23 +107,55 @@ const buildQuestLookup = (
 /**
  * Build lookup map from project requirements
  */
+export const isExpeditionProject = (project: Project): boolean =>
+  project.id.startsWith("expedition_project");
+
+/** Expedition projects, oldest first */
+export const getExpeditionProjects = (projects: Project[]): Project[] =>
+  projects
+    .filter(isExpeditionProject)
+    .sort((a, b) => a.startDate - b.startDate);
+
+/**
+ * Display name for a project. Expeditions are always "Expedition N", numbered
+ * by start date, because the API names them inconsistently across seasons.
+ */
+export const getProjectDisplayName = (
+  project: Project,
+  projects: Project[],
+  language: LanguageCode,
+  expeditionLabel: string,
+): string => {
+  if (isExpeditionProject(project)) {
+    const number = getExpeditionProjects(projects).indexOf(project) + 1;
+    return `${expeditionLabel} ${number}`;
+  }
+  return getLocalizedText(project.name, language) || project.id;
+};
+
 const buildProjectLookup = (
   projects: Project[],
   language: LanguageCode,
   templates: RequirementTemplates,
+  hiddenProjectIds: Set<string>,
 ): EnrichedItemRequirementLookup => {
   const lookup: EnrichedItemRequirementLookup = {};
+  const nowSeconds = Date.now() / 1000;
 
   for (const project of projects) {
-    // Always use English name for filtering out excluded projects
-    const projectNameEn = project.name.en ?? "";
-
-    if (projectNameEn.includes("Flickering Flames")) {
+    // Skip disabled and ended projects (API dates are Unix seconds). Expeditions
+    // never count as ended: players who skipped one can still do it.
+    const ended = project.endDate < nowSeconds && !isExpeditionProject(project);
+    if (project.disabled || ended || hiddenProjectIds.has(project.id)) {
       continue;
     }
 
-    const projectName =
-      getLocalizedText(project.name, language) || projectNameEn;
+    const projectName = getProjectDisplayName(
+      project,
+      projects,
+      language,
+      templates.expedition,
+    );
 
     for (let i = 0; i < project.phases.length; i++) {
       const phase = project.phases[i];
@@ -181,10 +215,11 @@ export const getItemRequirements = (
   projects: Project[],
   language: LanguageCode,
   templates: RequirementTemplates = DEFAULT_TEMPLATES,
+  hiddenProjectIds: Set<string> = new Set(),
 ): EnrichedItemRequirementLookup => {
   const hideoutLookup = buildHideoutLookup(hideoutBenches, language, templates);
   const questLookup = buildQuestLookup(quests, language, templates);
-  const projectLookup = buildProjectLookup(projects, language, templates);
+  const projectLookup = buildProjectLookup(projects, language, templates, hiddenProjectIds);
 
   return mergeLookups(hideoutLookup, questLookup, projectLookup);
 };

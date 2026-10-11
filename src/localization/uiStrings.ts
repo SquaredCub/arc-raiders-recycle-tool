@@ -22,6 +22,7 @@ export type UIStringKey =
   | "filter.rarity"
   | "filter.foundIn"
   | "filter.neededFor"
+  | "filter.expeditions"
   | "filter.hasRecycleOutput"
   | "filter.hasRecycleDesc"
   | "filter.hasSalvageOutput"
@@ -49,8 +50,9 @@ export type UIStringKey =
   | "general.scrollToTop"
   | "general.fieldCrafting"
   | "general.lastUpdated"
+  | "general.dataSource"
   // Needed-for source type labels (for filter display)
-  | "source.hideout"
+  | "source.outpost"
   | "source.quest"
   | "source.project"
   | "source.notNeeded"
@@ -68,6 +70,7 @@ export type UIStringKey =
   | "requirement.lvl"
   | "requirement.quest"
   | "requirement.step"
+  | "requirement.expedition"
   // Category filter options (generated from ITEM_TYPES)
   | "category.ammunition"
   | "category.assaultrifle"
@@ -92,6 +95,11 @@ export type UIStringKey =
   | "category.special"
   | "category.topsidematerial"
   | "category.trinket"
+  | "category.design"
+  | "category.outpostfurniture"
+  | "category.outpostroom"
+  | "category.research"
+  | "category.stencil"
   // Rarity filter options
   | "rarity.common"
   | "rarity.uncommon"
@@ -111,6 +119,7 @@ export type UIStringKey =
   | "location.residential"
   | "location.security"
   | "location.technological"
+  | "location.raider"
   | "location.nolocation";
 
 // The translations record — English required, other languages optional
@@ -286,30 +295,30 @@ export const UI_STRINGS: Record<
     "zh-TW": "按類別篩選以消除雜音，並排序任意列以找到所需內容。",
   },
   "recycling.intro.p4": {
-    en: "The Needed For column tracks hideout upgrades, quests, and project requirements so nothing gets recycled by accident.",
-    da: "Kolonnen 'Bruges til' sporer skjulested-opgraderinger, quests og projektkrav, så intet bliver genbrugt ved et uheld.",
-    de: "Die Spalte 'Benötigt für' verfolgt Versteck-Upgrades, Quests und Projektanforderungen, damit nichts versehentlich recycelt wird.",
-    es: "La columna 'Necesario para' rastrea mejoras de escondite, misiones y requisitos de proyectos para que nada se recicle por accidente.",
-    fr: "La colonne 'Nécessaire pour' suit les améliorations du refuge, les quêtes et les exigences des projets afin que rien ne soit recyclé par accident.",
-    he: "עמודת 'נדרש עבור' עוקבת אחר שדרוגי מחבוא, משימות ודרישות פרויקטים כדי ששום דבר לא ימחזר בטעות.",
-    hr: "Stupac 'Potrebno za' prati nadogradnje skloništa, zadatke i zahtjeve projekata kako ništa ne bi bilo reciklirano slučajno.",
-    it: "La colonna 'Necessario per' tiene traccia degli upgrade del nascondiglio, delle missioni e dei requisiti dei progetti così nulla viene riciclato per errore.",
-    ja: "必要列は隠れ家のアップグレード、クエスト、プロジェクト要件を追跡し、誤ってリサイクルされないようにします。",
+    en: "The Needed For column tracks outpost upgrades, quests, and project requirements so nothing gets recycled by accident.",
+    da: "Kolonnen 'Bruges til' sporer forpost-opgraderinger, quests og projektkrav, så intet bliver genbrugt ved et uheld.",
+    de: "Die Spalte 'Benötigt für' verfolgt Außenposten-Upgrades, Quests und Projektanforderungen, damit nichts versehentlich recycelt wird.",
+    es: "La columna 'Necesario para' rastrea mejoras del puesto, misiones y requisitos de proyectos para que nada se recicle por accidente.",
+    fr: "La colonne 'Nécessaire pour' suit les améliorations de l'avant-poste, les quêtes et les exigences des projets afin que rien ne soit recyclé par accident.",
+    he: "עמודת 'נדרש עבור' עוקבת אחר שדרוגי מוצב, משימות ודרישות פרויקטים כדי ששום דבר לא ימחזר בטעות.",
+    hr: "Stupac 'Potrebno za' prati nadogradnje ispostave, zadatke i zahtjeve projekata kako ništa ne bi bilo reciklirano slučajno.",
+    it: "La colonna 'Necessario per' tiene traccia degli upgrade dell'avamposto, delle missioni e dei requisiti dei progetti così nulla viene riciclato per errore.",
+    ja: "必要列は前哨基地のアップグレード、クエスト、プロジェクト要件を追跡し、誤ってリサイクルされないようにします。",
     "ko-KR":
-      "필요한 항목 열은 은신처 업그레이드, 퀘스트 및 프로젝트 요구 사항을 추적하여 실수로 재활용되는 일이 없도록 합니다.",
-    no: "Kolonnen 'Trengs til' sporer oppgraderinger av skjulested, oppdrag og prosjektkrav, slik at ingenting blir resirkulert ved et uhell.",
-    pl: "Kolumna 'Potrzebne do' śledzi ulepszenia kryjówki, zadania i wymagania projektów, dzięki czemu nic nie zostanie poddane recyklingowi przez pomyłkę.",
-    pt: "A coluna 'Necessário para' rastreia upgrades de esconderijo, missões e requisitos de projetos para que nada seja reciclado por acidente.",
+      "필요한 항목 열은 전초 기지 업그레이드, 퀘스트 및 프로젝트 요구 사항을 추적하여 실수로 재활용되는 일이 없도록 합니다.",
+    no: "Kolonnen 'Trengs til' sporer oppgraderinger av utposten, oppdrag og prosjektkrav, slik at ingenting blir resirkulert ved et uhell.",
+    pl: "Kolumna 'Potrzebne do' śledzi ulepszenia posterunku, zadania i wymagania projektów, dzięki czemu nic nie zostanie poddane recyklingowi przez pomyłkę.",
+    pt: "A coluna 'Necessário para' rastreia upgrades do posto avançado, missões e requisitos de projetos para que nada seja reciclado por acidente.",
     "pt-BR":
-      "A coluna 'Necessário para' rastreia upgrades de esconderijo, missões e requisitos de projetos para que nada seja reciclado por acidente.",
-    ru: "Колонка 'Необходимо для' отслеживает улучшения убежища, задания и требования проектов, чтобы ничего не было переработано случайно.",
-    sr: "Kolona 'Potrebno za' prati nadogradnje skloništa, zadatke i zahteve projekata kako ništa ne bi bilo reciklirano slučajno.",
-    tr: "Gerekli olduğu sütun, sığınak yükseltmeleri, görevler ve proje gereksinimlerini takip eder, böylece hiçbir şey yanlışlıkla geri dönüştürülmez.",
-    uk: "Стовпчик 'Потрібно для' відстежує оновлення сховища, завдання та вимоги проектів, щоб нічого не було перероблено випадково.",
+      "A coluna 'Necessário para' rastreia upgrades do posto avançado, missões e requisitos de projetos para que nada seja reciclado por acidente.",
+    ru: "Колонка 'Необходимо для' отслеживает улучшения аванпоста, задания и требования проектов, чтобы ничего не было переработано случайно.",
+    sr: "Kolona 'Potrebno za' prati nadogradnje ispostave, zadatke i zahteve projekata kako ništa ne bi bilo reciklirano slučajno.",
+    tr: "Gerekli olduğu sütun, karakol yükseltmeleri, görevler ve proje gereksinimlerini takip eder, böylece hiçbir şey yanlışlıkla geri dönüştürülmez.",
+    uk: "Стовпчик 'Потрібно для' відстежує оновлення аванпосту, завдання та вимоги проектів, щоб нічого не було перероблено випадково.",
     "zh-CN":
-      "“所需”列会追踪藏身处升级、任务和项目需求，确保不会误回收任何物品。",
+      "“所需”列会追踪哨站升级、任务和项目需求，确保不会误回收任何物品。",
     "zh-TW":
-      "「所需」欄會追蹤藏身處升級、任務和項目需求，確保不會誤回收任何物品。",
+      "「所需」欄會追蹤哨站升級、任務和項目需求，確保不會誤回收任何物品。",
   },
   "recycling.filterSettings": {
     en: "Filter settings",
@@ -490,6 +499,29 @@ export const UI_STRINGS: Record<
     uk: "Потрібно для",
     "zh-CN": "所需用途",
     "zh-TW": "所需用途",
+  },
+  // Plural of the official in-game term (ID_RAIDER_PROJECTS_EXPEDITION_TITLE)
+  "filter.expeditions": {
+    en: "Expeditions",
+    da: "Ekspeditioner",
+    de: "Expeditionen",
+    es: "Expediciones",
+    fr: "Expéditions",
+    he: "משלחות",
+    hr: "Ekspedicije",
+    it: "Spedizioni",
+    ja: "遠征",
+    "ko-KR": "원정",
+    no: "Ekspedisjoner",
+    pl: "Wyprawy",
+    pt: "Expedições",
+    "pt-BR": "Expedições",
+    ru: "Экспедиции",
+    sr: "Ekspedicije",
+    tr: "Seferler",
+    uk: "Експедиції",
+    "zh-CN": "远征",
+    "zh-TW": "遠征",
   },
   "filter.hasRecycleOutput": {
     en: "Has Recycle Output",
@@ -1025,6 +1057,28 @@ export const UI_STRINGS: Record<
     "zh-CN": "制作",
     "zh-TW": "製作",
   },
+  "general.dataSource": {
+    en: "Game data",
+    da: "Spildata",
+    de: "Spieldaten",
+    es: "Datos del juego",
+    fr: "Données du jeu",
+    he: "נתוני המשחק",
+    hr: "Podaci o igri",
+    it: "Dati di gioco",
+    ja: "ゲームデータ",
+    "ko-KR": "게임 데이터",
+    no: "Spilldata",
+    pl: "Dane gry",
+    pt: "Dados do jogo",
+    "pt-BR": "Dados do jogo",
+    ru: "Игровые данные",
+    sr: "Podaci o igri",
+    tr: "Oyun verileri",
+    uk: "Ігрові дані",
+    "zh-CN": "游戏数据",
+    "zh-TW": "遊戲資料",
+  },
   "general.lastUpdated": {
     en: "Last Updated:",
     da: "Sidst opdateret:",
@@ -1049,27 +1103,28 @@ export const UI_STRINGS: Record<
   },
 
   // Needed-for source type labels
-  "source.hideout": {
-    en: "Hideout",
-    da: "Skjulested",
-    de: "Versteck",
-    es: "Escondite",
-    fr: "Planque",
-    he: "מסתור",
-    hr: "Sklonište",
-    it: "Nascondiglio",
-    ja: "隠れ家",
-    "ko-KR": "은신처",
-    no: "Skjulested",
-    pl: "Kryjówka",
-    pt: "Esconderijo",
-    "pt-BR": "Esconderijo",
-    ru: "Убежище",
-    sr: "Sklonište",
-    tr: "Sığınak",
-    uk: "Сховище",
-    "zh-CN": "藏身处",
-    "zh-TW": "藏身處",
+  // Official in-game menu name (ID_OUTPOST_TAB) where the game ships the language
+  "source.outpost": {
+    en: "Outpost",
+    da: "Forpost",
+    de: "Außenposten",
+    es: "Puesto",
+    fr: "Avant-poste",
+    he: "מוצב",
+    hr: "Ispostava",
+    it: "Avamposto",
+    ja: "前哨基地",
+    "ko-KR": "전초 기지",
+    no: "Utpost",
+    pl: "Posterunek",
+    pt: "Posto Avançado",
+    "pt-BR": "Posto Avançado",
+    ru: "Аванпост",
+    sr: "Ispostava",
+    tr: "Karakol",
+    uk: "Аванпост",
+    "zh-CN": "哨站",
+    "zh-TW": "哨站",
   },
   "source.quest": {
     en: "Quest",
@@ -1365,6 +1420,30 @@ export const UI_STRINGS: Record<
     "zh-CN": "步骤",
     "zh-TW": "步驟",
   },
+  // Official in-game term (ID_RAIDER_PROJECTS_EXPEDITION_TITLE), shown as "Expedition N"
+  "requirement.expedition": {
+    en: "Expedition",
+    da: "Ekspedition",
+    de: "Expedition",
+    es: "Expedición",
+    fr: "Expédition",
+    he: "משלחת",
+    hr: "Ekspedicija",
+    it: "Spedizione",
+    ja: "遠征",
+    "ko-KR": "원정",
+    no: "Ekspedisjon",
+    pl: "Wyprawa",
+    pt: "Expedição",
+    "pt-BR": "Expedição",
+    ru: "Экспедиция",
+    sr: "Ekspedicija",
+    tr: "Sefer",
+    uk: "Експедиція",
+    "zh-CN": "远征",
+    "zh-TW": "遠征",
+  },
+
 
   // ── Category filter options ──────────────────────────────────────────
 
@@ -1873,7 +1952,122 @@ export const UI_STRINGS: Record<
     uk: "Дрібничка",
     "zh-CN": "饰品",
     "zh-TW": "飾品",
+  },  // Official in-game term (ID_ITEMDISPLAYTAG_RECIPE_OUTPOSTFURNITURE)
+  "category.design": {
+    en: "Design",
+    da: "Design",
+    de: "Entwurf",
+    es: "Diseño",
+    fr: "Design",
+    he: "עיצוב",
+    hr: "Dizajn",
+    it: "Design",
+    ja: "デザイン",
+    "ko-KR": "디자인",
+    no: "Design",
+    pl: "Projekt",
+    pt: "Projeto",
+    "pt-BR": "Projeto",
+    ru: "Схема",
+    sr: "Dizajn",
+    tr: "Tasarım",
+    uk: "Схема",
+    "zh-CN": "设计图",
+    "zh-TW": "設計",
   },
+  // Official in-game term (ID_OUTPOST_MENU_FURNITURE)
+  "category.outpostfurniture": {
+    en: "Outpost Furniture",
+    da: "Møbler",
+    de: "Möbel",
+    es: "Muebles",
+    fr: "Meubles",
+    he: "רהיטים",
+    hr: "Namještaj",
+    it: "Arredamento",
+    ja: "家具",
+    "ko-KR": "가구",
+    no: "Møbler",
+    pl: "Meble",
+    pt: "Mobília",
+    "pt-BR": "Mobília",
+    ru: "Мебель",
+    sr: "Nameštaj",
+    tr: "Mobilya",
+    uk: "Меблі",
+    "zh-CN": "家具",
+    "zh-TW": "家具",
+  },
+  // Official in-game term (ID_OUTPOST_MODULES)
+  "category.outpostroom": {
+    en: "Outpost Room",
+    da: "Rum",
+    de: "Räume",
+    es: "Salas",
+    fr: "Pièces",
+    he: "חדרים",
+    hr: "Prostorije",
+    it: "Stanze",
+    ja: "部屋",
+    "ko-KR": "방",
+    no: "Rom",
+    pl: "Pomieszczenia",
+    pt: "Espaços",
+    "pt-BR": "Espaços",
+    ru: "Комнаты",
+    sr: "Prostorije",
+    tr: "Odalar",
+    uk: "Кімнати",
+    "zh-CN": "房间",
+    "zh-TW": "房間",
+  },
+  // Official in-game term (ID_CHAMBERS_RESEARCH)
+  "category.research": {
+    en: "Research",
+    da: "Forskning",
+    de: "Forschung",
+    es: "Investigación",
+    fr: "Recherche",
+    he: "מחקר",
+    hr: "Istraživanje",
+    it: "Ricerca",
+    ja: "研究所",
+    "ko-KR": "연구",
+    no: "Forskning",
+    pl: "Badania",
+    pt: "Pesquisas",
+    "pt-BR": "Pesquisas",
+    ru: "Исследование",
+    sr: "Istraživanje",
+    tr: "Araştırma",
+    uk: "Дослідження",
+    "zh-CN": "研究",
+    "zh-TW": "研究",
+  },
+  // Official in-game term (ID_ITEMDISPLAYTAGS_ITEMSKINS)
+  "category.stencil": {
+    en: "Stencil",
+    da: "Stencil",
+    de: "Schablone",
+    es: "Modelo",
+    fr: "Décoration",
+    he: "שבלונה",
+    hr: "Šablona",
+    it: "Stencil",
+    ja: "テンプレート",
+    "ko-KR": "스텐실",
+    no: "Sjablong",
+    pl: "Szablon",
+    pt: "Estampa",
+    "pt-BR": "Estampa",
+    ru: "Раскраска",
+    sr: "Šablon",
+    tr: "Çıkartma",
+    uk: "Розмальовка",
+    "zh-CN": "贴花",
+    "zh-TW": "貼膜",
+  },
+
 
   // ── Rarity filter options ────────────────────────────────────────────
 
@@ -2275,5 +2469,28 @@ export const UI_STRINGS: Record<
     uk: "Без локації",
     "zh-CN": "无位置",
     "zh-TW": "無位置",
+  },  // Official in-game term (ID_ITEMDISPLAYTAG_RAIDER)
+  "location.raider": {
+    en: "Raider",
+    da: "Raider",
+    de: "Raider",
+    es: "Raider",
+    fr: "Raider",
+    he: "ריידר",
+    hr: "Raider",
+    it: "Raider",
+    ja: "レイダー",
+    "ko-KR": "레이더",
+    no: "Raider",
+    pl: "Łupieżca",
+    pt: "Raider",
+    "pt-BR": "Raider",
+    ru: "Рейдер",
+    sr: "Raider",
+    tr: "Raider",
+    uk: "Рейдер",
+    "zh-CN": "奇袭者",
+    "zh-TW": "掠手",
   },
+
 };

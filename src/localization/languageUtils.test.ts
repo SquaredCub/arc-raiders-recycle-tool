@@ -43,7 +43,6 @@ describe("getLocalizedText", () => {
     fr: "Français",
     de: "Deutsch",
     "ko-KR": "한국어 KR",
-    kr: "한국어 KR legacy",
   } as LocalizedText;
 
   it("returns text for the requested language", () => {
@@ -59,13 +58,7 @@ describe("getLocalizedText", () => {
     expect(getLocalizedText(mockText, "ko-KR")).toBe("한국어 KR");
   });
 
-  it("falls back ko-KR → kr → en", () => {
-    const textWithOnlyKr = {
-      en: "English",
-      kr: "Korean legacy",
-    } as LocalizedText;
-    expect(getLocalizedText(textWithOnlyKr, "ko-KR")).toBe("Korean legacy");
-
+  it("falls back ko-KR → en", () => {
     const textWithOnlyEn = { en: "English" } as LocalizedText;
     expect(getLocalizedText(textWithOnlyEn, "ko-KR")).toBe("English");
   });

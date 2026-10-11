@@ -26,7 +26,8 @@ dist-ssr
 src/arcraiders-data
 src/arcraiders-data/
 src/arcraiders-data/*
-claude.md
+# Raw API responses, only kept while scripts/update-data runs
+src/arctracker-data/
 .clinerules
 
 # Playwright
@@ -37,14 +38,7 @@ claude.md
 /playwright/.auth/
 .playwright-mcp/
 
-# Project
-src/generated/
-src/generated/*
-
 # TypeScript build info
 *.tsbuildinfo
 
 dist
-
-# Generated image-compare page (rebuild with: bun run images:compare:build)
-image-tools/compare-sources/

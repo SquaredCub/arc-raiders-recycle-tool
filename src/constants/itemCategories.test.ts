@@ -8,7 +8,7 @@ import {
 describe("itemCategories", () => {
   describe("BLACKLISTED_ITEM_CATEGORIES", () => {
     it("contains exactly the expected categories", () => {
-      expect(BLACKLISTED_ITEM_CATEGORIES).toEqual(["Key", "Blueprint"]);
+      expect(BLACKLISTED_ITEM_CATEGORIES).toEqual(["Key", "Blueprint", "Design"]);
     });
   });
 

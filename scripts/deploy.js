@@ -91,9 +91,6 @@ const performDeploy = async () => {
     logStep("Publishing to GH Pages");
     await $`bun x gh-pages -d dist --no-history`.quiet();
     logSuccess("Successfully pushed to GitHub");
-
-    logStep("Post-Deploy Asset Audit");
-    await $`bun scripts/check-missing-images.js`;
   } catch (err) {
     console.error(`\n${RED}${BOLD}FATAL ERROR during deployment${NC}`);
     if (err.stdout?.length) console.error(err.stdout.toString());

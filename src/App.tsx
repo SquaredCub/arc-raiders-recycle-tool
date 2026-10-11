@@ -19,6 +19,12 @@ const AppContent = () => {
       <Navigation activePage={activePage} onNavigate={onNavigate} />
       {activePage === "recycling" && <RecyclingTools />}
       <ScrollToTop />
+      <div id="data-credit">
+        {translateUI("general.dataSource")}:{" "}
+        <a href="https://arctracker.io" target="_blank" rel="noopener noreferrer">
+          arctracker.io
+        </a>
+      </div>
       <div id="update-note">
         {translateUI("general.lastUpdated")} 23/06/2026
       </div>

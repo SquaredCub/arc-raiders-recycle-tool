@@ -1,10 +1,12 @@
-import { useCallback, useRef } from "react";
+import { useCallback, useMemo, useRef } from "react";
 import {
   FOUND_IN_LOCATIONS,
   ITEM_RARITIES,
   NEEDED_FOR_SOURCE_TYPES,
 } from "../constants/filterOptions";
 import { FILTERABLE_ITEM_CATEGORIES } from "../constants/itemCategories";
+import { getExpeditionProjects, getProjectDisplayName } from "../data/requirementsData";
+import { useData } from "../hooks/useData";
 import { useLanguage } from "../hooks/useLanguage";
 import { useModalBehavior } from "../hooks/useModalBehavior";
 import type { UIStringKey } from "../localization/uiStrings";
@@ -19,8 +21,16 @@ export interface FilterSettings {
   onlySalvageable: boolean;
   includedLocations: Set<string>;
   includedSourceTypes: Set<string>;
+  includedExpeditions: Set<string>;
   prioritizeNameMatches: boolean;
 }
+
+type SetFilterKey =
+  | "includedCategories"
+  | "includedRarities"
+  | "includedLocations"
+  | "includedSourceTypes"
+  | "includedExpeditions";
 
 interface FilterModalProps {
   isOpen: boolean;
@@ -35,8 +45,22 @@ const FilterModal = ({
   filterSettings,
   onFilterChange,
 }: FilterModalProps) => {
-  const { translateUI } = useLanguage();
+  const { language, translateUI } = useLanguage();
+  const { projects } = useData();
   const modalRef = useRef<HTMLDivElement>(null);
+
+  const expeditions = useMemo(() => getExpeditionProjects(projects), [projects]);
+  const expeditionIds = useMemo(() => expeditions.map((project) => project.id), [expeditions]);
+
+  const translateExpedition = useCallback(
+    (id: string) => {
+      const project = expeditions.find((expedition) => expedition.id === id);
+      return project
+        ? getProjectDisplayName(project, projects, language, translateUI("requirement.expedition"))
+        : id;
+    },
+    [expeditions, projects, language, translateUI],
+  );
 
   useModalBehavior({ isOpen, onClose, modalRef });
 
@@ -71,7 +95,7 @@ const FilterModal = ({
   const translateSourceType = useCallback(
     (option: string) => {
       const keyMap: Record<string, UIStringKey> = {
-        Hideout: "source.hideout",
+        Outpost: "source.outpost",
         Quest: "source.quest",
         Project: "source.project",
         "Not Needed": "source.notNeeded",
@@ -84,7 +108,7 @@ const FilterModal = ({
 
   // Generic Set toggle handler
   const handleSetToggle = (
-    key: "includedCategories" | "includedRarities" | "includedLocations" | "includedSourceTypes",
+    key: SetFilterKey,
     value: string,
   ) => {
     const newSet = new Set(filterSettings[key]);
@@ -97,14 +121,14 @@ const FilterModal = ({
   };
 
   const handleSelectAll = (
-    key: "includedCategories" | "includedRarities" | "includedLocations" | "includedSourceTypes",
+    key: SetFilterKey,
     allOptions: string[],
   ) => {
     onFilterChange({ ...filterSettings, [key]: new Set(allOptions) });
   };
 
   const handleDeselectAll = (
-    key: "includedCategories" | "includedRarities" | "includedLocations" | "includedSourceTypes",
+    key: SetFilterKey,
   ) => {
     onFilterChange({ ...filterSettings, [key]: new Set() });
   };
@@ -171,6 +195,18 @@ const FilterModal = ({
               onDeselectAll={() => handleDeselectAll("includedSourceTypes")}
               label={translateUI("filter.neededFor")}
               translateOption={translateSourceType}
+            />
+          </div>
+
+          <div className="filter-section">
+            <MultiSelectDropdown
+              options={expeditionIds}
+              selectedOptions={filterSettings.includedExpeditions}
+              onToggle={(v) => handleSetToggle("includedExpeditions", v)}
+              onSelectAll={() => handleSelectAll("includedExpeditions", expeditionIds)}
+              onDeselectAll={() => handleDeselectAll("includedExpeditions")}
+              label={translateUI("filter.expeditions")}
+              translateOption={translateExpedition}
             />
           </div>
 

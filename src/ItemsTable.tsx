@@ -10,7 +10,11 @@ import {
   NEEDED_FOR_SOURCE_TYPES,
 } from "./constants/filterOptions";
 import { formatMaterialName } from "./data/itemsData";
-import { getItemRequirements, type RequirementTemplates } from "./data/requirementsData";
+import {
+  getItemRequirements,
+  isExpeditionProject,
+  type RequirementTemplates,
+} from "./data/requirementsData";
 import { useData } from "./hooks/useData";
 import { useLanguage } from "./hooks/useLanguage";
 import Table from "./Table";
@@ -63,14 +67,38 @@ const ItemsTable = React.memo(
         lvl: translateUI("requirement.lvl"),
         quest: translateUI("requirement.quest"),
         step: translateUI("requirement.step"),
+        expedition: translateUI("requirement.expedition"),
       }),
       [translateUI],
     );
 
+    // Expeditions the user unticked in the search settings
+    const hiddenExpeditionIds = useMemo(
+      () =>
+        new Set(
+          projects
+            .filter(
+              (project) =>
+                isExpeditionProject(project) &&
+                !filterSettings.includedExpeditions.has(project.id),
+            )
+            .map((project) => project.id),
+        ),
+      [projects, filterSettings.includedExpeditions],
+    );
+
     // Compute item requirements from the data
     const itemRequirements = useMemo(
-      () => getItemRequirements(hideoutBenches, quests, projects, language, requirementTemplates),
-      [hideoutBenches, quests, projects, language, requirementTemplates],
+      () =>
+        getItemRequirements(
+          hideoutBenches,
+          quests,
+          projects,
+          language,
+          requirementTemplates,
+          hiddenExpeditionIds,
+        ),
+      [hideoutBenches, quests, projects, language, requirementTemplates, hiddenExpeditionIds],
     );
 
     // Create lookup maps for performance optimization
@@ -214,7 +242,7 @@ const ItemsTable = React.memo(
           const hasProject = req.usedIn.some((u) => u.sourceType === "project");
 
           return (
-            (hasHideout && filterSettings.includedSourceTypes.has("Hideout")) ||
+            (hasHideout && filterSettings.includedSourceTypes.has("Outpost")) ||
             (hasQuest && filterSettings.includedSourceTypes.has("Quest")) ||
             (hasProject && filterSettings.includedSourceTypes.has("Project"))
           );
@@ -342,6 +370,10 @@ const ItemsTable = React.memo(
       areSetsEqual(
         prevProps.filterSettings.includedSourceTypes,
         nextProps.filterSettings.includedSourceTypes,
+      ) &&
+      areSetsEqual(
+        prevProps.filterSettings.includedExpeditions,
+        nextProps.filterSettings.includedExpeditions,
       )
     );
   },

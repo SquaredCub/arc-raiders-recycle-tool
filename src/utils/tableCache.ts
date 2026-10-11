@@ -2,7 +2,7 @@ import type { HideoutBench, Item } from "../generated/types";
 import type { EnrichedItemRequirementLookup } from "../data/requirementsData";
 import {
   formatMaterialName,
-  getMaterialImage,
+  getItemImageById,
 } from "../data/itemsData";
 import {
   getLocalizedText,
@@ -54,7 +54,7 @@ const cacheMaterialEntries = (
       material,
       quantity,
       name: getName(material),
-      image: getMaterialImage(material, itemLookup),
+      image: getItemImageById(material),
     }));
   }
 };

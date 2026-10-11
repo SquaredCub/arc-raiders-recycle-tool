@@ -1,5 +1,5 @@
 import type { SortingState } from "@tanstack/react-table";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { FilterSettings } from "./components/FilterModal";
 import FilterModal from "./components/FilterModal";
 import SortColumnDropdown from "./components/SortColumnDropdown";
@@ -10,26 +10,60 @@ import {
   NEEDED_FOR_SOURCE_TYPES,
 } from "./constants/filterOptions";
 import { FILTERABLE_ITEM_CATEGORIES } from "./constants/itemCategories";
+import { getExpeditionProjects } from "./data/requirementsData";
+import type { Project } from "./generated/types";
+import { useData } from "./hooks/useData";
 import { useDebounce } from "./hooks/useDebounce";
 import { useLanguage } from "./hooks/useLanguage";
 import ItemsTable from "./ItemsTable";
 import SearchInput from "./SearchInput";
 
+// Expeditions the user unticked, remembered across visits. Stored as the hidden
+// ids so that newly released expeditions start out included.
+const HIDDEN_EXPEDITIONS_KEY = "hiddenExpeditions";
+
+const loadIncludedExpeditions = (projects: Project[]): Set<string> => {
+  let hidden: string[] = [];
+  try {
+    hidden = JSON.parse(localStorage.getItem(HIDDEN_EXPEDITIONS_KEY) ?? "[]");
+  } catch {
+    // Storage unavailable or corrupt: include every expedition
+  }
+  return new Set(
+    getExpeditionProjects(projects)
+      .map((project) => project.id)
+      .filter((id) => !hidden.includes(id)),
+  );
+};
+
 const RecyclingTools = () => {
   const { translateUI } = useLanguage();
+  const { projects } = useData();
   const [searchTerm, setSearchTerm] = useState("");
   const [showIntroduction, setShowIntroduction] = useState(false);
   const debouncedSearchTerm = useDebounce(searchTerm);
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
-  const [filterSettings, setFilterSettings] = useState<FilterSettings>({
+  const [filterSettings, setFilterSettings] = useState<FilterSettings>(() => ({
     includedCategories: new Set(FILTERABLE_ITEM_CATEGORIES),
     includedRarities: new Set(ITEM_RARITIES),
     onlyRecyclable: false,
     onlySalvageable: false,
     includedLocations: new Set(FOUND_IN_LOCATIONS),
     includedSourceTypes: new Set(NEEDED_FOR_SOURCE_TYPES),
+    includedExpeditions: loadIncludedExpeditions(projects),
     prioritizeNameMatches: true,
-  });
+  }));
+
+  useEffect(() => {
+    const hidden = getExpeditionProjects(projects)
+      .map((project) => project.id)
+      .filter((id) => !filterSettings.includedExpeditions.has(id));
+    try {
+      localStorage.setItem(HIDDEN_EXPEDITIONS_KEY, JSON.stringify(hidden));
+    } catch {
+      // Storage unavailable (private mode): the choice lasts for this visit only
+    }
+  }, [projects, filterSettings.includedExpeditions]);
   const [itemCount, setItemCount] = useState<{
     filtered: number;
     total: number;

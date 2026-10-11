@@ -56,19 +56,13 @@ export const resolveLanguageCode = (browserLang: string): LanguageCode => {
 };
 
 /**
- * Get localized text with Korean fallback logic + English fallback.
- * For Korean: tries ko-KR → kr → en.
- * For others: tries language → en.
+ * Get localized text with English fallback.
+ * Tries language → en.
  */
 export const getLocalizedText = (
   localized: LocalizedText,
   language: LanguageCode,
-): string => {
-  if (language === "ko-KR") {
-    return localized["ko-KR"] ?? localized["kr"] ?? localized.en ?? "";
-  }
-  return localized[language] ?? localized.en ?? "";
-};
+): string => localized[language] ?? localized.en ?? "";
 
 /**
  * Detect initial language: localStorage → navigator.languages → "en"

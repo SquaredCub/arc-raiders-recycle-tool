@@ -117,6 +117,7 @@ describe("getItemRequirements", () => {
       lvl: "Niv.",
       quest: "Quête :",
       step: "Étape",
+      expedition: "Expédition",
     };
     const customReqs = getItemRequirements(
       hideoutBenches,

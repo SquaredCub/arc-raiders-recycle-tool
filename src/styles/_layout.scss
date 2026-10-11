@@ -111,6 +111,18 @@ a {
   }
 }
 
+#data-credit {
+  text-align: center;
+  padding-top: 0.5rem;
+  font-size: $font-2xs;
+  line-height: 1rem;
+  color: var(--text-tertiary);
+
+  a {
+    color: inherit;
+  }
+}
+
 #update-note {
   text-align: center;
   padding: 0.5rem;

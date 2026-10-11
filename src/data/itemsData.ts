@@ -1,36 +1,17 @@
-import { BLACKLISTED_ITEM_CATEGORIES } from "../constants/itemCategories";
+import {
+  AMPLIFIED_WEAPON_ID_PATTERN,
+  BLACKLISTED_ITEM_CATEGORIES,
+} from "../constants/itemCategories";
 import type { Item } from "../generated/types";
 import { getImageUrl } from "../services/dataService";
 
 export const COINS_IMAGE_URL = getImageUrl("images/coins.png");
 
-// Helper function to get image for an item
-export const getItemImage = (item: Item): string | undefined => {
-  if (item.imageFilename) {
-    const urlFilename = item.imageFilename.split("/").pop();
-    if (urlFilename) {
-      return getImageUrl(`images/items/${urlFilename}`);
-    }
-  }
-  if (item.id) {
-    return getImageUrl(`images/items/${item.id}.png`);
-  }
-  return undefined;
-};
+// Item images are downloaded by scripts/fetch-images.js as public/images/items/<id>.png
+export const getItemImageById = (itemId: string): string =>
+  getImageUrl(`images/items/${itemId}.png`);
 
-// Helper function to get image for a material by ID
-// This requires access to the items map for O(1) lookup
-export const getMaterialImage = (
-  materialId: string,
-  itemLookup: Map<string, Item>,
-): string | undefined => {
-  const item = itemLookup.get(materialId);
-  if (item) {
-    return getItemImage(item);
-  }
-  // Fallback to constructing URL from ID
-  return getImageUrl(`images/items/${materialId}.png`);
-};
+export const getItemImage = (item: Item): string => getItemImageById(item.id);
 
 // Helper function to capitalize material names
 export const formatMaterialName = (materialId: string): string => {
@@ -42,6 +23,8 @@ export const formatMaterialName = (materialId: string): string => {
 
 export const filterBlacklistedItemCategories = (items: Item[]): Item[] => {
   return items.filter(
-    (item) => !BLACKLISTED_ITEM_CATEGORIES.includes(item.type),
+    (item) =>
+      !BLACKLISTED_ITEM_CATEGORIES.includes(item.type) &&
+      !AMPLIFIED_WEAPON_ID_PATTERN.test(item.id),
   );
 };

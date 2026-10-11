@@ -64,8 +64,8 @@ export const getItemSortName = (
   language: keyof LocalizedText = DEFAULT_LANGUAGE,
 ): string => {
   const raw = item.name[language] || item.name.en || "";
-  // Remove all double quotes from the name for sorting (e.g., ship model names)
-  return raw.replace(/"/g, "");
+  // Remove straight and curly double quotes for sorting (e.g., ship model names)
+  return raw.replace(/["“”]/g, "");
 };
 
 /**

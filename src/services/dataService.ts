@@ -4,13 +4,6 @@ import projectsData from "../generated/projects.json";
 import questsData from "../generated/quests.json";
 import type { HideoutBench, Item, Project, Quest } from "../generated/types";
 
-// Configuration (still used for image URLs)
-const GITHUB_OWNER = import.meta.env.VITE_GITHUB_OWNER || "SquaredCub";
-const GITHUB_REPO = import.meta.env.VITE_GITHUB_REPO || "arcraiders-data";
-const GITHUB_BRANCH = import.meta.env.VITE_GITHUB_BRANCH || "main";
-
-const GITHUB_RAW_BASE_URL = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${GITHUB_BRANCH}`;
-
 /**
  * Data accessors — all data is bundled at build time, no runtime fetches needed.
  */
@@ -24,8 +17,7 @@ export const getHideoutBenches = (): HideoutBench[] =>
 export const getProjects = (): Project[] => projectsData as Project[];
 
 /**
- * Get image URL for an item from GitHub
+ * URL of an image in public/, served alongside the site
  */
-export const getImageUrl = (path: string): string => {
-  return `${GITHUB_RAW_BASE_URL}/${path}`;
-};
+export const getImageUrl = (path: string): string =>
+  `${import.meta.env.BASE_URL}${path}`;
