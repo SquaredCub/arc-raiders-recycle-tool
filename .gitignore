@@ -23,11 +23,10 @@ dist-ssr
 *.sln
 *.sw?
 .env
-src/arcraiders-data
-src/arcraiders-data/
-src/arcraiders-data/*
-# Raw API responses, only kept while scripts/update-data runs
+# Raw API responses written by `bun run update-data` (never committed)
 src/arctracker-data/
+# Local discussions, todos and plans (not committed)
+notes/
 .clinerules
 
 # Playwright
