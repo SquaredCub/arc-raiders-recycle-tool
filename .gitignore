@@ -27,6 +27,8 @@ dist-ssr
 src/arctracker-data/
 # Local discussions, todos and plans (not committed)
 notes/
+# Machine-local Claude rules, imported by CLAUDE.md
+CLAUDE.local.md
 .clinerules
 
 # Playwright

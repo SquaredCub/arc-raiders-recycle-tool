@@ -6,6 +6,8 @@ recycle in-game items.
 **Stack:** React 19, TypeScript 5.9, Vite 7, TanStack Table/Virtual, Sass,
 GitHub Pages
 
+Machine-local rules (gitignored, may not exist on every machine): @CLAUDE.local.md
+
 ## Project Structure
 
 ```
