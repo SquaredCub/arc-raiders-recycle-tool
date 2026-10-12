@@ -248,6 +248,11 @@ bun x playwright test --project=chromium
 
 ## AI Guidelines
 
+- **Never commit or push before the user has validated the change locally.**
+  Make the change, run the checks, then have the user try it on the dev server
+  (http://localhost:5257/arc-raiders-recycle-tool/) and wait for their
+  go-ahead. Passing tests are not validation — a fix once passed every test and
+  still failed on the user's first try.
 - Avoid sycophancy — prioritize accuracy over validation
 - Disagree when necessary; investigate uncertainty rather than confirming
   assumptions

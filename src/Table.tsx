@@ -1,6 +1,7 @@
 import { flexRender, type Table as TableType } from "@tanstack/react-table";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import { useEffect, useRef, useState } from "react";
+import ScrollToTop from "./components/ScrollToTop";
 import type { Item } from "./generated/types";
 import { useLanguage } from "./hooks/useLanguage";
 import type { SearchMatchType } from "./utils/functions";
@@ -179,6 +180,11 @@ const Table = <T,>({
         })}
         {paddingBottom > 0 && <div style={{ height: `${paddingBottom}px` }} />}
       </div>
+      <ScrollToTop
+        onScrollToTop={() =>
+          rowVirtualizer.scrollToOffset(0, { behavior: "smooth" })
+        }
+      />
     </div>
   );
 };

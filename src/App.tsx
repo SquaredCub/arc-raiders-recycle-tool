@@ -1,7 +1,6 @@
 import { useState } from "react";
 import "./App.scss";
 import Navigation, { type NavigationPage } from "./components/Navigation";
-import ScrollToTop from "./components/ScrollToTop";
 import { LanguageProvider } from "./contexts/LanguageContext";
 import { useLanguage } from "./hooks/useLanguage";
 import RecyclingTools from "./RecyclingTools";
@@ -18,7 +17,6 @@ const AppContent = () => {
     <>
       <Navigation activePage={activePage} onNavigate={onNavigate} />
       {activePage === "recycling" && <RecyclingTools />}
-      <ScrollToTop />
       <div id="data-credit">
         {translateUI("general.dataSource")}:{" "}
         <a href="https://arctracker.io" target="_blank" rel="noopener noreferrer">
