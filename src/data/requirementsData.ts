@@ -184,6 +184,7 @@ const buildProjectLookup = (
  * Merge multiple lookup maps into a single aggregated map
  */
 const mergeLookups = (
+  language: LanguageCode,
   ...lookups: EnrichedItemRequirementLookup[]
 ): EnrichedItemRequirementLookup => {
   const merged: EnrichedItemRequirementLookup = {};
@@ -200,6 +201,13 @@ const mergeLookups = (
       merged[itemId].totalQuantity += data.totalQuantity;
       merged[itemId].usedIn.push(...data.usedIn);
     }
+  }
+
+  // Alphabetical in the display language; numeric so "Expedition 10" sorts
+  // after "Expedition 2" and "Lvl 10" after "Lvl 9"
+  const collator = new Intl.Collator(language, { numeric: true, sensitivity: "base" });
+  for (const data of Object.values(merged)) {
+    data.usedIn.sort((a, b) => collator.compare(a.source, b.source));
   }
 
   return merged;
@@ -221,5 +229,5 @@ export const getItemRequirements = (
   const questLookup = buildQuestLookup(quests, language, templates);
   const projectLookup = buildProjectLookup(projects, language, templates, hiddenProjectIds);
 
-  return mergeLookups(hideoutLookup, questLookup, projectLookup);
+  return mergeLookups(language, hideoutLookup, questLookup, projectLookup);
 };
