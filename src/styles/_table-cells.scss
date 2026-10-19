@@ -211,6 +211,83 @@
     }
   }
 
+  // Used to Craft column (crafting page): wrapping grid of cards
+  .crafts-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+    gap: 0.5rem;
+
+    @include mobile {
+      grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
+      gap: 0.375rem;
+    }
+  }
+
+  .craft-usage {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.375rem 0.5rem;
+    border: 1px solid color-mix(in srgb, var(--text-primary) 10%, transparent);
+    border-radius: $radius-md;
+    text-align: left;
+
+    &--clickable {
+      // Button reset that keeps the card look above
+      appearance: none;
+      background: none;
+      font: inherit;
+      color: inherit;
+      cursor: pointer;
+
+      @include hover-supported {
+        border-color: var(--color-primary-border);
+
+        .cell-item__name {
+          color: var(--color-primary);
+          text-decoration: underline;
+          text-underline-offset: 3px;
+        }
+      }
+
+      &:focus-visible {
+        outline: 2px solid var(--color-primary);
+        outline-offset: 2px;
+      }
+    }
+
+    &__details {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.125rem 0.5rem;
+      font-size: $font-2xs;
+      color: var(--text-tertiary);
+    }
+
+    &__uses {
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    &__tag {
+      padding: 0 0.375rem;
+      border: 1px solid var(--border-tertiary);
+      border-radius: $radius-sm;
+    }
+
+    @include mobile {
+      .cell-item__image {
+        width: 24px;
+        height: 24px;
+      }
+
+      .cell-item__name {
+        font-size: $font-xs;
+      }
+    }
+  }
+
   // Value column
   .value-container {
     display: flex;
@@ -238,6 +315,10 @@
     }
     .grid-cell--salvages::before {
       content: "Salvages Into";
+      @include mobile-section-label;
+    }
+    .grid-cell--usedToCraft::before {
+      content: "Used to Craft";
       @include mobile-section-label;
     }
 

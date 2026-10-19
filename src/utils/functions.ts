@@ -20,13 +20,20 @@ export const DEFAULT_LANGUAGE: keyof LocalizedText = "en";
  * Filter items based on search term
  * Returns matched items and their match types for highlighting
  */
-export type SearchMatchType = "item" | "recycles" | "salvages" | "requirement";
+export type SearchMatchType =
+  | "item"
+  | "recycles"
+  | "salvages"
+  | "requirement"
+  | "crafts";
 
 export interface SearchResult {
   items: Item[];
   matchTypes: Record<string, Set<SearchMatchType>>;
   matchedMaterials: Record<string, Set<string>>;
   matchedSources: Record<string, Set<string>>;
+  /** Output ids of matching craft usages, per ingredient */
+  matchedCrafts: Record<string, Set<string>>;
 }
 
 export const filterItemsBySearch = (
@@ -37,7 +44,13 @@ export const filterItemsBySearch = (
   itemRequirements?: ItemRequirementLookup,
 ): SearchResult => {
   if (!searchTerm.trim()) {
-    return { items, matchTypes: {}, matchedMaterials: {}, matchedSources: {} };
+    return {
+      items,
+      matchTypes: {},
+      matchedMaterials: {},
+      matchedSources: {},
+      matchedCrafts: {},
+    };
   }
 
   const lowerSearchTerm = searchTerm.toLowerCase();
@@ -107,7 +120,53 @@ export const filterItemsBySearch = (
     matchTypes,
     matchedMaterials,
     matchedSources,
+    matchedCrafts: {},
   };
+};
+
+/**
+ * Crafting page search: matches item names and the names of what each item
+ * can be used to craft
+ */
+export const filterItemsByCraftSearch = (
+  items: Item[],
+  searchTerm: string,
+  craftNames: Record<string, { outputId: string; name: string }[]>,
+  language: keyof LocalizedText = DEFAULT_LANGUAGE,
+): SearchResult => {
+  const result: SearchResult = {
+    items,
+    matchTypes: {},
+    matchedMaterials: {},
+    matchedSources: {},
+    matchedCrafts: {},
+  };
+  if (!searchTerm.trim()) return result;
+
+  const lowerSearchTerm = searchTerm.toLowerCase();
+  result.items = [];
+
+  for (const item of items) {
+    const types = new Set<SearchMatchType>();
+
+    if (item.name[language]?.toLowerCase().includes(lowerSearchTerm)) {
+      types.add("item");
+    }
+
+    for (const { outputId, name } of craftNames[item.id] ?? []) {
+      if (name.toLowerCase().includes(lowerSearchTerm)) {
+        types.add("crafts");
+        (result.matchedCrafts[item.id] ??= new Set()).add(outputId);
+      }
+    }
+
+    if (types.size === 0) continue;
+
+    result.matchTypes[item.id] = types;
+    result.items.push(item);
+  }
+
+  return result;
 };
 
 /**

@@ -11,7 +11,7 @@ import {
 import type { UIStringKey } from "../localization/uiStrings";
 import { getImageUrl } from "../services/dataService";
 import { isNoResultsItem } from "./functions";
-import type { CachedMaterial } from "./tableCache";
+import type { CachedCraft, CachedMaterial } from "./tableCache";
 
 const columnHelper = createColumnHelper<Item>();
 
@@ -20,6 +20,62 @@ const col = (id: string) => {
   if (!found) throw new Error(`Unknown sort column: ${id}`);
   return found;
 };
+
+type Label = (key: UIStringKey) => string;
+
+const createItemColumn = (label: Label, language?: LanguageCode) =>
+  columnHelper.accessor("name", {
+    id: col("item").id,
+    header: () => <span>{label(col("item").label)}</span>,
+    size: 200,
+    cell: (info) => {
+      const item = info.row.original;
+      // Handle "no results" placeholder
+      if (isNoResultsItem(item.id)) {
+        return <span>{item.name.en}</span>;
+      }
+      const imageSrc = getItemImage(item);
+      return (
+        <ItemCell
+          id={item.id}
+          item={item}
+          name={
+            language ? getLocalizedText(item.name, language) : item.name.en
+          }
+          imageSrc={imageSrc}
+          rarity={item.rarity}
+        />
+      );
+    },
+    enableSorting: true,
+    sortDescFirst: col("item").descFirst,
+  });
+
+const createValueColumn = (label: Label) =>
+  columnHelper.accessor("value", {
+    id: col("value").id,
+    header: () => <span>{label(col("value").label)}</span>,
+    size: 80,
+    cell: (info) => {
+      const item = info.row.original;
+      // Handle "no results" placeholder
+      if (isNoResultsItem(item.id)) {
+        return <span>-</span>;
+      }
+      return (
+        <div className="value-container">
+          <span>{info.getValue()}</span>
+          <img
+            src={COINS_IMAGE_URL}
+            alt="Coins"
+            className="value-coin-icon"
+          />
+        </div>
+      );
+    },
+    enableSorting: true,
+    sortDescFirst: col("value").descFirst,
+  });
 
 /**
  * Create table column definitions
@@ -36,32 +92,7 @@ export const createItemsTableColumns = (
 ) => {
   const label = (key: UIStringKey) => translateUI?.(key) ?? key;
   return [
-    columnHelper.accessor("name", {
-      id: col("item").id,
-      header: () => <span>{label(col("item").label)}</span>,
-      size: 200,
-      cell: (info) => {
-        const item = info.row.original;
-        // Handle "no results" placeholder
-        if (isNoResultsItem(item.id)) {
-          return <span>{item.name.en}</span>;
-        }
-        const imageSrc = getItemImage(item);
-        return (
-          <ItemCell
-            id={item.id}
-            item={item}
-            name={
-              language ? getLocalizedText(item.name, language) : item.name.en
-            }
-            imageSrc={imageSrc}
-            rarity={item.rarity}
-          />
-        );
-      },
-      enableSorting: true,
-      sortDescFirst: col("item").descFirst,
-    }),
+    createItemColumn(label, language),
     columnHelper.accessor("recyclesInto", {
       id: col("recycles").id,
       header: () => <span>{label(col("recycles").label)}</span>,
@@ -86,34 +117,29 @@ export const createItemsTableColumns = (
         return (
           <div className="recycles-salvages-container">
             {cachedMaterials.map(
-              ({ material, quantity, name, image }, index) => (
-                <>
-                  {isClickable ? (
-                    <button
-                      key={index}
-                      type="button"
-                      className={className}
-                      onClick={() => onSearchTermChange(name)}
-                    >
-                      <ItemCell
-                        key={material}
-                        name={`${quantity} x ${name}`}
-                        imageSrc={image}
-                        highlighted={itemMatched?.has(material)}
-                      />
-                    </button>
-                  ) : (
-                    <div key={index} className={className}>
-                      <ItemCell
-                        key={material}
-                        name={`${quantity} x ${name}`}
-                        imageSrc={image}
-                        highlighted={itemMatched?.has(material)}
-                      />
-                    </div>
-                  )}
-                </>
-              ),
+              ({ material, quantity, name, image }) =>
+                isClickable ? (
+                  <button
+                    key={material}
+                    type="button"
+                    className={className}
+                    onClick={() => onSearchTermChange(name)}
+                  >
+                    <ItemCell
+                      name={`${quantity} x ${name}`}
+                      imageSrc={image}
+                      highlighted={itemMatched?.has(material)}
+                    />
+                  </button>
+                ) : (
+                  <div key={material} className={className}>
+                    <ItemCell
+                      name={`${quantity} x ${name}`}
+                      imageSrc={image}
+                      highlighted={itemMatched?.has(material)}
+                    />
+                  </div>
+                ),
             )}
           </div>
         );
@@ -146,34 +172,29 @@ export const createItemsTableColumns = (
         return (
           <div className="recycles-salvages-container">
             {cachedMaterials.map(
-              ({ material, quantity, name, image }, index) => (
-                <>
-                  {isClickable ? (
-                    <button
-                      key={index}
-                      type="button"
-                      className={className}
-                      onClick={() => onSearchTermChange(name)}
-                    >
-                      <ItemCell
-                        key={material}
-                        name={`${quantity} x ${name}`}
-                        imageSrc={image}
-                        highlighted={itemMatched?.has(material)}
-                      />
-                    </button>
-                  ) : (
-                    <div key={index} className={className}>
-                      <ItemCell
-                        key={material}
-                        name={`${quantity} x ${name}`}
-                        imageSrc={image}
-                        highlighted={itemMatched?.has(material)}
-                      />
-                    </div>
-                  )}
-                </>
-              ),
+              ({ material, quantity, name, image }) =>
+                isClickable ? (
+                  <button
+                    key={material}
+                    type="button"
+                    className={className}
+                    onClick={() => onSearchTermChange(name)}
+                  >
+                    <ItemCell
+                      name={`${quantity} x ${name}`}
+                      imageSrc={image}
+                      highlighted={itemMatched?.has(material)}
+                    />
+                  </button>
+                ) : (
+                  <div key={material} className={className}>
+                    <ItemCell
+                      name={`${quantity} x ${name}`}
+                      imageSrc={image}
+                      highlighted={itemMatched?.has(material)}
+                    />
+                  </div>
+                ),
             )}
           </div>
         );
@@ -288,29 +309,89 @@ export const createItemsTableColumns = (
       enableSorting: true,
       sortDescFirst: col("neededFor").descFirst,
     }),
-    columnHelper.accessor("value", {
-      id: col("value").id,
-      header: () => <span>{label(col("value").label)}</span>,
-      size: 80,
-      cell: (info) => {
-        const item = info.row.original;
-        // Handle "no results" placeholder
-        if (isNoResultsItem(item.id)) {
-          return <span>-</span>;
-        }
-        return (
-          <div className="value-container">
-            <span>{info.getValue()}</span>
-            <img
-              src={COINS_IMAGE_URL}
-              alt="Coins"
-              className="value-coin-icon"
-            />
-          </div>
-        );
-      },
-      enableSorting: true,
-      sortDescFirst: col("value").descFirst,
-    }),
+    createValueColumn(label),
   ];
 };
+
+/**
+ * Crafting page columns: the item, what it can be used to craft, its value
+ */
+export const createCraftingTableColumns = (
+  craftCache: Record<string, CachedCraft[]>,
+  matchedCrafts: Record<string, Set<string>>,
+  language: LanguageCode,
+  translateUI: (key: UIStringKey) => string,
+  onSearchTermChange?: (term: string) => void,
+) => [
+  createItemColumn(translateUI, language),
+  columnHelper.accessor("id", {
+    id: col("usedToCraft").id,
+    header: () => <span>{translateUI(col("usedToCraft").label)}</span>,
+    size: 600,
+    cell: (info) => {
+      const itemId = info.getValue();
+      const crafts = craftCache[itemId];
+      if (isNoResultsItem(itemId) || !crafts) {
+        return <span>-</span>;
+      }
+      const matched = matchedCrafts[itemId];
+
+      return (
+        <div className="crafts-container">
+          {crafts.map((craft) => {
+            const content = (
+              <>
+                <ItemCell
+                  name={
+                    craft.outputQuantity > 1
+                      ? `${craft.name} (x${craft.outputQuantity})`
+                      : craft.name
+                  }
+                  imageSrc={craft.image}
+                  rarity={craft.rarity}
+                  highlighted={matched?.has(craft.outputId)}
+                />
+                <div className="craft-usage__details">
+                  <span className="craft-usage__uses">
+                    {translateUI("crafting.uses").replace(
+                      "{count}",
+                      String(craft.quantity),
+                    )}
+                  </span>
+                  {craft.benchLabel && <span>{craft.benchLabel}</span>}
+                  {craft.kind === "upgrade" && (
+                    <span className="craft-usage__tag">
+                      {translateUI("crafting.upgrade")}
+                    </span>
+                  )}
+                  {craft.blueprintLocked && (
+                    <span className="craft-usage__tag">
+                      {translateUI("category.blueprint")}
+                    </span>
+                  )}
+                </div>
+              </>
+            );
+            return onSearchTermChange ? (
+              <button
+                key={craft.outputId}
+                type="button"
+                className="craft-usage craft-usage--clickable"
+                onClick={() => onSearchTermChange(craft.name)}
+              >
+                {content}
+              </button>
+            ) : (
+              <div key={craft.outputId} className="craft-usage">
+                {content}
+              </div>
+            );
+          })}
+        </div>
+      );
+    },
+    enableSorting: true,
+    sortDescFirst: col("usedToCraft").descFirst,
+  }),
+  createValueColumn(translateUI),
+];

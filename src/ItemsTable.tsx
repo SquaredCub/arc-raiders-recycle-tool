@@ -5,10 +5,12 @@ import {
 } from "@tanstack/react-table";
 import React, { useEffect, useMemo } from "react";
 import type { FilterSettings } from "./components/FilterModal";
+import type { NavigationPage } from "./components/Navigation";
 import {
   FOUND_IN_LOCATIONS,
   NEEDED_FOR_SOURCE_TYPES,
 } from "./constants/filterOptions";
+import { getCraftUsages } from "./data/craftingData";
 import { formatMaterialName } from "./data/itemsData";
 import {
   getItemRequirements,
@@ -21,14 +23,19 @@ import Table from "./Table";
 import type { Item } from "./generated/types";
 import {
   createNoResultsItem,
+  filterItemsByCraftSearch,
   filterItemsBySearch,
   isNoResultsItem,
   type SearchMatchType,
 } from "./utils/functions";
-import { createItemsTableColumns } from "./utils/itemsTableColumns";
+import {
+  createCraftingTableColumns,
+  createItemsTableColumns,
+} from "./utils/itemsTableColumns";
 import { sortItems } from "./utils/sortingFunctions";
 import {
   createBenchNameLookup,
+  createCraftUsageCache,
   createSortedMaterialsCache,
   createSortKeyCache,
 } from "./utils/tableCache";
@@ -36,6 +43,7 @@ import {
 const fallbackData: Item[] = [];
 
 interface ItemsTableProps {
+  page: NavigationPage;
   searchTerm: string;
   filterSettings: FilterSettings;
   sorting: SortingState;
@@ -46,6 +54,7 @@ interface ItemsTableProps {
 
 const ItemsTable = React.memo(
   ({
+    page,
     searchTerm,
     filterSettings,
     sorting,
@@ -55,6 +64,7 @@ const ItemsTable = React.memo(
   }: ItemsTableProps) => {
     const {
       items,
+      allItems,
       quests,
       hideoutBenches,
       projects,
@@ -112,23 +122,47 @@ const ItemsTable = React.memo(
       [items, language],
     );
 
+    // What each item can be used to craft (crafting page)
+    const craftUsages = useMemo(() => getCraftUsages(allItems), [allItems]);
+
+    const craftCache = useMemo(
+      () =>
+        createCraftUsageCache(
+          craftUsages,
+          allItems,
+          benchNameLookup,
+          translateUI("requirement.lvl"),
+          language,
+        ),
+      [craftUsages, allItems, benchNameLookup, translateUI, language],
+    );
+
     // Pre-compute sort keys for performance optimization
     const sortKeyCache = useMemo(
-      () => createSortKeyCache(items, benchNameLookup, itemRequirements, language),
-      [items, benchNameLookup, itemRequirements, language],
+      () =>
+        createSortKeyCache(
+          items,
+          benchNameLookup,
+          itemRequirements,
+          language,
+          craftUsages,
+        ),
+      [items, benchNameLookup, itemRequirements, language, craftUsages],
     );
 
     // Run search once and derive relevance index, match types, and filtered data
     const searchResult = useMemo(
       () =>
-        filterItemsBySearch(
-          items,
-          searchTerm,
-          formatMaterialName,
-          language,
-          itemRequirements,
-        ),
-      [itemRequirements, items, searchTerm, language],
+        page === "crafting"
+          ? filterItemsByCraftSearch(items, searchTerm, craftCache, language)
+          : filterItemsBySearch(
+              items,
+              searchTerm,
+              formatMaterialName,
+              language,
+              itemRequirements,
+            ),
+      [page, craftCache, itemRequirements, items, searchTerm, language],
     );
 
     const hasActiveSearch = searchTerm.trim().length > 0;
@@ -172,16 +206,27 @@ const ItemsTable = React.memo(
     // Create column definitions using extracted function
     const columns = useMemo(
       () =>
-        createItemsTableColumns(
-          itemRequirements,
-          sortedMaterialsCache,
-          searchResult.matchedMaterials,
-          searchResult.matchedSources,
-          language,
-          translateUI,
-          onSearchTermChange,
-        ),
+        page === "crafting"
+          ? createCraftingTableColumns(
+              craftCache,
+              searchResult.matchedCrafts,
+              language,
+              translateUI,
+              onSearchTermChange,
+            )
+          : createItemsTableColumns(
+              itemRequirements,
+              sortedMaterialsCache,
+              searchResult.matchedMaterials,
+              searchResult.matchedSources,
+              language,
+              translateUI,
+              onSearchTermChange,
+            ),
       [
+        page,
+        craftCache,
+        searchResult.matchedCrafts,
         itemRequirements,
         sortedMaterialsCache,
         searchResult.matchedMaterials,
@@ -335,7 +380,7 @@ const ItemsTable = React.memo(
     return (
       <Table<Item>
         table={table}
-        className="items-table"
+        className={`items-table items-table--${page}`}
         searchMatchTypes={searchMatchTypes}
         nameMatchBoundaryIndex={nameMatchBoundaryIndex}
       />
@@ -344,6 +389,7 @@ const ItemsTable = React.memo(
   (prevProps, nextProps) => {
     // Custom comparison function for React.memo
     return (
+      prevProps.page === nextProps.page &&
       prevProps.searchTerm === nextProps.searchTerm &&
       prevProps.onFilteredCountChange === nextProps.onFilteredCountChange &&
       prevProps.onSearchTermChange === nextProps.onSearchTermChange &&

@@ -15,14 +15,15 @@ interface DataProviderProps {
 
 export const DataProvider = ({ children }: DataProviderProps) => {
   const value: DataContextType = useMemo(() => {
-    const items = filterBlacklistedItemCategories(getAllItems()).filter(
+    const allItems = getAllItems();
+    const items = filterBlacklistedItemCategories(allItems).filter(
       (item) => (item.value ?? 0) > 0,
     ) as Item[];
     const quests = getAllQuests();
     const hideoutBenches = getHideoutBenches();
     const projects = getProjects();
 
-    return { items, quests, hideoutBenches, projects };
+    return { items, allItems, quests, hideoutBenches, projects };
   }, []);
 
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>;

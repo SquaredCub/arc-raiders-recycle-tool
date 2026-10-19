@@ -137,6 +137,7 @@ describe("sortItems", () => {
       requirementTotals: {},
       recycleTotals: {},
       salvageTotals: {},
+      craftTotals: {},
     };
     return {
       prioritizeNameMatches: false,
@@ -231,6 +232,7 @@ describe("sortItems", () => {
         requirementTotals: { a: 10, b: 5, c: 0 },
         recycleTotals: {},
         salvageTotals: {},
+        craftTotals: {},
       },
     });
     const result = sortItems(

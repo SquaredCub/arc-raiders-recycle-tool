@@ -4,6 +4,7 @@ import type { LanguageCode } from "./languageUtils";
 export type UIStringKey =
   // Navigation
   | "nav.recyclingTool"
+  | "nav.craftingTool"
   | "nav.externalLinks"
   | "nav.menu"
   // RecyclingTools page
@@ -13,6 +14,12 @@ export type UIStringKey =
   | "recycling.intro.p3"
   | "recycling.intro.p4"
   | "recycling.filterSettings"
+  // Crafting page
+  | "crafting.title"
+  | "crafting.intro.p1"
+  | "crafting.intro.p2"
+  | "crafting.uses"
+  | "crafting.upgrade"
   // Search
   | "search.placeholder"
   // Filter modal
@@ -37,6 +44,7 @@ export type UIStringKey =
   | "sort.salvagesInto"
   | "sort.foundIn"
   | "sort.neededFor"
+  | "sort.usedToCraft"
   | "sort.value"
   | "sort.sortByColumn"
   | "sort.sortBy"
@@ -149,6 +157,28 @@ export const UI_STRINGS: Record<
     uk: "Інструмент переробки",
     "zh-CN": "回收工具",
     "zh-TW": "回收工具",
+  },
+  "nav.craftingTool": {
+    en: "Crafting Tool",
+    da: "Håndværksværktøj",
+    de: "Herstellungs-Werkzeug",
+    es: "Herramienta de Fabricación",
+    fr: "Outil de Fabrication",
+    he: "כלי ייצור",
+    hr: "Alat za izradu",
+    it: "Strumento di Creazione",
+    ja: "クラフトツール",
+    "ko-KR": "제작 도구",
+    no: "Håndverksverktøy",
+    pl: "Narzędzie Wytwarzania",
+    pt: "Ferramenta de Fabrico",
+    "pt-BR": "Ferramenta de Fabricação",
+    ru: "Инструмент создания",
+    sr: "Alat za izradu",
+    tr: "Üretim Aracı",
+    uk: "Інструмент виготовлення",
+    "zh-CN": "制作工具",
+    "zh-TW": "製作工具",
   },
   "nav.externalLinks": {
     en: "External Links",
@@ -344,6 +374,118 @@ export const UI_STRINGS: Record<
   },
 
   // Search
+  "crafting.title": {
+    en: "Crafting Tool",
+    da: "Håndværksværktøj",
+    de: "Herstellungs-Werkzeug",
+    es: "Herramienta de Fabricación",
+    fr: "Outil de Fabrication",
+    he: "כלי ייצור",
+    hr: "Alat za izradu",
+    it: "Strumento di Creazione",
+    ja: "クラフトツール",
+    "ko-KR": "제작 도구",
+    no: "Håndverksverktøy",
+    pl: "Narzędzie Wytwarzania",
+    pt: "Ferramenta de Fabrico",
+    "pt-BR": "Ferramenta de Fabricação",
+    ru: "Инструмент создания",
+    sr: "Alat za izradu",
+    tr: "Üretim Aracı",
+    uk: "Інструмент виготовлення",
+    "zh-CN": "制作工具",
+    "zh-TW": "製作工具",
+  },
+  "crafting.intro.p1": {
+    en: "Every item in Arc Raiders, laid out with everything it can be used to craft: each recipe and weapon upgrade that consumes it, how many of it one craft uses, and the station it is crafted at.",
+    da: "Alle genstande i Arc Raiders, vist med alt, hvad de kan bruges til at fremstille: hver opskrift og våbenopgradering, der bruger dem, hvor mange én fremstilling kræver, og stationen, den fremstilles ved.",
+    de: "Alle Gegenstände in Arc Raiders, mit allem, was sich daraus herstellen lässt: jedes Rezept und jedes Waffen-Upgrade, das sie verbraucht, wie viele davon eine Herstellung benötigt und an welcher Station hergestellt wird.",
+    es: "Todos los objetos en Arc Raiders, mostrados con todo lo que se puede fabricar con ellos: cada receta y mejora de arma que los consume, cuántos usa cada fabricación y la estación donde se fabrica.",
+    fr: "Tous les objets dans Arc Raiders, présentés avec tout ce qu'ils permettent de fabriquer : chaque recette et amélioration d'arme qui les consomme, combien en utilise une fabrication et la station où elle se fait.",
+    he: "כל פריט ב-Arc Raiders, מוצג עם כל מה שאפשר לייצר בעזרתו: כל מתכון ושדרוג נשק שצורכים אותו, כמה ממנו נדרשים לייצור אחד, והעמדה שבה מייצרים.",
+    hr: "Svaka stavka u Arc Raidersu, prikazana sa svime što se od nje može izraditi: svaki recept i nadogradnja oružja koji je troše, koliko je jedna izrada koristi i stanica na kojoj se izrađuje.",
+    it: "Ogni oggetto in Arc Raiders, mostrato con tutto ciò che permette di creare: ogni ricetta e potenziamento d'arma che lo consuma, quanti ne usa una creazione e la postazione in cui si crea.",
+    ja: "Arc Raidersのすべてのアイテムを、それを使ってクラフトできるものとともに表示します。そのアイテムを消費するレシピと武器アップグレード、1回のクラフトでの使用数、クラフトする場所がわかります。",
+    "ko-KR": "Arc Raiders의 모든 아이템과 그 아이템으로 제작할 수 있는 모든 것을 보여줍니다. 아이템을 소모하는 제작법과 무기 업그레이드, 1회 제작에 필요한 수량, 제작 장소를 확인할 수 있습니다.",
+    no: "Alle gjenstander i Arc Raiders, vist med alt de kan brukes til å lage: hver oppskrift og våpenoppgradering som bruker dem, hvor mange én produksjon krever, og stasjonen den lages ved.",
+    pl: "Każdy przedmiot w Arc Raiders, pokazany ze wszystkim, co można z niego wytworzyć: każdy przepis i ulepszenie broni, które go zużywa, ile sztuk wymaga jedno wytworzenie i stacja, na której się je wytwarza.",
+    pt: "Todos os itens em Arc Raiders, apresentados com tudo o que permitem fabricar: cada receita e melhoria de arma que os consome, quantos uma fabricação usa e a estação onde é fabricada.",
+    "pt-BR": "Todos os itens em Arc Raiders, apresentados com tudo o que permitem fabricar: cada receita e melhoria de arma que os consome, quantos uma fabricação usa e a estação onde é fabricada.",
+    ru: "Каждый предмет в Arc Raiders вместе со всем, что из него можно создать: каждый рецепт и улучшение оружия, которые его расходуют, сколько штук нужно на одно создание и где оно создаётся.",
+    sr: "Svaka stavka u Arc Raidersu, prikazana sa svime što se od nje može izraditi: svaki recept i nadogradnja oružja koji je troše, koliko je jedna izrada koristi i stanica na kojoj se izrađuje.",
+    tr: "Arc Raiders'daki her öğe, onunla üretilebilecek her şeyle birlikte sunuluyor: onu tüketen her tarif ve silah yükseltmesi, bir üretimin kaç tane kullandığı ve üretildiği istasyon.",
+    uk: "Кожен предмет в Arc Raiders разом з усім, що з нього можна виготовити: кожен рецепт і покращення зброї, що його витрачають, скільки штук потрібно на одне виготовлення і де воно виготовляється.",
+    "zh-CN": "Arc Raiders 中的每件物品，以及可以用它制作的一切：消耗它的每个配方和武器升级、每次制作需要的数量，以及制作所在的工作台。",
+    "zh-TW": "Arc Raiders 中的每件物品，以及可以用它製作的一切：消耗它的每個配方和武器升級、每次製作需要的數量，以及製作所在的工作站。",
+  },
+  "crafting.intro.p2": {
+    en: "Click an entry to search for it: you will see that item and every ingredient it takes. The search and filters are shared with the Recycling Tool.",
+    da: "Klik på en post for at søge efter den: du ser den genstand og alle de ingredienser, den kræver. Søgning og filtre deles med Genbrugsværktøjet.",
+    de: "Klicken Sie auf einen Eintrag, um danach zu suchen: Sie sehen den Gegenstand und alle Zutaten, die er benötigt. Suche und Filter werden mit dem Recycling-Werkzeug geteilt.",
+    es: "Haz clic en una entrada para buscarla: verás ese objeto y todos los ingredientes que necesita. La búsqueda y los filtros se comparten con la Herramienta de Reciclaje.",
+    fr: "Cliquez sur une entrée pour la rechercher : vous verrez cet objet et tous les ingrédients qu'il demande. La recherche et les filtres sont partagés avec l'Outil de Recyclage.",
+    he: "לחצו על פריט כדי לחפש אותו: תראו את הפריט ואת כל הרכיבים שהוא דורש. החיפוש והמסננים משותפים עם כלי המיחזור.",
+    hr: "Kliknite na unos da ga potražite: vidjet ćete tu stavku i sve sastojke koje zahtijeva. Pretraga i filteri dijele se s Alatom za recikliranje.",
+    it: "Fai clic su una voce per cercarla: vedrai quell'oggetto e tutti gli ingredienti che richiede. La ricerca e i filtri sono condivisi con lo Strumento di Riciclaggio.",
+    ja: "項目をクリックすると検索されます。そのアイテムと必要な素材がすべて表示されます。検索とフィルターはリサイクルツールと共通です。",
+    "ko-KR": "항목을 클릭하면 검색됩니다. 해당 아이템과 필요한 모든 재료가 표시됩니다. 검색과 필터는 재활용 도구와 공유됩니다.",
+    no: "Klikk på en oppføring for å søke etter den: du ser den gjenstanden og alle ingrediensene den krever. Søk og filtre deles med Gjenbruksverktøyet.",
+    pl: "Kliknij wpis, aby go wyszukać: zobaczysz ten przedmiot i wszystkie potrzebne do niego składniki. Wyszukiwanie i filtry są wspólne z Narzędziem Recyklingu.",
+    pt: "Clique numa entrada para a pesquisar: verá esse item e todos os ingredientes de que precisa. A pesquisa e os filtros são partilhados com a Ferramenta de Reciclagem.",
+    "pt-BR": "Clique em uma entrada para pesquisá-la: você verá esse item e todos os ingredientes de que ele precisa. A pesquisa e os filtros são compartilhados com a Ferramenta de Reciclagem.",
+    ru: "Нажмите на запись, чтобы найти её: вы увидите этот предмет и все нужные для него ингредиенты. Поиск и фильтры общие с Инструментом переработки.",
+    sr: "Kliknite na unos da ga potražite: videćete tu stavku i sve sastojke koje zahteva. Pretraga i filteri dele se sa Alatom za recikliranje.",
+    tr: "Aramak için bir girişe tıklayın: o öğeyi ve gerektirdiği tüm malzemeleri görürsünüz. Arama ve filtreler Geri Dönüşüm Aracı ile ortaktır.",
+    uk: "Натисніть на запис, щоб знайти його: ви побачите цей предмет і всі потрібні для нього інгредієнти. Пошук і фільтри спільні з Інструментом переробки.",
+    "zh-CN": "点击条目即可搜索：会显示该物品及其所需的全部材料。搜索和筛选与回收工具共用。",
+    "zh-TW": "點擊條目即可搜尋：會顯示該物品及其所需的全部材料。搜尋和篩選與回收工具共用。",
+  },
+  // {count} = how many of the item one craft consumes
+  "crafting.uses": {
+    en: "Uses {count}",
+    da: "Bruger {count}",
+    de: "Benötigt {count}",
+    es: "Usa {count}",
+    fr: "Utilise {count}",
+    he: "משתמש ב-{count}",
+    hr: "Koristi {count}",
+    it: "Usa {count}",
+    ja: "{count}個使用",
+    "ko-KR": "{count}개 사용",
+    no: "Bruker {count}",
+    pl: "Zużywa {count}",
+    pt: "Usa {count}",
+    "pt-BR": "Usa {count}",
+    ru: "Расход: {count}",
+    sr: "Koristi {count}",
+    tr: "{count} adet kullanır",
+    uk: "Витрата: {count}",
+    "zh-CN": "消耗 {count}",
+    "zh-TW": "消耗 {count}",
+  },
+  // Weapon tier upgrade (hand translation, not checked against the game's string table)
+  "crafting.upgrade": {
+    en: "Upgrade",
+    da: "Opgradering",
+    de: "Upgrade",
+    es: "Mejora",
+    fr: "Amélioration",
+    he: "שדרוג",
+    hr: "Nadogradnja",
+    it: "Potenziamento",
+    ja: "アップグレード",
+    "ko-KR": "업그레이드",
+    no: "Oppgradering",
+    pl: "Ulepszenie",
+    pt: "Melhoria",
+    "pt-BR": "Melhoria",
+    ru: "Улучшение",
+    sr: "Nadogradnja",
+    tr: "Yükseltme",
+    uk: "Покращення",
+    "zh-CN": "升级",
+    "zh-TW": "升級",
+  },
   "search.placeholder": {
     en: "Search items...",
     da: "Søg efter genstande...",
@@ -812,6 +954,28 @@ export const UI_STRINGS: Record<
     uk: "Потрібно для",
     "zh-CN": "所需用途",
     "zh-TW": "所需用途",
+  },
+  "sort.usedToCraft": {
+    en: "Used to Craft",
+    da: "Bruges til at fremstille",
+    de: "Verwendet für",
+    es: "Se usa para fabricar",
+    fr: "Sert à fabriquer",
+    he: "משמש לייצור",
+    hr: "Koristi se za izradu",
+    it: "Serve per creare",
+    ja: "クラフト用途",
+    "ko-KR": "제작 용도",
+    no: "Brukes til å lage",
+    pl: "Służy do wytworzenia",
+    pt: "Usado para fabricar",
+    "pt-BR": "Usado para fabricar",
+    ru: "Используется для создания",
+    sr: "Koristi se za izradu",
+    tr: "Üretimde kullanılır",
+    uk: "Використовується для виготовлення",
+    "zh-CN": "可用于制作",
+    "zh-TW": "可用於製作",
   },
   "sort.value": {
     en: "Value",

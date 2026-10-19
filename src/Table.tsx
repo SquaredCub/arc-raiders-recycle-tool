@@ -42,6 +42,7 @@ const Table = <T,>({
     recycles: "recycles",
     salvages: "salvages",
     requirement: "neededFor",
+    crafts: "usedToCraft",
   };
 
   const getMatchColumnIds = (row: (typeof rows)[0]): Set<string> => {

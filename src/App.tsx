@@ -16,7 +16,7 @@ const AppContent = () => {
   return (
     <>
       <Navigation activePage={activePage} onNavigate={onNavigate} />
-      {activePage === "recycling" && <RecyclingTools />}
+      <RecyclingTools page={activePage} />
       <div id="data-credit">
         {translateUI("general.dataSource")}:{" "}
         <a href="https://arctracker.io" target="_blank" rel="noopener noreferrer">

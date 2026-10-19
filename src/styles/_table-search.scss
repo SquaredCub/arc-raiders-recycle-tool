@@ -67,6 +67,14 @@
     }
   }
 
+  // Per-output highlight for the crafting page's Used to Craft column
+  .grid-cell--usedToCraft.grid-cell--search-match {
+    .craft-usage:has(.cell-item--highlighted) {
+      border-color: var(--color-primary-border);
+      background-color: var(--color-primary-bg-subtle);
+    }
+  }
+
   // Mobile: targeted highlights per column type
   @include mobile {
     // Recycles/Salvages match — accent only the matching material chips

@@ -2,6 +2,7 @@ import type { SortingState } from "@tanstack/react-table";
 import { useCallback, useEffect, useState } from "react";
 import type { FilterSettings } from "./components/FilterModal";
 import FilterModal from "./components/FilterModal";
+import type { NavigationPage } from "./components/Navigation";
 import SortColumnDropdown from "./components/SortColumnDropdown";
 import Tooltip from "./components/Tooltip";
 import {
@@ -16,6 +17,7 @@ import { useData } from "./hooks/useData";
 import { useDebounce } from "./hooks/useDebounce";
 import { useLanguage } from "./hooks/useLanguage";
 import ItemsTable from "./ItemsTable";
+import type { UIStringKey } from "./localization/uiStrings";
 import SearchInput from "./SearchInput";
 
 // Expeditions the user unticked, remembered across visits. Stored as the hidden
@@ -36,7 +38,30 @@ const loadIncludedExpeditions = (projects: Project[]): Set<string> => {
   );
 };
 
-const RecyclingTools = () => {
+// Both pages share this component (and so keep the search and filters when
+// switching tabs); they differ by title, introduction and table columns
+const PAGE_TEXT: Record<
+  NavigationPage,
+  { title: UIStringKey; introduction: UIStringKey[] }
+> = {
+  recycling: {
+    title: "recycling.title",
+    introduction: [
+      "recycling.intro.p1",
+      "recycling.intro.p2",
+      "recycling.intro.p3",
+      "recycling.intro.p4",
+    ],
+  },
+  crafting: {
+    title: "crafting.title",
+    introduction: ["crafting.intro.p1", "crafting.intro.p2"],
+  },
+};
+
+const DEFAULT_SORTING: SortingState = [{ id: "item", desc: false }];
+
+const RecyclingTools = ({ page }: { page: NavigationPage }) => {
   const { translateUI } = useLanguage();
   const { projects } = useData();
   const [searchTerm, setSearchTerm] = useState("");
@@ -69,9 +94,20 @@ const RecyclingTools = () => {
     total: number;
   } | null>(null);
 
-  const [sorting, setSorting] = useState<SortingState>([
-    { id: "item", desc: false },
-  ]);
+  // Sorting is per page: the pages don't have the same columns
+  const [sortingByPage, setSortingByPage] = useState<
+    Record<NavigationPage, SortingState>
+  >({ recycling: DEFAULT_SORTING, crafting: DEFAULT_SORTING });
+  const sorting = sortingByPage[page];
+
+  const setSorting = useCallback(
+    (updater: SortingState | ((prev: SortingState) => SortingState)) =>
+      setSortingByPage((prev) => ({
+        ...prev,
+        [page]: typeof updater === "function" ? updater(prev[page]) : updater,
+      })),
+    [page],
+  );
 
   const handleFilteredCountChange = useCallback(
     (filtered: number, total: number) => {
@@ -85,12 +121,12 @@ const RecyclingTools = () => {
 
   const toggleSortDirection = useCallback(() => {
     setSorting((prev) => [{ ...prev[0], desc: !prev[0].desc }]);
-  }, []);
+  }, [setSorting]);
 
   return (
     <div className="recycling-tools">
       <h1>
-        {translateUI("recycling.title")}{" "}
+        {translateUI(PAGE_TEXT[page].title)}{" "}
         <Tooltip
           active={showIntroduction}
           callback={() => setShowIntroduction((prev) => !prev)}
@@ -98,10 +134,9 @@ const RecyclingTools = () => {
       </h1>
       <section id="introduction" className={showIntroduction ? "visible" : ""}>
         <div>
-          <p>{translateUI("recycling.intro.p1")}</p>
-          <p>{translateUI("recycling.intro.p2")}</p>
-          <p>{translateUI("recycling.intro.p3")}</p>
-          <p>{translateUI("recycling.intro.p4")}</p>
+          {PAGE_TEXT[page].introduction.map((key) => (
+            <p key={key}>{translateUI(key)}</p>
+          ))}
         </div>
       </section>
       <section id="controlsSection">
@@ -133,7 +168,11 @@ const RecyclingTools = () => {
               <line x1="17" y1="16" x2="23" y2="16" />
             </svg>
           </button>
-          <SortColumnDropdown sorting={sorting} onSortingChange={setSorting} />
+          <SortColumnDropdown
+            page={page}
+            sorting={sorting}
+            onSortingChange={setSorting}
+          />
           <button
             className="sort-direction-button"
             onClick={toggleSortDirection}
@@ -160,6 +199,7 @@ const RecyclingTools = () => {
       </section>
       <section id="tableSection">
         <ItemsTable
+          page={page}
           searchTerm={debouncedSearchTerm}
           filterSettings={filterSettings}
           sorting={sorting}

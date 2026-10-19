@@ -17,7 +17,8 @@ src/
 ├── hooks/               # useData, useDebounce (200ms), useModalBehavior, useLanguage
 ├── data/
 │   ├── itemsData.ts     # formatMaterialName, getItemImage, getItemImageById, COINS_IMAGE_URL, filterBlacklistedItemCategories
-│   └── requirementsData.ts  # getItemRequirements() — aggregates outpost/quest/project needs; expedition helpers
+│   ├── requirementsData.ts  # getItemRequirements() — aggregates outpost/quest/project needs; expedition helpers
+│   └── craftingData.ts  # getCraftUsages() — inverts recipes + weapon upgrades into "ingredient → what it crafts"
 ├── services/
 │   └── dataService.ts   # Data accessors + getImageUrl (import.meta.env.BASE_URL + path into public/)
 ├── utils/
@@ -37,7 +38,7 @@ src/
 │   ├── filterOptions.json  # Extracted rarities + locations
 │   ├── imageEtags.json     # CDN ETag per item image, for conditional re-downloads
 │   └── types.ts         # Auto-generated TypeScript types + runtime arrays (ITEM_TYPES) from data structure
-├── App.tsx, ItemsTable.tsx, Table.tsx (virtualized), RecyclingTools.tsx
+├── App.tsx, ItemsTable.tsx, Table.tsx (virtualized), RecyclingTools.tsx (both pages)
 public/images/
 ├── items/<id>.png       # Item images, COMMITTED (downloaded by scripts/fetch-images.js)
 └── coins.png            # Coins icon (not in the API; maintained by hand)
@@ -86,6 +87,14 @@ public/images/
     API names them inconsistently
   - Users can untick expeditions in Search Settings; the hidden ids persist in
     `localStorage` (`hiddenExpeditions`) so new expeditions default to shown
+- Crafting page (`page="crafting"`): same rows, columns Item | Used to Craft |
+  Value. `getCraftUsages(allItems)` covers recipes (`recipe`, `craftBench`,
+  `stationLevelRequired`, `blueprintLocked`, `craftQuantity`) and weapon
+  upgrades (`upgrades[]` on the lower tier; the lower tier weapon is itself an
+  ingredient). Uses `allItems` from `useData()` because outputs include hidden
+  items (keys, amplified weapons); `fetch-images.js` downloads their images.
+  `RecyclingTools` renders both pages, so search and filters carry over
+  between tabs; sorting is per page (`PAGE_SORT_COLUMNS`).
 - **Game data** localized text (item names, materials) uses
   `getLocalizedText(localized, language)` from `localization/languageUtils.ts`.
   Typed as `keyof LocalizedText`, so property access may be `undefined` — use

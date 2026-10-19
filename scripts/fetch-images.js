@@ -24,19 +24,27 @@ const USER_AGENT =
 const items = await Bun.file(join(ROOT, "src/generated/items.json")).json();
 const etags = existsSync(ETAGS_PATH) ? await Bun.file(ETAGS_PATH).json() : {};
 
-// Items the site shows, plus anything they recycle or salvage into
+// Items the site shows, plus anything they recycle or salvage into, and what
+// they can be used to craft (the crafting page also shows hidden outputs such
+// as keys and amplified weapons)
 const shown = items.filter(
   (item) =>
     !BLACKLISTED_ITEM_CATEGORIES.includes(item.type) &&
     !AMPLIFIED_WEAPON_ID_PATTERN.test(item.id),
 );
-const neededIds = new Set(
-  shown.flatMap((item) => [
+const shownIds = new Set(shown.map((item) => item.id));
+const craftOutputIds = items
+  .filter((item) => Object.keys(item.recipe ?? {}).some((id) => shownIds.has(id)))
+  .map((item) => item.id);
+const neededIds = new Set([
+  ...shown.flatMap((item) => [
     item.id,
     ...Object.keys(item.recyclesInto ?? {}),
     ...Object.keys(item.salvagesInto ?? {}),
+    ...(item.upgrades ?? []).map((upgrade) => upgrade.to),
   ]),
-);
+  ...craftOutputIds,
+]);
 const wanted = items.filter((item) => neededIds.has(item.id) && item.imageFilename);
 
 mkdirSync(IMAGES_DIR, { recursive: true });

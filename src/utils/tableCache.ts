@@ -1,4 +1,5 @@
 import type { HideoutBench, Item } from "../generated/types";
+import type { CraftUsage, CraftUsageLookup } from "../data/craftingData";
 import type { EnrichedItemRequirementLookup } from "../data/requirementsData";
 import {
   formatMaterialName,
@@ -8,7 +9,11 @@ import {
   getLocalizedText,
   type LanguageCode,
 } from "../localization/languageUtils";
-import { sortMaterialsByName, getItemSortName } from "./sortingFunctions";
+import {
+  compareStrings,
+  getItemSortName,
+  sortMaterialsByName,
+} from "./sortingFunctions";
 
 // Cached material data structure
 export interface CachedMaterial {
@@ -108,6 +113,56 @@ export const createSortedMaterialsCache = (
   return cache;
 };
 
+// Cached craft usage, ready to render
+export interface CachedCraft extends CraftUsage {
+  name: string;
+  image: string;
+  rarity: string | undefined;
+  benchLabel: string;
+}
+
+/**
+ * Pre-compute localized output names, images and bench labels of every craft
+ * usage, sorted alphabetically by output name
+ */
+export const createCraftUsageCache = (
+  craftUsages: CraftUsageLookup,
+  allItems: Item[],
+  benchNameLookup: Record<string, string>,
+  levelLabel: string,
+  language: LanguageCode,
+): Record<string, CachedCraft[]> => {
+  const itemLookup = new Map<string, Item>();
+  for (const item of allItems) {
+    itemLookup.set(item.id, item);
+  }
+
+  const getBenchLabel = ({ benches, level }: CraftUsage) => {
+    const getName = (id: string) => benchNameLookup[id] ?? formatMaterialName(id);
+    // Field crafting has no level: list the stations (with the level) first
+    const stations = benches.filter((id) => id !== "in_raid").map(getName);
+    const labels = stations.length
+      ? [`${stations.join(" / ")}${level ? ` ${levelLabel} ${level}` : ""}`]
+      : [];
+    if (benches.includes("in_raid")) labels.push(getName("in_raid"));
+    return labels.join(" / ");
+  };
+
+  const cache: Record<string, CachedCraft[]> = {};
+  for (const [ingredientId, usages] of Object.entries(craftUsages)) {
+    cache[ingredientId] = usages
+      .map((usage) => ({
+        ...usage,
+        name: getMaterialLocalizedName(usage.outputId, itemLookup, language),
+        image: getItemImageById(usage.outputId),
+        rarity: itemLookup.get(usage.outputId)?.rarity,
+        benchLabel: getBenchLabel(usage),
+      }))
+      .sort((a, b) => compareStrings(a.name, b.name));
+  }
+  return cache;
+};
+
 // ============================================================================
 // Sort Key Cache (Performance Optimization)
 // ============================================================================
@@ -120,6 +175,7 @@ export interface SortKeyCache {
   requirementTotals: Record<string, number>;
   recycleTotals: Record<string, number>;
   salvageTotals: Record<string, number>;
+  craftTotals: Record<string, number>;
 }
 
 /**
@@ -131,11 +187,13 @@ export const createSortKeyCache = (
   _benchNameLookup: Record<string, string>,
   itemRequirements: EnrichedItemRequirementLookup,
   language: LanguageCode,
+  craftUsages: CraftUsageLookup = {},
 ): SortKeyCache => {
   const nameSortKeys: Record<string, string> = {};
   const requirementTotals: Record<string, number> = {};
   const recycleTotals: Record<string, number> = {};
   const salvageTotals: Record<string, number> = {};
+  const craftTotals: Record<string, number> = {};
 
   for (const item of items) {
     // Pre-compute name sort key (lowercase for faster comparison)
@@ -155,6 +213,9 @@ export const createSortKeyCache = (
       for (const qty of Object.values(item.salvagesInto)) total += qty;
       salvageTotals[item.id] = total;
     }
+
+    // Number of things the item can be used to craft
+    craftTotals[item.id] = craftUsages[item.id]?.length ?? 0;
   }
 
   return {
@@ -162,5 +223,6 @@ export const createSortKeyCache = (
     requirementTotals,
     recycleTotals,
     salvageTotals,
+    craftTotals,
   };
 };
