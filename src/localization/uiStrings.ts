@@ -18,7 +18,10 @@ export type UIStringKey =
   | "crafting.title"
   | "crafting.intro.p1"
   | "crafting.intro.p2"
-  | "crafting.uses"
+  | "crafting.inRaid"
+  | "crafting.usedToCraft"
+  | "crafting.or"
+  | "crafting.blueprintRequired"
   | "crafting.upgrade"
   // Search
   | "search.placeholder"
@@ -44,7 +47,6 @@ export type UIStringKey =
   | "sort.salvagesInto"
   | "sort.foundIn"
   | "sort.neededFor"
-  | "sort.usedToCraft"
   | "sort.value"
   | "sort.sortByColumn"
   | "sort.sortBy"
@@ -440,28 +442,74 @@ export const UI_STRINGS: Record<
     "zh-CN": "点击条目即可搜索：会显示该物品及其所需的全部材料。搜索和筛选与回收工具共用。",
     "zh-TW": "點擊條目即可搜尋：會顯示該物品及其所需的全部材料。搜尋和篩選與回收工具共用。",
   },
-  // {count} = how many of the item one craft consumes
-  "crafting.uses": {
-    en: "Uses {count}",
-    da: "Bruger {count}",
-    de: "Benötigt {count}",
-    es: "Usa {count}",
-    fr: "Utilise {count}",
-    he: "משתמש ב-{count}",
-    hr: "Koristi {count}",
-    it: "Usa {count}",
-    ja: "{count}個使用",
-    "ko-KR": "{count}개 사용",
-    no: "Bruker {count}",
-    pl: "Zużywa {count}",
-    pt: "Usa {count}",
-    "pt-BR": "Usa {count}",
-    ru: "Расход: {count}",
-    sr: "Koristi {count}",
-    tr: "{count} adet kullanır",
-    uk: "Витрата: {count}",
-    "zh-CN": "消耗 {count}",
-    "zh-TW": "消耗 {count}",
+  // Between alternative places to craft ("Workbench or In raid")
+  "crafting.or": {
+    en: "or",
+    da: "eller",
+    de: "oder",
+    es: "o",
+    fr: "ou",
+    he: "או",
+    hr: "ili",
+    it: "o",
+    ja: "または",
+    "ko-KR": "또는",
+    no: "eller",
+    pl: "lub",
+    pt: "ou",
+    "pt-BR": "ou",
+    ru: "или",
+    sr: "ili",
+    tr: "veya",
+    uk: "або",
+    "zh-CN": "或",
+    "zh-TW": "或",
+  },
+  // Recipe is locked until its blueprint is learned
+  "crafting.blueprintRequired": {
+    en: "Blueprint required",
+    da: "Kræver plan",
+    de: "Bauplan erforderlich",
+    es: "Requiere plano",
+    fr: "Plan requis",
+    he: "נדרש שרטוט",
+    hr: "Potreban nacrt",
+    it: "Progetto richiesto",
+    ja: "設計図が必要",
+    "ko-KR": "설계도 필요",
+    no: "Krever tegning",
+    pl: "Wymagany schemat",
+    pt: "Requer projeto",
+    "pt-BR": "Requer projeto",
+    ru: "Нужен чертёж",
+    sr: "Potreban nacrt",
+    tr: "Plan gerekli",
+    uk: "Потрібне креслення",
+    "zh-CN": "需要蓝图",
+    "zh-TW": "需要藍圖",
+  },
+  // Recipe can be made with field crafting, during a raid
+  "crafting.inRaid": {
+    en: "In raid",
+    da: "I raid",
+    de: "Im Raid",
+    es: "En incursión",
+    fr: "En raid",
+    he: "בפשיטה",
+    hr: "U napadu",
+    it: "In incursione",
+    ja: "レイド中",
+    "ko-KR": "레이드 중",
+    no: "I raid",
+    pl: "W rajdzie",
+    pt: "Em incursão",
+    "pt-BR": "Na incursão",
+    ru: "В рейде",
+    sr: "U napadu",
+    tr: "Baskında",
+    uk: "У рейді",
+    "zh-CN": "突袭中",
+    "zh-TW": "突襲中",
   },
   // Weapon tier upgrade (hand translation, not checked against the game's string table)
   "crafting.upgrade": {
@@ -955,7 +1003,7 @@ export const UI_STRINGS: Record<
     "zh-CN": "所需用途",
     "zh-TW": "所需用途",
   },
-  "sort.usedToCraft": {
+  "crafting.usedToCraft": {
     en: "Used to Craft",
     da: "Bruges til at fremstille",
     de: "Verwendet für",

@@ -20,6 +20,30 @@ describe("getCraftUsages", () => {
     }
   });
 
+  it("carries the full recipe on every usage", () => {
+    for (const [ingredientId, list] of Object.entries(usages)) {
+      for (const usage of list) {
+        expect(usage.ingredients[ingredientId]).toBe(usage.quantity);
+        if (usage.kind === "recipe") {
+          expect(usage.ingredients).toEqual(byId.get(usage.outputId)!.recipe!);
+        }
+      }
+    }
+  });
+
+  it("gives in-raid recipes their crafting perk level", () => {
+    const inRaidLevel = (id: string) => {
+      const ingredientId = Object.keys(byId.get(id)!.recipe!)[0];
+      return usages[ingredientId].find((u) => u.outputId === id)!.inRaidLevel;
+    };
+    expect(inRaidLevel("adrenaline_shot")).toBe(1);
+    expect(inRaidLevel("raider_hatch_key")).toBe(2);
+    expect(inRaidLevel("defibrillator")).toBe(3);
+    expect(inRaidLevel("light_ammo")).toBe(3);
+    // Station only
+    expect(inRaidLevel("anvil_i")).toBeUndefined();
+  });
+
   it("normalizes the crafting bench to a list and keeps level and blueprint", () => {
     const adrenaline = byId.get("adrenaline_shot")!;
     const ingredientId = Object.keys(adrenaline.recipe!)[0];
@@ -50,7 +74,12 @@ describe("getCraftUsages", () => {
       cost: Record<string, number>;
     };
     expect(usages.anvil_i).toContainEqual(
-      expect.objectContaining({ outputId: upgrade.to, kind: "upgrade", quantity: 1 }),
+      expect.objectContaining({
+        outputId: upgrade.to,
+        kind: "upgrade",
+        quantity: 1,
+        ingredients: { anvil_i: 1, ...upgrade.cost },
+      }),
     );
     for (const [ingredientId, quantity] of Object.entries(upgrade.cost)) {
       expect(usages[ingredientId]).toContainEqual(

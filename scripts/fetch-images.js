@@ -13,6 +13,7 @@ import {
   AMPLIFIED_WEAPON_ID_PATTERN,
   BLACKLISTED_ITEM_CATEGORIES,
 } from "../src/constants/itemCategories";
+import { getCraftUsages } from "../src/data/craftingData";
 
 const ROOT = join(import.meta.dir, "..");
 const IMAGES_DIR = join(ROOT, "public/images/items");
@@ -24,27 +25,26 @@ const USER_AGENT =
 const items = await Bun.file(join(ROOT, "src/generated/items.json")).json();
 const etags = existsSync(ETAGS_PATH) ? await Bun.file(ETAGS_PATH).json() : {};
 
-// Items the site shows, plus anything they recycle or salvage into, and what
-// they can be used to craft (the crafting page also shows hidden outputs such
-// as keys and amplified weapons)
+// Items the site shows, plus anything they recycle or salvage into, and every
+// item on their crafting page cards: outputs and full recipes, including
+// hidden items such as keys and amplified weapon variants
 const shown = items.filter(
   (item) =>
     !BLACKLISTED_ITEM_CATEGORIES.includes(item.type) &&
     !AMPLIFIED_WEAPON_ID_PATTERN.test(item.id),
 );
-const shownIds = new Set(shown.map((item) => item.id));
-const craftOutputIds = items
-  .filter((item) => Object.keys(item.recipe ?? {}).some((id) => shownIds.has(id)))
-  .map((item) => item.id);
-const neededIds = new Set([
-  ...shown.flatMap((item) => [
+const craftUsages = getCraftUsages(items);
+const neededIds = new Set(
+  shown.flatMap((item) => [
     item.id,
     ...Object.keys(item.recyclesInto ?? {}),
     ...Object.keys(item.salvagesInto ?? {}),
-    ...(item.upgrades ?? []).map((upgrade) => upgrade.to),
+    ...(craftUsages[item.id] ?? []).flatMap((usage) => [
+      usage.outputId,
+      ...Object.keys(usage.ingredients),
+    ]),
   ]),
-  ...craftOutputIds,
-]);
+);
 const wanted = items.filter((item) => neededIds.has(item.id) && item.imageFilename);
 
 mkdirSync(IMAGES_DIR, { recursive: true });

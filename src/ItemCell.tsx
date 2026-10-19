@@ -35,7 +35,16 @@ const ItemCell = memo(
         <figure
           className={`cell-item__image${rarity ? ` ${rarity.toLowerCase()}` : ""}`}
         >
-          {imageSrc ? <img src={imageSrc} alt={name} /> : null}
+          {imageSrc ? (
+            <img
+              src={imageSrc}
+              alt={name}
+              // A missing image would draw its alt text over the name
+              onError={(event) => {
+                event.currentTarget.style.visibility = "hidden";
+              }}
+            />
+          ) : null}
         </figure>
         <span className="cell-item__name">
           {id ? (

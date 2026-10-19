@@ -87,14 +87,27 @@ public/images/
     API names them inconsistently
   - Users can untick expeditions in Search Settings; the hidden ids persist in
     `localStorage` (`hiddenExpeditions`) so new expeditions default to shown
-- Crafting page (`page="crafting"`): same rows, columns Item | Used to Craft |
-  Value. `getCraftUsages(allItems)` covers recipes (`recipe`, `craftBench`,
-  `stationLevelRequired`, `blueprintLocked`, `craftQuantity`) and weapon
+- Crafting page (`page="crafting"`): same rows, columns Item | Used to Craft
+  (no value, no sorting: rows are always by name). `getCraftUsages(allItems)`
+  covers recipes (`recipe`, `craftBench`, `stationLevelRequired`,
+  `blueprintLocked`, `craftQuantity`) and weapon
   upgrades (`upgrades[]` on the lower tier; the lower tier weapon is itself an
   ingredient). Uses `allItems` from `useData()` because outputs include hidden
   items (keys, amplified weapons); `fetch-images.js` downloads their images.
   `RecyclingTools` renders both pages, so search and filters carry over
-  between tabs; sorting is per page (`PAGE_SORT_COLUMNS`).
+  between tabs; sort controls only exist on the recycling page. Each card
+  shows the full recipe (row's own item in bold); recipes whose `craftBench`
+  includes `in_raid` (field crafting) get a bold "In raid N", N being
+  the in-raid crafting perk (1-3) from `craftSkills.in_raid`: `surv_3r` = 1,
+  `surv_5c` = 2, no skill listed = 3 (`IN_RAID_PERK_BY_SKILL`, from the game:
+  the API doesn't say which level an id is). Card
+  sections (title / recipe / requirements) are split by thin dividers, plain
+  text only (no pills, no colored card edges). The footer is only where to
+  craft, alternatives joined by "or" ("Workbench or In raid"); upgrade and
+  blueprint-required are small corner icons by the title (`CraftMarker`:
+  instant CSS tooltip from `data-tooltip`, since native `title` tooltips are
+  slow, + aria label). Stations show as "Gunsmith 2" (bare number; a
+  missing level means 1); only the Workbench (`maxLevel` 0) has no number.
 - **Game data** localized text (item names, materials) uses
   `getLocalizedText(localized, language)` from `localization/languageUtils.ts`.
   Typed as `keyof LocalizedText`, so property access may be `undefined` — use
@@ -239,7 +252,10 @@ bun x playwright test --project=chromium
   `includedExpeditions`, `prioritizeNameMatches`. State lives in
   `RecyclingTools.tsx` (`includedExpeditions` is also persisted), applied in
   `ItemsTable.tsx`'s `filteredData` memo. When adding new Set-based filters,
-  also update the `React.memo` comparator's `areSetsEqual` checks.
+  also update the `React.memo` comparator's `areSetsEqual` checks. The
+  crafting page only shows and applies categories, rarity and name-match
+  priority: the recycling-only filters are hidden there (`FilterModal` takes
+  `page`) and must not hide its rows.
 - **Toggle component**: `src/components/Toggle.tsx` — reusable pill-shaped
   toggle switch. Use for boolean filter settings instead of vanilla checkboxes.
 - **Game icon inversion**: Game icons are white (designed for dark UI). Add

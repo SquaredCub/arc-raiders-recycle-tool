@@ -166,16 +166,16 @@ $grid-columns-full: minmax(0, 2.5fr) minmax(0, 3.1fr) minmax(0, 2.5fr)
   &--crafting {
     .grid-header,
     .grid-row {
-      grid-template-areas: "item usedToCraft value";
-      grid-template-columns: minmax(0, 2.5fr) minmax(0, 10.5fr) minmax(0, 1.1fr);
+      grid-template-areas: "item usedToCraft";
+      grid-template-columns: minmax(0, 2.5fr) minmax(0, 11.5fr);
 
       @include tablet-and-below {
-        grid-template-areas: "item usedToCraft value";
-        grid-template-columns: minmax(0, 2.5fr) minmax(0, 8fr) minmax(0, 1.2fr);
+        grid-template-areas: "item usedToCraft";
+        grid-template-columns: minmax(0, 2.5fr) minmax(0, 9fr);
       }
       @include below-800 {
-        grid-template-areas: "item usedToCraft value";
-        grid-template-columns: minmax(0, 2.5fr) minmax(0, 6fr) minmax(0, 1.4fr);
+        grid-template-areas: "item usedToCraft";
+        grid-template-columns: minmax(0, 2.5fr) minmax(0, 7fr);
       }
     }
 
@@ -183,8 +183,7 @@ $grid-columns-full: minmax(0, 2.5fr) minmax(0, 3.1fr) minmax(0, 2.5fr)
       @include mobile {
         grid-template-areas:
           "item"
-          "usedToCraft"
-          "value";
+          "usedToCraft";
         grid-template-columns: minmax(0, 1fr);
       }
     }

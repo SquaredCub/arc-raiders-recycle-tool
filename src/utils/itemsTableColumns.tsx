@@ -1,4 +1,5 @@
 import { createColumnHelper } from "@tanstack/react-table";
+import CraftMarker from "../components/CraftMarker";
 import { SORT_COLUMNS } from "../constants/sortColumns";
 import { COINS_IMAGE_URL, getItemImage } from "../data/itemsData";
 import type { EnrichedItemRequirementLookup } from "../data/requirementsData";
@@ -23,7 +24,11 @@ const col = (id: string) => {
 
 type Label = (key: UIStringKey) => string;
 
-const createItemColumn = (label: Label, language?: LanguageCode) =>
+const createItemColumn = (
+  label: Label,
+  language?: LanguageCode,
+  sortable = true,
+) =>
   columnHelper.accessor("name", {
     id: col("item").id,
     header: () => <span>{label(col("item").label)}</span>,
@@ -47,7 +52,7 @@ const createItemColumn = (label: Label, language?: LanguageCode) =>
         />
       );
     },
-    enableSorting: true,
+    enableSorting: sortable,
     sortDescFirst: col("item").descFirst,
   });
 
@@ -323,10 +328,10 @@ export const createCraftingTableColumns = (
   translateUI: (key: UIStringKey) => string,
   onSearchTermChange?: (term: string) => void,
 ) => [
-  createItemColumn(translateUI, language),
+  createItemColumn(translateUI, language, false),
   columnHelper.accessor("id", {
-    id: col("usedToCraft").id,
-    header: () => <span>{translateUI(col("usedToCraft").label)}</span>,
+    id: "usedToCraft",
+    header: () => <span>{translateUI("crafting.usedToCraft")}</span>,
     size: 600,
     cell: (info) => {
       const itemId = info.getValue();
@@ -341,35 +346,76 @@ export const createCraftingTableColumns = (
           {crafts.map((craft) => {
             const content = (
               <>
-                <ItemCell
-                  name={
-                    craft.outputQuantity > 1
-                      ? `${craft.name} (x${craft.outputQuantity})`
-                      : craft.name
-                  }
-                  imageSrc={craft.image}
-                  rarity={craft.rarity}
-                  highlighted={matched?.has(craft.outputId)}
-                />
-                <div className="craft-usage__details">
-                  <span className="craft-usage__uses">
-                    {translateUI("crafting.uses").replace(
-                      "{count}",
-                      String(craft.quantity),
-                    )}
-                  </span>
-                  {craft.benchLabel && <span>{craft.benchLabel}</span>}
-                  {craft.kind === "upgrade" && (
-                    <span className="craft-usage__tag">
-                      {translateUI("crafting.upgrade")}
-                    </span>
-                  )}
-                  {craft.blueprintLocked && (
-                    <span className="craft-usage__tag">
-                      {translateUI("category.blueprint")}
+                <div className="craft-usage__title">
+                  <ItemCell
+                    name={
+                      craft.outputQuantity > 1
+                        ? `${craft.name} (x${craft.outputQuantity})`
+                        : craft.name
+                    }
+                    imageSrc={craft.image}
+                    rarity={craft.rarity}
+                    highlighted={matched?.has(craft.outputId)}
+                  />
+                  {(craft.kind === "upgrade" || craft.blueprintLocked) && (
+                    <span className="craft-usage__markers">
+                      {craft.kind === "upgrade" && (
+                        <CraftMarker label={translateUI("crafting.upgrade")}>
+                          <circle cx="8" cy="8" r="6.25" />
+                          <path d="M8 11V5M5.5 7.5 8 5l2.5 2.5" />
+                        </CraftMarker>
+                      )}
+                      {craft.blueprintLocked && (
+                        <CraftMarker label={translateUI("crafting.blueprintRequired")}>
+                          <path d="M3.5 2h6.5l2.5 2.5V14h-9z" />
+                          <path d="M6 7h4.5M6 9.5h4.5M6 12h2.5" />
+                        </CraftMarker>
+                      )}
                     </span>
                   )}
                 </div>
+                <ul className="craft-usage__recipe">
+                  {craft.recipe.map(({ material, quantity, name, image }) => (
+                    <li
+                      key={material}
+                      className={`craft-usage__ingredient${
+                        material === itemId
+                          ? " craft-usage__ingredient--current"
+                          : ""
+                      }`}
+                    >
+                      <img src={image} alt="" />
+                      <span>{`${quantity} x ${name}`}</span>
+                    </li>
+                  ))}
+                </ul>
+                {/* Where to craft: alternatives, any one of them will do (some upgrades
+                    have no bench in the data: then there is nothing to show) */}
+                {(craft.stations.length > 0 || craft.inRaidLevel) && (
+                  <div className="craft-usage__details">
+                    {[
+                      ...craft.stations.map((station) => (
+                        <span key={station}>{station}</span>
+                      )),
+                      ...(craft.inRaidLevel
+                        ? [
+                            <span key="in-raid" className="craft-usage__in-raid">
+                              {`${translateUI("crafting.inRaid")} ${craft.inRaidLevel}`}
+                            </span>,
+                          ]
+                        : []),
+                    ].flatMap((place, index) =>
+                      index === 0
+                        ? [place]
+                        : [
+                            <span key={`or-${index}`} className="craft-usage__or">
+                              {translateUI("crafting.or")}
+                            </span>,
+                            place,
+                          ],
+                    )}
+                  </div>
+                )}
               </>
             );
             return onSearchTermChange ? (
@@ -390,8 +436,6 @@ export const createCraftingTableColumns = (
         </div>
       );
     },
-    enableSorting: true,
-    sortDescFirst: col("usedToCraft").descFirst,
+    enableSorting: false,
   }),
-  createValueColumn(translateUI),
 ];

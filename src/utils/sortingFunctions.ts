@@ -128,10 +128,6 @@ const getColumnComparator = (
         const totalB = config.sortKeyCache.requirementTotals[b.id] ?? 0;
         return totalA - totalB;
       };
-    case "usedToCraft":
-      return (a, b) =>
-        (config.sortKeyCache.craftTotals[a.id] ?? 0) -
-        (config.sortKeyCache.craftTotals[b.id] ?? 0);
     case "value":
       return (a, b) => (a.value ?? 0) - (b.value ?? 0);
     default:

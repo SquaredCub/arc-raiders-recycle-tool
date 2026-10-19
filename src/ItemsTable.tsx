@@ -42,6 +42,9 @@ import {
 
 const fallbackData: Item[] = [];
 
+// The crafting page has no sort controls: rows are always by name
+const NAME_SORTING: SortingState = [{ id: "item", desc: false }];
+
 interface ItemsTableProps {
   page: NavigationPage;
   searchTerm: string;
@@ -130,24 +133,24 @@ const ItemsTable = React.memo(
         createCraftUsageCache(
           craftUsages,
           allItems,
+          hideoutBenches,
           benchNameLookup,
-          translateUI("requirement.lvl"),
           language,
         ),
-      [craftUsages, allItems, benchNameLookup, translateUI, language],
+      [
+        craftUsages,
+        allItems,
+        hideoutBenches,
+        benchNameLookup,
+        language,
+      ],
     );
 
     // Pre-compute sort keys for performance optimization
     const sortKeyCache = useMemo(
       () =>
-        createSortKeyCache(
-          items,
-          benchNameLookup,
-          itemRequirements,
-          language,
-          craftUsages,
-        ),
-      [items, benchNameLookup, itemRequirements, language, craftUsages],
+        createSortKeyCache(items, benchNameLookup, itemRequirements, language),
+      [items, benchNameLookup, itemRequirements, language],
     );
 
     // Run search once and derive relevance index, match types, and filtered data
@@ -253,22 +256,29 @@ const ItemsTable = React.memo(
         filterSettings.includedRarities.has(item.rarity),
       );
 
+      // The filters below only exist on the recycling page: the crafting
+      // page's filter modal doesn't show them, so they must not hide rows there
+      const isRecycling = page === "recycling";
+
       // Filter by recycle output
-      if (filterSettings.onlyRecyclable) {
+      if (isRecycling && filterSettings.onlyRecyclable) {
         results = results.filter(
           (item) => item.recyclesInto && Object.keys(item.recyclesInto).length > 0,
         );
       }
 
       // Filter by salvage output
-      if (filterSettings.onlySalvageable) {
+      if (isRecycling && filterSettings.onlySalvageable) {
         results = results.filter(
           (item) => item.salvagesInto && Object.keys(item.salvagesInto).length > 0,
         );
       }
 
       // Filter by found-in location
-      if (filterSettings.includedLocations.size < FOUND_IN_LOCATIONS.length) {
+      if (
+        isRecycling &&
+        filterSettings.includedLocations.size < FOUND_IN_LOCATIONS.length
+      ) {
         results = results.filter((item) => {
           if (!item.foundIn) return filterSettings.includedLocations.has("No Location");
           const locations = item.foundIn.split(", ");
@@ -277,7 +287,10 @@ const ItemsTable = React.memo(
       }
 
       // Filter by needed-for source type
-      if (filterSettings.includedSourceTypes.size < NEEDED_FOR_SOURCE_TYPES.length) {
+      if (
+        isRecycling &&
+        filterSettings.includedSourceTypes.size < NEEDED_FOR_SOURCE_TYPES.length
+      ) {
         results = results.filter((item) => {
           const req = itemRequirements[item.id];
           if (!req) return filterSettings.includedSourceTypes.has("Not Needed");
@@ -301,6 +314,7 @@ const ItemsTable = React.memo(
 
       return results;
     }, [
+      page,
       searchResult,
       searchTerm,
       filterSettings.includedCategories,
@@ -321,13 +335,14 @@ const ItemsTable = React.memo(
     // Sort data manually (manualSorting: true means TanStack won't sort for us)
     const sortedData = useMemo(
       () =>
-        sortItems(filteredData, sorting, {
+        sortItems(filteredData, page === "crafting" ? NAME_SORTING : sorting, {
           prioritizeNameMatches: isPrioritizing,
           searchMatchTypes,
           sortKeyCache,
           materialMatchScores,
         }),
       [
+        page,
         filteredData,
         sorting,
         isPrioritizing,
@@ -373,7 +388,8 @@ const ItemsTable = React.memo(
       onSortingChange: onSortingChange,
       enableSortingRemoval: false,
       state: {
-        sorting,
+        // No sort indicator on the crafting page's headers
+        sorting: page === "crafting" ? [] : sorting,
       },
     });
 

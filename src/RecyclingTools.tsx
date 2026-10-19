@@ -59,8 +59,6 @@ const PAGE_TEXT: Record<
   },
 };
 
-const DEFAULT_SORTING: SortingState = [{ id: "item", desc: false }];
-
 const RecyclingTools = ({ page }: { page: NavigationPage }) => {
   const { translateUI } = useLanguage();
   const { projects } = useData();
@@ -94,20 +92,10 @@ const RecyclingTools = ({ page }: { page: NavigationPage }) => {
     total: number;
   } | null>(null);
 
-  // Sorting is per page: the pages don't have the same columns
-  const [sortingByPage, setSortingByPage] = useState<
-    Record<NavigationPage, SortingState>
-  >({ recycling: DEFAULT_SORTING, crafting: DEFAULT_SORTING });
-  const sorting = sortingByPage[page];
-
-  const setSorting = useCallback(
-    (updater: SortingState | ((prev: SortingState) => SortingState)) =>
-      setSortingByPage((prev) => ({
-        ...prev,
-        [page]: typeof updater === "function" ? updater(prev[page]) : updater,
-      })),
-    [page],
-  );
+  // Recycling page only: the crafting page has no sort controls
+  const [sorting, setSorting] = useState<SortingState>([
+    { id: "item", desc: false },
+  ]);
 
   const handleFilteredCountChange = useCallback(
     (filtered: number, total: number) => {
@@ -121,7 +109,7 @@ const RecyclingTools = ({ page }: { page: NavigationPage }) => {
 
   const toggleSortDirection = useCallback(() => {
     setSorting((prev) => [{ ...prev[0], desc: !prev[0].desc }]);
-  }, [setSorting]);
+  }, []);
 
   return (
     <div className="recycling-tools">
@@ -168,28 +156,31 @@ const RecyclingTools = ({ page }: { page: NavigationPage }) => {
               <line x1="17" y1="16" x2="23" y2="16" />
             </svg>
           </button>
-          <SortColumnDropdown
-            page={page}
-            sorting={sorting}
-            onSortingChange={setSorting}
-          />
-          <button
-            className="sort-direction-button"
-            onClick={toggleSortDirection}
-            aria-label={
-              sorting[0]?.desc
-                ? translateUI("sort.descending")
-                : translateUI("sort.ascending")
-            }
-            title={
-              sorting[0]?.desc
-                ? translateUI("sort.descending")
-                : translateUI("sort.ascending")
-            }
-            type="button"
-          >
-            {sorting[0]?.desc ? "🔽" : "🔼"}
-          </button>
+          {page === "recycling" && (
+            <>
+              <SortColumnDropdown
+                sorting={sorting}
+                onSortingChange={setSorting}
+              />
+              <button
+                className="sort-direction-button"
+                onClick={toggleSortDirection}
+                aria-label={
+                  sorting[0]?.desc
+                    ? translateUI("sort.descending")
+                    : translateUI("sort.ascending")
+                }
+                title={
+                  sorting[0]?.desc
+                    ? translateUI("sort.descending")
+                    : translateUI("sort.ascending")
+                }
+                type="button"
+              >
+                {sorting[0]?.desc ? "🔽" : "🔼"}
+              </button>
+            </>
+          )}
           {itemCount && (
             <span className="item-count">
               {itemCount.filtered} / {itemCount.total}
@@ -209,6 +200,7 @@ const RecyclingTools = ({ page }: { page: NavigationPage }) => {
         />
       </section>
       <FilterModal
+        page={page}
         isOpen={isFilterModalOpen}
         onClose={closeModal}
         filterSettings={filterSettings}

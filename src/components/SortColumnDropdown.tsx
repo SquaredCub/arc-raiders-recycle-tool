@@ -1,22 +1,16 @@
 import type { SortingState } from "@tanstack/react-table";
 import { useRef, useState } from "react";
-import {
-  PAGE_SORT_COLUMNS,
-  SORT_COLUMNS_BY_ID,
-} from "../constants/sortColumns";
+import { SORT_COLUMNS, SORT_COLUMNS_BY_ID } from "../constants/sortColumns";
 import { useLanguage } from "../hooks/useLanguage";
 import { useModalBehavior } from "../hooks/useModalBehavior";
-import type { NavigationPage } from "./Navigation";
 import "./SortColumnDropdown.scss";
 
 interface SortColumnDropdownProps {
-  page: NavigationPage;
   sorting: SortingState;
   onSortingChange: (sorting: SortingState) => void;
 }
 
 const SortColumnDropdown = ({
-  page,
   sorting,
   onSortingChange,
 }: SortColumnDropdownProps) => {
@@ -64,7 +58,7 @@ const SortColumnDropdown = ({
       {isOpen && (
         <div className="sort-column-dropdown__menu">
           <div className="sort-column-dropdown__options">
-            {PAGE_SORT_COLUMNS[page].map((column) => (
+            {SORT_COLUMNS.map((column) => (
               <button
                 key={column.id}
                 className={`sort-column-dropdown__option ${
