@@ -32,7 +32,7 @@ const communityLinks: ExternalLink[] = [
   },
   {
     label: "Map Selector",
-    href: "https://wheelofnames.com/stu-fhg",
+    href: "https://wheelofnames.com/9qj-qzn",
     icon: "https://wheelofnames.com/images/logo-dark-background-38.png",
   },
   {

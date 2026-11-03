@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 
 const expectedLinks = [
   { name: "Maps", href: "https://arcraidersmaps.app/" },
-  { name: "Map Selector", href: "https://wheelofnames.com/stu-fhg" },
+  { name: "Map Selector", href: "https://wheelofnames.com/9qj-qzn" },
   { name: "Map Conditions", href: "https://arcraiders.com/map-conditions/" },
   { name: "Tracker", href: "https://arctracker.io/" },
   {
