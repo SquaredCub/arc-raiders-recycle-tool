@@ -29,6 +29,7 @@ src/
 ├── constants/
 │   ├── itemCategories.ts  # BLACKLISTED_ITEM_CATEGORIES (Key/Blueprint/Design), AMPLIFIED_WEAPON_ID_PATTERN, FILTERABLE_ITEM_CATEGORIES (derived from generated ITEM_TYPES)
 │   ├── sortColumns.ts     # SORT_COLUMNS — column id/label/descFirst, used by table columns + mobile sort dropdown
+│   ├── outpostExpansions.ts  # OUTPOST_EXPANSIONS — hand-maintained Outpost expansion costs (not in the API)
 │   └── filterOptions.ts   # ITEM_RARITIES, FOUND_IN_LOCATIONS, NEEDED_FOR_SOURCE_TYPES (imports from generated JSON)
 ├── localization/
 │   ├── uiStrings.ts        # UIStringKey type + UI_STRINGS record (all 20 languages)
@@ -79,6 +80,10 @@ public/images/
   `anvil_amplified_x_rounds`)
 - `getItemRequirements()` merges outpost (`hideout` in the data), quest and
   project requirements into `ItemRequirementLookup`
+  - Outpost expansions (adding rooms, "Outpost Lvl N") aren't in the API
+    (modules only reference them as `requires: [{ outpostRooms: N }]`), so
+    their costs are maintained by hand in `constants/outpostExpansions.ts`.
+    Delete entries once the API covers them, or they count twice
   - Disabled projects and projects past their `endDate` (Unix seconds) are
     skipped — **except expeditions**, which always count: players who skipped
     one can still do it
