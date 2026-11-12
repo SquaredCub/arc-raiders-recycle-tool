@@ -1,5 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import hideoutData from "../generated/hideout.json";
+import itemsData from "../generated/items.json";
 import projectsData from "../generated/projects.json";
 import questsData from "../generated/quests.json";
 import type { HideoutBench, Project, Quest } from "../generated/types";
@@ -7,6 +8,7 @@ import {
   getItemRequirements,
   type RequirementTemplates,
 } from "./requirementsData";
+import { OUTPOST_EXPANSIONS } from "../constants/outpostExpansions";
 
 const hideoutBenches = hideoutData as HideoutBench[];
 const quests = questsData as Quest[];
@@ -107,9 +109,12 @@ describe("getItemRequirements", () => {
     }
   });
 
-  it("returns empty object for empty inputs", () => {
+  it("returns only the hand-maintained Outpost expansions for empty inputs", () => {
     const result = getItemRequirements([], [], [], "en");
-    expect(result).toEqual({});
+    const expansionItemIds = new Set(
+      OUTPOST_EXPANSIONS.flatMap((e) => e.requirementItemIds.map((r) => r.itemId)),
+    );
+    expect(new Set(Object.keys(result))).toEqual(expansionItemIds);
   });
 
   it("uses custom templates when provided", () => {
@@ -118,6 +123,7 @@ describe("getItemRequirements", () => {
       quest: "Quête :",
       step: "Étape",
       expedition: "Expédition",
+      outpost: "Avant-poste",
     };
     const customReqs = getItemRequirements(
       hideoutBenches,
@@ -150,5 +156,26 @@ describe("getItemRequirements", () => {
     for (const usage of projectSources) {
       expect(usage.source).toMatch(/Étape \d+/);
     }
+  });
+});
+
+describe("Outpost expansions (hand-maintained)", () => {
+  const requirements = getItemRequirements(hideoutBenches, quests, projects, "en");
+
+  it("only references item ids that exist in the data", () => {
+    const itemIds = new Set((itemsData as { id: string }[]).map((item) => item.id));
+    for (const expansion of OUTPOST_EXPANSIONS) {
+      for (const { itemId } of expansion.requirementItemIds) {
+        expect(itemIds.has(itemId)).toBe(true);
+      }
+    }
+  });
+
+  it("lists Epoxy Buckets as needed for Outpost Lvl 3", () => {
+    expect(requirements.epoxy_bucket?.usedIn).toContainEqual({
+      source: "Outpost Lvl 3",
+      quantity: 3,
+      sourceType: "hideout",
+    });
   });
 });

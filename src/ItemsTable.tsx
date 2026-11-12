@@ -81,6 +81,7 @@ const ItemsTable = React.memo(
         quest: translateUI("requirement.quest"),
         step: translateUI("requirement.step"),
         expedition: translateUI("requirement.expedition"),
+        outpost: translateUI("source.outpost"),
       }),
       [translateUI],
     );

@@ -4,6 +4,7 @@ import type {
   Project,
   Quest,
 } from "../generated/types";
+import { OUTPOST_EXPANSIONS } from "../constants/outpostExpansions";
 import {
   getLocalizedText,
   type LanguageCode,
@@ -16,6 +17,7 @@ export interface RequirementTemplates {
   quest: string;
   step: string;
   expedition: string;
+  outpost: string;
 }
 
 const DEFAULT_TEMPLATES: RequirementTemplates = {
@@ -23,6 +25,7 @@ const DEFAULT_TEMPLATES: RequirementTemplates = {
   quest: "Quest:",
   step: "Step",
   expedition: "Expedition",
+  outpost: "Outpost",
 };
 
 export interface EnrichedItemUsage extends ItemUsage {
@@ -64,6 +67,27 @@ const buildHideoutLookup = (
         lookup[itemId].totalQuantity += quantity;
         lookup[itemId].usedIn.push({ source, quantity, sourceType: "hideout" });
       }
+    }
+  }
+
+  return lookup;
+};
+
+/**
+ * Build lookup map from the hand-maintained Outpost expansions (not in the API)
+ */
+const buildOutpostExpansionLookup = (
+  templates: RequirementTemplates,
+): EnrichedItemRequirementLookup => {
+  const lookup: EnrichedItemRequirementLookup = {};
+
+  for (const expansion of OUTPOST_EXPANSIONS) {
+    const source = `${templates.outpost} ${templates.lvl} ${expansion.level}`;
+
+    for (const { itemId, quantity } of expansion.requirementItemIds) {
+      lookup[itemId] ??= { totalQuantity: 0, usedIn: [] };
+      lookup[itemId].totalQuantity += quantity;
+      lookup[itemId].usedIn.push({ source, quantity, sourceType: "hideout" });
     }
   }
 
@@ -229,5 +253,13 @@ export const getItemRequirements = (
   const questLookup = buildQuestLookup(quests, language, templates);
   const projectLookup = buildProjectLookup(projects, language, templates, hiddenProjectIds);
 
-  return mergeLookups(language, hideoutLookup, questLookup, projectLookup);
+  const outpostExpansionLookup = buildOutpostExpansionLookup(templates);
+
+  return mergeLookups(
+    language,
+    hideoutLookup,
+    outpostExpansionLookup,
+    questLookup,
+    projectLookup,
+  );
 };
