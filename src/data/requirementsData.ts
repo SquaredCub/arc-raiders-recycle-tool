@@ -1,16 +1,18 @@
 import type {
   HideoutBench,
+  Item,
   ItemUsage,
   Project,
   Quest,
 } from "../generated/types";
+import { AMPLIFIED_WEAPON_ID_PATTERN } from "../constants/itemCategories";
 import { OUTPOST_EXPANSIONS } from "../constants/outpostExpansions";
 import {
   getLocalizedText,
   type LanguageCode,
 } from "../localization/languageUtils";
 
-export type SourceType = "hideout" | "quest" | "project";
+export type SourceType = "hideout" | "quest" | "project" | "amplification";
 
 export interface RequirementTemplates {
   lvl: string;
@@ -204,6 +206,75 @@ const buildProjectLookup = (
   return lookup;
 };
 
+type MaterialCounts = Record<string, number>;
+
+/** Upgrades of an item into an amplified weapon (weapon IV -> Amplified, or between amplified variants) */
+const getAmplificationUpgrades = (item: Item | undefined) =>
+  (item?.upgrades ?? [])
+    .map((upgrade) => ({
+      to: upgrade.to as string,
+      cost: (upgrade.cost ?? {}) as MaterialCounts,
+    }))
+    .filter((upgrade) => AMPLIFIED_WEAPON_ID_PATTERN.test(upgrade.to));
+
+/**
+ * Build lookup map from weapon amplification: one source per amplified weapon
+ * (e.g. "Amplified Renegade"). Its variants branch (Scoped, More Reload...)
+ * and every step consumes the previous weapon, so the quantity is the most of
+ * that material a single build can take, not the sum over every variant.
+ */
+const buildAmplificationLookup = (
+  items: Item[],
+  language: LanguageCode,
+): EnrichedItemRequirementLookup => {
+  const lookup: EnrichedItemRequirementLookup = {};
+  const itemsById = new Map(items.map((item) => [item.id, item]));
+
+  // Per material, the most any upgrade path starting at this weapon consumes
+  const maxPathCosts = new Map<string, MaterialCounts>();
+  const getMaxPathCosts = (itemId: string): MaterialCounts => {
+    const cached = maxPathCosts.get(itemId);
+    if (cached) return cached;
+    maxPathCosts.set(itemId, {}); // Guards against an upgrade cycle in the data
+
+    const result: MaterialCounts = {};
+    for (const { to, cost } of getAmplificationUpgrades(itemsById.get(itemId))) {
+      const pathCosts = { ...getMaxPathCosts(to) };
+      for (const [materialId, quantity] of Object.entries(cost)) {
+        pathCosts[materialId] = (pathCosts[materialId] ?? 0) + quantity;
+      }
+      for (const [materialId, quantity] of Object.entries(pathCosts)) {
+        result[materialId] = Math.max(result[materialId] ?? 0, quantity);
+      }
+    }
+    maxPathCosts.set(itemId, result);
+    return result;
+  };
+
+  for (const item of items) {
+    if (AMPLIFIED_WEAPON_ID_PATTERN.test(item.id)) continue;
+
+    // The base weapon (e.g. Renegade IV) itself is not listed: only the
+    // materials each amplification step costs
+    for (const { to, cost } of getAmplificationUpgrades(item)) {
+      const amplified = itemsById.get(to);
+      const source = (amplified && getLocalizedText(amplified.name, language)) || to;
+      const totals = { ...getMaxPathCosts(to) };
+      for (const [materialId, quantity] of Object.entries(cost)) {
+        totals[materialId] = (totals[materialId] ?? 0) + quantity;
+      }
+
+      for (const [itemId, quantity] of Object.entries(totals)) {
+        lookup[itemId] ??= { totalQuantity: 0, usedIn: [] };
+        lookup[itemId].totalQuantity += quantity;
+        lookup[itemId].usedIn.push({ source, quantity, sourceType: "amplification" });
+      }
+    }
+  }
+
+  return lookup;
+};
+
 /**
  * Merge multiple lookup maps into a single aggregated map
  */
@@ -239,12 +310,15 @@ const mergeLookups = (
 
 /**
  * Get the complete item requirements lookup map
- * This combines hideout upgrades, quests, and projects
+ * This combines hideout upgrades, quests, projects and weapon amplification.
+ * Pass every item (not only the displayed ones): amplified weapons are hidden
+ * from the table but their upgrades still need materials.
  */
 export const getItemRequirements = (
   hideoutBenches: HideoutBench[],
   quests: Quest[],
   projects: Project[],
+  items: Item[],
   language: LanguageCode,
   templates: RequirementTemplates = DEFAULT_TEMPLATES,
   hiddenProjectIds: Set<string> = new Set(),
@@ -252,6 +326,7 @@ export const getItemRequirements = (
   const hideoutLookup = buildHideoutLookup(hideoutBenches, language, templates);
   const questLookup = buildQuestLookup(quests, language, templates);
   const projectLookup = buildProjectLookup(projects, language, templates, hiddenProjectIds);
+  const amplificationLookup = buildAmplificationLookup(items, language);
 
   const outpostExpansionLookup = buildOutpostExpansionLookup(templates);
 
@@ -261,5 +336,6 @@ export const getItemRequirements = (
     outpostExpansionLookup,
     questLookup,
     projectLookup,
+    amplificationLookup,
   );
 };

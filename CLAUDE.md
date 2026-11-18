@@ -17,7 +17,7 @@ src/
 ├── hooks/               # useData, useDebounce (200ms), useModalBehavior, useLanguage
 ├── data/
 │   ├── itemsData.ts     # formatMaterialName, getItemImage, getItemImageById, COINS_IMAGE_URL, filterBlacklistedItemCategories
-│   ├── requirementsData.ts  # getItemRequirements() — aggregates outpost/quest/project needs; expedition helpers
+│   ├── requirementsData.ts  # getItemRequirements() — aggregates outpost/quest/project/amplification needs; expedition helpers
 │   └── craftingData.ts  # getCraftUsages() — inverts recipes + weapon upgrades into "ingredient → what it crafts"
 ├── services/
 │   └── dataService.ts   # Data accessors + getImageUrl (import.meta.env.BASE_URL + path into public/)
@@ -78,8 +78,8 @@ public/images/
 - Items hidden from the table: `BLACKLISTED_ITEM_CATEGORIES` and amplified
   weapon variants (`AMPLIFIED_WEAPON_ID_PATTERN`, ids like
   `anvil_amplified_x_rounds`)
-- `getItemRequirements()` merges outpost (`hideout` in the data), quest and
-  project requirements into `ItemRequirementLookup`
+- `getItemRequirements()` merges outpost (`hideout` in the data), quest,
+  project and weapon amplification requirements into `ItemRequirementLookup`
   - Outpost expansions (adding rooms, "Outpost Lvl N") aren't in the API
     (modules only reference them as `requires: [{ outpostRooms: N }]`), so
     their costs are maintained by hand in `constants/outpostExpansions.ts`.
@@ -92,6 +92,15 @@ public/images/
     API names them inconsistently
   - Users can untick expeditions in Search Settings; the hidden ids persist in
     `localStorage` (`hiddenExpeditions`) so new expeditions default to shown
+  - Amplification (source type `amplification`, filter "Amplification"):
+    upgrades whose `to` is an amplified weapon (weapon IV → Amplified needs a
+    module; variants need rare mats like Fluted Rotor Core). Built from
+    `allItems` since amplified weapons are hidden. One source per amplified
+    weapon, named after it ("Amplified Renegade"); the quantity is the most a
+    single upgrade path consumes (variants branch and each step consumes the
+    previous weapon), not the sum over every variant. Only the `cost`
+    materials count, not the weapon being upgraded. Also shown as recipes on
+    the crafting page
 - Crafting page (`page="crafting"`): same rows, columns Item | Used to Craft
   (no value, no sorting: rows are always by name). `getCraftUsages(allItems)`
   covers recipes (`recipe`, `craftBench`, `stationLevelRequired`,

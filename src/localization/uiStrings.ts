@@ -65,6 +65,7 @@ export type UIStringKey =
   | "source.outpost"
   | "source.quest"
   | "source.project"
+  | "source.amplification"
   | "source.notNeeded"
   // Tooltip
   | "tooltip.hide"
@@ -1381,6 +1382,30 @@ export const UI_STRINGS: Record<
     uk: "Проєкт",
     "zh-CN": "项目",
     "zh-TW": "項目",
+  },
+  // No string-table key checked: worded after the game's own item names
+  // (Amplification Module MK. I, Amplified <weapon>) in each language
+  "source.amplification": {
+    en: "Amplification",
+    da: "Forstærkning",
+    de: "Verstärkung",
+    es: "Amplificación",
+    fr: "Amplification",
+    he: "הגברה",
+    hr: "Pojačanje",
+    it: "Amplificazione",
+    ja: "強化",
+    "ko-KR": "증폭",
+    no: "Forsterkning",
+    pl: "Wzmocnienie",
+    pt: "Amplificação",
+    "pt-BR": "Amplificação",
+    ru: "Усовершенствование",
+    sr: "Pojačanje",
+    tr: "Güçlendirme",
+    uk: "Ампліфікація",
+    "zh-CN": "增强",
+    "zh-TW": "增幅",
   },
   "source.notNeeded": {
     en: "Not Needed",

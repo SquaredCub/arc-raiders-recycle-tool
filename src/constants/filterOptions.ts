@@ -8,5 +8,6 @@ export const NEEDED_FOR_SOURCE_TYPES: string[] = [
   "Outpost",
   "Quest",
   "Project",
+  "Amplification",
   "Not Needed",
 ];

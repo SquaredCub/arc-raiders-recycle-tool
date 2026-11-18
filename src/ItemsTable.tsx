@@ -108,11 +108,20 @@ const ItemsTable = React.memo(
           hideoutBenches,
           quests,
           projects,
+          allItems,
           language,
           requirementTemplates,
           hiddenExpeditionIds,
         ),
-      [hideoutBenches, quests, projects, language, requirementTemplates, hiddenExpeditionIds],
+      [
+        hideoutBenches,
+        quests,
+        projects,
+        allItems,
+        language,
+        requirementTemplates,
+        hiddenExpeditionIds,
+      ],
     );
 
     // Create lookup maps for performance optimization
@@ -299,11 +308,16 @@ const ItemsTable = React.memo(
           const hasHideout = req.usedIn.some((u) => u.sourceType === "hideout");
           const hasQuest = req.usedIn.some((u) => u.sourceType === "quest");
           const hasProject = req.usedIn.some((u) => u.sourceType === "project");
+          const hasAmplification = req.usedIn.some(
+            (u) => u.sourceType === "amplification",
+          );
 
           return (
             (hasHideout && filterSettings.includedSourceTypes.has("Outpost")) ||
             (hasQuest && filterSettings.includedSourceTypes.has("Quest")) ||
-            (hasProject && filterSettings.includedSourceTypes.has("Project"))
+            (hasProject && filterSettings.includedSourceTypes.has("Project")) ||
+            (hasAmplification &&
+              filterSettings.includedSourceTypes.has("Amplification"))
           );
         });
       }

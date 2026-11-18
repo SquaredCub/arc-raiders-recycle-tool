@@ -3,7 +3,7 @@ import hideoutData from "../generated/hideout.json";
 import itemsData from "../generated/items.json";
 import projectsData from "../generated/projects.json";
 import questsData from "../generated/quests.json";
-import type { HideoutBench, Project, Quest } from "../generated/types";
+import type { HideoutBench, Item, Project, Quest } from "../generated/types";
 import {
   getItemRequirements,
   type RequirementTemplates,
@@ -13,12 +13,14 @@ import { OUTPOST_EXPANSIONS } from "../constants/outpostExpansions";
 const hideoutBenches = hideoutData as HideoutBench[];
 const quests = questsData as Quest[];
 const projects = projectsData as Project[];
+const items = itemsData as Item[];
 
 describe("getItemRequirements", () => {
   const requirements = getItemRequirements(
     hideoutBenches,
     quests,
     projects,
+    items,
     "en",
   );
 
@@ -34,7 +36,7 @@ describe("getItemRequirements", () => {
   });
 
   it("every usedIn entry has a valid sourceType", () => {
-    const validTypes = new Set(["hideout", "quest", "project"]);
+    const validTypes = new Set(["hideout", "quest", "project", "amplification"]);
     for (const [, data] of Object.entries(requirements)) {
       for (const usage of data.usedIn) {
         expect(validTypes.has(usage.sourceType)).toBe(true);
@@ -51,6 +53,8 @@ describe("getItemRequirements", () => {
           expect(usage.source).toMatch(/^Quest: .+/);
         } else if (usage.sourceType === "project") {
           expect(usage.source).toMatch(/.+ - Step \d+/);
+        } else if (usage.sourceType === "amplification") {
+          expect(usage.source).toMatch(/^Amplified .+/);
         }
       }
     }
@@ -110,7 +114,7 @@ describe("getItemRequirements", () => {
   });
 
   it("returns only the hand-maintained Outpost expansions for empty inputs", () => {
-    const result = getItemRequirements([], [], [], "en");
+    const result = getItemRequirements([], [], [], [], "en");
     const expansionItemIds = new Set(
       OUTPOST_EXPANSIONS.flatMap((e) => e.requirementItemIds.map((r) => r.itemId)),
     );
@@ -129,6 +133,7 @@ describe("getItemRequirements", () => {
       hideoutBenches,
       quests,
       projects,
+      items,
       "en",
       customTemplates,
     );
@@ -160,7 +165,7 @@ describe("getItemRequirements", () => {
 });
 
 describe("Outpost expansions (hand-maintained)", () => {
-  const requirements = getItemRequirements(hideoutBenches, quests, projects, "en");
+  const requirements = getItemRequirements(hideoutBenches, quests, projects, items, "en");
 
   it("only references item ids that exist in the data", () => {
     const itemIds = new Set((itemsData as { id: string }[]).map((item) => item.id));
@@ -177,5 +182,69 @@ describe("Outpost expansions (hand-maintained)", () => {
       quantity: 3,
       sourceType: "hideout",
     });
+  });
+});
+
+describe("Weapon amplification", () => {
+  const requirements = getItemRequirements(hideoutBenches, quests, projects, items, "en");
+  const amplificationSources = (itemId: string) =>
+    (requirements[itemId]?.usedIn ?? []).filter((u) => u.sourceType === "amplification");
+
+  it("lists Fluted Rotor Core as needed for the Amplified Renegade", () => {
+    expect(amplificationSources("fluted_rotor_core").map((u) => u.source)).toContain(
+      "Amplified Renegade",
+    );
+  });
+
+  it("lists every material of every amplification upgrade", () => {
+    for (const item of items) {
+      for (const upgrade of item.upgrades ?? []) {
+        if (!/_amplified(_|$)/.test(upgrade.to as string)) continue;
+        for (const materialId of Object.keys(upgrade.cost as Record<string, number>)) {
+          expect(amplificationSources(materialId).length).toBeGreaterThan(0);
+        }
+      }
+    }
+  });
+
+  // A made-up weapon whose variants branch and merge again:
+  // gun_iv -> gun_amplified -> gun_amplified_a ----> gun_amplified_a_b
+  //                         -> gun_amplified_b ---/
+  const gun = (id: string, en: string, upgrades: { to: string; cost: Record<string, number> }[]) =>
+    ({ id, name: { en }, upgrades }) as unknown as Item;
+  const gunItems = [
+    gun("gun_iii", "Gun III", [{ to: "gun_iv", cost: { gun_parts: 5 } }]),
+    gun("gun_iv", "Gun IV", [{ to: "gun_amplified", cost: { module: 1 } }]),
+    gun("gun_amplified", "Amplified Gun", [
+      { to: "gun_amplified_a", cost: { rotor: 2 } },
+      { to: "gun_amplified_b", cost: { valve: 1 } },
+    ]),
+    gun("gun_amplified_a", "Amplified Gun · A", [
+      { to: "gun_amplified_a_b", cost: { valve: 1 } },
+    ]),
+    gun("gun_amplified_b", "Amplified Gun · B", [
+      { to: "gun_amplified_a_b", cost: { rotor: 3 } },
+    ]),
+    gun("gun_amplified_a_b", "Amplified Gun · A + B", []),
+  ];
+  const gunRequirements = getItemRequirements([], [], [], gunItems, "en");
+  const gunSource = (itemId: string) =>
+    gunRequirements[itemId]?.usedIn.filter((u) => u.sourceType === "amplification");
+
+  it("names the source after the amplified weapon and counts its module", () => {
+    expect(gunSource("module")).toEqual([
+      { source: "Amplified Gun", quantity: 1, sourceType: "amplification" },
+    ]);
+  });
+
+  it("takes the costliest single build, not the sum of every variant", () => {
+    expect(gunSource("rotor")?.map((u) => u.quantity)).toEqual([3]);
+    expect(gunSource("valve")?.map((u) => u.quantity)).toEqual([1]);
+  });
+
+  it("leaves out the weapons and non-amplification upgrades", () => {
+    expect(gunSource("gun_iv")).toBeUndefined();
+    expect(gunSource("gun_amplified")).toBeUndefined();
+    expect(gunSource("gun_parts")).toBeUndefined();
   });
 });

@@ -101,6 +101,7 @@ const FilterModal = ({
         Outpost: "source.outpost",
         Quest: "source.quest",
         Project: "source.project",
+        Amplification: "source.amplification",
         "Not Needed": "source.notNeeded",
       };
       const key = keyMap[option];

@@ -110,6 +110,7 @@ describe("createSortKeyCache", () => {
     hideoutBenches,
     quests,
     projects,
+    items,
     "en",
   );
   const sortKeyCache = createSortKeyCache(
