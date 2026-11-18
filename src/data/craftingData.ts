@@ -2,6 +2,10 @@ import type { Item } from "../generated/types";
 
 /** One thing an item can be used to make, from the ingredient's point of view */
 export interface CraftUsage {
+  /** Unique among one ingredient's usages: two upgrade paths can reach the
+   *  same output (Jupiter Bigger Mag + Scoped, then Ergonomic Bolt, or the
+   *  other way round), so outputId alone is not */
+  id: string;
   outputId: string;
   /** How many of the ingredient one craft consumes */
   quantity: number;
@@ -65,6 +69,8 @@ export const getCraftUsages = (items: Item[]): CraftUsageLookup => {
     if (item.recipe) {
       const benches = toBenchList(item.craftBench);
       const usage = {
+        // An item has one recipe
+        id: item.id,
         outputId: item.id,
         outputQuantity: item.craftQuantity ?? 1,
         ingredients: item.recipe,
@@ -90,6 +96,7 @@ export const getCraftUsages = (items: Item[]): CraftUsageLookup => {
       }[];
       const station = requires.find((requirement) => requirement.station);
       const usage = {
+        id: `${item.id}>${to}`,
         outputId: to,
         outputQuantity: 1,
         // The weapon being upgraded is consumed along with the materials

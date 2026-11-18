@@ -88,6 +88,23 @@ describe("getCraftUsages", () => {
     }
   });
 
+  it("gives every usage of an ingredient its own id", () => {
+    for (const list of Object.values(usages)) {
+      const ids = list.map((u) => u.id);
+      expect(new Set(ids).size).toBe(ids.length);
+    }
+  });
+
+  it("tells apart two upgrade paths to the same weapon", () => {
+    // Applying the Jupiter's upgrades in either order reaches the same variant
+    const output = "jupiter_amplified_bigger_mag_scoped_straight_bolt";
+    const paths = usages.fluted_rotor_core.filter((u) => u.outputId === output);
+    expect(paths.map((u) => u.id).sort()).toEqual([
+      `jupiter_amplified_bigger_mag_scoped>${output}`,
+      `jupiter_amplified_bigger_mag_straight_bolt>${output}`,
+    ]);
+  });
+
   it("takes the station level of upgrades that require one", () => {
     const amplified = usages.anvil_iv.find((u) => u.outputId === "anvil_amplified")!;
     expect(amplified.benches).toEqual(["weapon_bench"]);

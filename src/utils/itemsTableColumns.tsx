@@ -420,7 +420,7 @@ export const createCraftingTableColumns = (
             );
             return onSearchTermChange ? (
               <button
-                key={craft.outputId}
+                key={craft.id}
                 type="button"
                 className="craft-usage craft-usage--clickable"
                 onClick={() => onSearchTermChange(craft.name)}
@@ -428,7 +428,7 @@ export const createCraftingTableColumns = (
                 {content}
               </button>
             ) : (
-              <div key={craft.outputId} className="craft-usage">
+              <div key={craft.id} className="craft-usage">
                 {content}
               </div>
             );
