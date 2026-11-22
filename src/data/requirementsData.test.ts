@@ -6,6 +6,7 @@ import questsData from "../generated/quests.json";
 import type { HideoutBench, Item, Project, Quest } from "../generated/types";
 import {
   getItemRequirements,
+  isExpeditionProject,
   type RequirementTemplates,
 } from "./requirementsData";
 import { OUTPOST_EXPANSIONS } from "../constants/outpostExpansions";
@@ -90,16 +91,6 @@ describe("getItemRequirements", () => {
     }
   });
 
-  it("filters out Flickering Flames projects", () => {
-    const allSources = Object.values(requirements).flatMap((data) =>
-      data.usedIn.map((u) => u.source),
-    );
-    const flickeringSources = allSources.filter((s) =>
-      s.includes("Flickering Flames"),
-    );
-    expect(flickeringSources).toHaveLength(0);
-  });
-
   it("correctly merges items used in multiple sources", () => {
     // Find an item used in multiple sources
     const multiSourceItem = Object.entries(requirements).find(
@@ -161,6 +152,63 @@ describe("getItemRequirements", () => {
     for (const usage of projectSources) {
       expect(usage.source).toMatch(/Étape \d+/);
     }
+  });
+});
+
+describe("Project availability", () => {
+  const DAY = 24 * 60 * 60;
+  const nowSeconds = Math.floor(Date.now() / 1000);
+
+  // Real projects as fixtures; each test overrides only the dates/disabled flag
+  const findProject = (expedition: boolean): Project => {
+    const project = projects.find(
+      (p) =>
+        isExpeditionProject(p) === expedition &&
+        p.phases.some((phase) => phase.requirementItemIds.length > 0),
+    );
+    if (!project) throw new Error(`No ${expedition ? "expedition" : "event"} project with requirements`);
+    return project;
+  };
+  const event = findProject(false);
+  const expedition = findProject(true);
+
+  const projectUsageCount = (project: Project) =>
+    Object.values(getItemRequirements([], [], [project], [], "en")).flatMap(
+      (data) => data.usedIn.filter((u) => u.sourceType === "project"),
+    ).length;
+
+  it("counts a project that hasn't ended, even before it starts", () => {
+    const upcoming = {
+      ...event,
+      disabled: false,
+      startDate: nowSeconds + DAY,
+      endDate: nowSeconds + 30 * DAY,
+    };
+    expect(projectUsageCount(upcoming)).toBeGreaterThan(0);
+  });
+
+  it("skips a project past its endDate", () => {
+    const ended = {
+      ...event,
+      disabled: false,
+      startDate: nowSeconds - 30 * DAY,
+      endDate: nowSeconds - DAY,
+    };
+    expect(projectUsageCount(ended)).toBe(0);
+  });
+
+  it("skips a disabled project", () => {
+    const disabled = { ...event, disabled: true, endDate: nowSeconds + 30 * DAY };
+    expect(projectUsageCount(disabled)).toBe(0);
+  });
+
+  it("still counts an expedition past its endDate", () => {
+    const endedExpedition = {
+      ...expedition,
+      disabled: false,
+      endDate: nowSeconds - DAY,
+    };
+    expect(projectUsageCount(endedExpedition)).toBeGreaterThan(0);
   });
 });
 

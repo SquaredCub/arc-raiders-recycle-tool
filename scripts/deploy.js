@@ -41,12 +41,20 @@ console.log(`${DIM}--------------------------------------------${NC}`);
 
 const failures = [];
 
+// A failed command's captured output, both streams: tsc and Playwright report
+// on stdout, but bun test writes its results (failures and summary) to stderr
+const commandOutput = (result) =>
+  `${result.stdout ?? ""}${result.stderr ?? ""}`.trim();
+
+const printFailure = (err) => console.error(commandOutput(err) || err);
+
 // 1. Type Check
 logStep("Type Checking (TSC)");
 try {
   await $`bun x tsc`.quiet();
   logSuccess("No type errors found");
 } catch (err) {
+  printFailure(err);
   logError("TypeScript validation failed");
   failures.push("TypeScript");
 }
@@ -55,14 +63,13 @@ try {
 logStep("Unit Tests (Bun)");
 try {
   const result = await $`bun test src --reporter=dot`.quiet();
-  // Extract just the summary line (e.g., "120 pass, 0 fail")
-  const summary = result.stdout
-    .toString()
+  // Extract just the summary line (e.g., "120 pass")
+  const summary = commandOutput(result)
     .split("\n")
     .find((l) => l.includes("pass"));
   logSuccess(summary?.trim() || "All unit tests passed");
 } catch (err) {
-  console.log(err.stdout.toString()); // Show failures
+  printFailure(err);
   logError("Unit tests failed");
   failures.push("Unit Tests");
 }
@@ -73,6 +80,7 @@ try {
   await $`bun x playwright test --project=chromium`.quiet();
   logSuccess("All E2E scenarios passed");
 } catch (err) {
+  printFailure(err);
   logError("Playwright tests failed");
   failures.push("E2E Tests");
 }
@@ -93,9 +101,7 @@ const performDeploy = async () => {
     logSuccess("Successfully pushed to GitHub");
   } catch (err) {
     console.error(`\n${RED}${BOLD}FATAL ERROR during deployment${NC}`);
-    if (err.stdout?.length) console.error(err.stdout.toString());
-    if (err.stderr?.length) console.error(err.stderr.toString());
-    else if (!err.stdout?.length) console.error(err);
+    printFailure(err);
     process.exit(1);
   }
 };
