@@ -148,6 +148,7 @@ export interface Item {
   stationLevelRequired?: number;
   stealth?: number;
   tip?: string;
+  tradeCurrencyOf?: string[];
   type: ItemType;
   updatedAt: string;
   upgradeCost?: MaterialCosts;
